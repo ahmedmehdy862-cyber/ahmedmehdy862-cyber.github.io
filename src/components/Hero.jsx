@@ -1,6 +1,15 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getSiteConfig } from '../utils/config';
 
 export default function Hero() {
+  const [config, setConfig] = useState(null);
+
+  useEffect(() => {
+    getSiteConfig().then(setConfig);
+  }, []);
+
   return (
     <section className="min-h-screen flex items-center justify-center px-6 pt-20">
       <div className="container mx-auto text-center">
@@ -11,28 +20,28 @@ export default function Hero() {
         >
           <p className="text-accent font-mono text-sm mb-4">مرحباً، أنا</p>
           <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            <span className="gradient-text">المطور</span>
+            <span className="gradient-text">{config?.hero?.firstName || 'المطور'}</span>
             <br />
-            <span className="text-text-primary">المحترف</span>
+            <span className="text-text-primary">{config?.hero?.lastName || 'المحترف'}</span>
           </h1>
           <p className="text-text-secondary text-lg md:text-xl max-w-2xl mx-auto mb-8">
-            أبني تطبيقات ويب حديثة وسريعة باستخدام أحدث التقنيات.
-            شغفي هو تحويل الأفكار إلى واقع رقمي مميز.
+            {config?.hero?.description ||
+              'أبني تطبيقات ويب حديثة وسريعة باستخدام أحدث التقنيات. شغفي هو تحويل الأفكار إلى واقع رقمي مميز.'}
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="/projects"
+            <Link
+              to="/projects"
               className="px-8 py-3 bg-accent hover:bg-accent-light text-white rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:shadow-accent/30"
             >
               مشاهدة المشاريع
-            </a>
-            <a
-              href="/contact"
+            </Link>
+            <Link
+              to="/contact"
               className="px-8 py-3 border border-dark-border hover:border-accent text-text-primary rounded-lg font-medium transition-all duration-300"
             >
               تواصل معي
-            </a>
+            </Link>
           </div>
         </motion.div>
 

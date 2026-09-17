@@ -2,6 +2,7 @@ import Hero from '../components/Hero';
 import GitHubStats from '../components/GitHubStats';
 import ProjectCard from '../components/ProjectCard';
 import { useGitHub } from '../hooks/useGitHub';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function Home() {
@@ -51,8 +52,8 @@ export default function Home() {
               viewport={{ once: true }}
               className="text-center mt-12"
             >
-              <a
-                href="/projects"
+              <Link
+                to="/projects"
                 className="inline-flex items-center gap-2 text-accent hover:text-accent-light transition-colors font-medium"
               >
                 عرض جميع المشاريع
@@ -69,7 +70,7 @@ export default function Home() {
                     d="M15 19l-7-7 7-7"
                   />
                 </svg>
-              </a>
+              </Link>
             </motion.div>
           )}
         </div>

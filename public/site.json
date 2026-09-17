@@ -1,0 +1,21 @@
+{
+  "site": {
+    "name": "Git//Fault",
+    "tagline": "مطور ويب محترف"
+  },
+  "hero": {
+    "firstName": "المطور",
+    "lastName": "المحترف",
+    "description": "أبني تطبيقات ويب حديثة وسريعة باستخدام أحدث التقنيات. شغفي هو تحويل الأفكار إلى واقع رقمي مميز."
+  },
+  "contact": {
+    "email": "hello@example.com",
+    "github": "https://github.com/ahmedmehdy862-cyber",
+    "githubUsername": "ahmedmehdy862-cyber",
+    "linkedin": "",
+    "twitter": ""
+  },
+  "about": {
+    "bio": "مرحباً! أنا مطور شغوف ببناء تطبيقات ويب حديثة وسريعة. بدأت رحلتي في عالم البرمجة قبل عدة سنوات، ومنذ ذلك الحين وأنا أعمل على تطوير مشاريع متنوعة تخدم المستخدمين وتحل مشاكل حقيقية."
+  }
+}

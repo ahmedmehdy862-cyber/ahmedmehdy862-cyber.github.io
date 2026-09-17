@@ -6,9 +6,11 @@ import Projects from './pages/Projects';
 import About from './pages/About';
 import Contact from './pages/Contact';
 
+const BASENAME = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 function App() {
   return (
-    <Router>
+    <Router basename={BASENAME}>
       <div className="min-h-screen flex flex-col">
         <Header />
         <main className="flex-grow">

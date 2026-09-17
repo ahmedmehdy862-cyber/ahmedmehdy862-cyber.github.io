@@ -1,0 +1,48 @@
+backend:
+  name: github
+  repo: ahmedmehdy862-cyber/portfolio
+  branch: main
+
+publish_mode: editorial_workflow
+
+media_folder: "public/assets/uploads"
+public_folder: "/portfolio/assets/uploads"
+
+collections:
+  - name: "site"
+    label: "إعدادات الموقع"
+    files:
+      - name: "site-config"
+        label: "إعدادات الموقع"
+        file: "public/site.json"
+        fields:
+          - label: "الموقع"
+            name: "site"
+            widget: "object"
+            fields:
+              - { label: "اسم الموقع", name: "name", widget: "string", default: "Git//Fault" }
+              - { label: "الشعار", name: "tagline", widget: "string", default: "مطور ويب محترف" }
+
+          - label: "القسم الرئيسي (Hero)"
+            name: "hero"
+            widget: "object"
+            fields:
+              - { label: "الاسم الأول", name: "firstName", widget: "string" }
+              - { label: "الاسم الثاني", name: "lastName", widget: "string" }
+              - { label: "الوصف", name: "description", widget: "text" }
+
+          - label: "بيانات التواصل"
+            name: "contact"
+            widget: "object"
+            fields:
+              - { label: "البريد الإلكتروني", name: "email", widget: "string", hint: "البريد اللي هيتعرض في صفحة التواصل" }
+              - { label: "رابط GitHub", name: "github", widget: "string", hint: "مثال: https://github.com/username" }
+              - { label: "اسم مستخدم GitHub", name: "githubUsername", widget: "string", hint: "اسم المستخدم بدون رابط، لسحب المشاريع والإحصائيات" }
+              - { label: "رابط LinkedIn", name: "linkedin", widget: "string", required: false, hint: "مثال: https://linkedin.com/in/username" }
+              - { label: "رابط Twitter", name: "twitter", widget: "string", required: false }
+
+          - label: "عنّي"
+            name: "about"
+            widget: "object"
+            fields:
+              - { label: "نبذة", name: "bio", widget: "text" }

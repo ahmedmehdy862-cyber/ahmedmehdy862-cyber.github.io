@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const GITHUB_USERNAME = 'ahmedmehdy862-cyber';
+import { getSiteConfig } from './config';
 
 const githubApi = axios.create({
   baseURL: 'https://api.github.com',
@@ -9,8 +8,14 @@ const githubApi = axios.create({
   },
 });
 
+const getUsername = async () => {
+  const config = await getSiteConfig();
+  return config?.contact?.githubUsername || 'ahmedmehdy862-cyber';
+};
+
 export const getRepositories = async () => {
   try {
+    const GITHUB_USERNAME = await getUsername();
     const response = await githubApi.get(`/users/${GITHUB_USERNAME}/repos`, {
       params: {
         sort: 'updated',
@@ -27,6 +32,7 @@ export const getRepositories = async () => {
 
 export const getGitHubStats = async () => {
   try {
+    const GITHUB_USERNAME = await getUsername();
     const response = await githubApi.get(`/users/${GITHUB_USERNAME}`);
     return response.data;
   } catch (error) {
@@ -37,6 +43,7 @@ export const getGitHubStats = async () => {
 
 export const getPinnedRepos = async () => {
   try {
+    const GITHUB_USERNAME = await getUsername();
     const query = `user:${GITHUB_USERNAME} is:public`;
     const response = await githubApi.post('/graphql', {
       query: `

@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { getSiteConfig } from '../utils/config';
 
 export default function Contact() {
+  const [config, setConfig] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -9,6 +11,10 @@ export default function Contact() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+
+  useEffect(() => {
+    getSiteConfig().then(setConfig);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,7 +24,6 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     setSubmitStatus('success');
@@ -31,14 +36,11 @@ export default function Contact() {
   const contactInfo = [
     {
       title: 'البريد الإلكتروني',
-      value: 'your-email@example.com',
+      value: config?.contact?.email || 'hello@example.com',
+      href: `mailto:${config?.contact?.email || 'hello@example.com'}`,
+      show: true,
       icon: (
-        <svg
-          className="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -47,11 +49,12 @@ export default function Contact() {
           />
         </svg>
       ),
-      link: 'mailto:your-email@example.com',
     },
     {
       title: 'GitHub',
-      value: 'github.com/your-username',
+      value: config?.contact?.github || '',
+      href: config?.contact?.github || '#',
+      show: Boolean(config?.contact?.github),
       icon: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path
@@ -61,19 +64,22 @@ export default function Contact() {
           />
         </svg>
       ),
-      link: 'https://github.com/your-username',
     },
-    {
+  ];
+
+  if (config?.contact?.linkedin) {
+    contactInfo.push({
       title: 'LinkedIn',
-      value: 'linkedin.com/in/your-username',
+      value: config.contact.linkedin,
+      href: config.contact.linkedin,
+      show: true,
       icon: (
         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
         </svg>
       ),
-      link: 'https://linkedin.com/in/your-username',
-    },
-  ];
+    });
+  }
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-6">
@@ -101,10 +107,7 @@ export default function Contact() {
           >
             <form onSubmit={handleSubmit} className="glass rounded-2xl p-8">
               <div className="mb-6">
-                <label
-                  htmlFor="name"
-                  className="block text-text-primary font-medium mb-2"
-                >
+                <label htmlFor="name" className="block text-text-primary font-medium mb-2">
                   الاسم
                 </label>
                 <input
@@ -120,10 +123,7 @@ export default function Contact() {
               </div>
 
               <div className="mb-6">
-                <label
-                  htmlFor="email"
-                  className="block text-text-primary font-medium mb-2"
-                >
+                <label htmlFor="email" className="block text-text-primary font-medium mb-2">
                   البريد الإلكتروني
                 </label>
                 <input
@@ -139,10 +139,7 @@ export default function Contact() {
               </div>
 
               <div className="mb-6">
-                <label
-                  htmlFor="message"
-                  className="block text-text-primary font-medium mb-2"
-                >
+                <label htmlFor="message" className="block text-text-primary font-medium mb-2">
                   الرسالة
                 </label>
                 <textarea
@@ -192,28 +189,30 @@ export default function Contact() {
             className="flex flex-col justify-center"
           >
             <div className="space-y-6">
-              {contactInfo.map((info, index) => (
-                <motion.a
-                  key={info.title}
-                  href={info.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                  className="glass rounded-xl p-6 flex items-center gap-4 hover:border-accent transition-all duration-300 group"
-                >
-                  <div className="p-3 rounded-lg bg-dark border border-dark-border group-hover:border-accent transition-colors text-accent">
-                    {info.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-text-primary font-medium mb-1">
-                      {info.title}
-                    </h3>
-                    <p className="text-text-secondary text-sm">{info.value}</p>
-                  </div>
-                </motion.a>
-              ))}
+              {contactInfo
+                .filter((info) => info.show)
+                .map((info, index) => (
+                  <motion.a
+                    key={info.title}
+                    href={info.href}
+                    target={info.href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                    className="glass rounded-xl p-6 flex items-center gap-4 hover:border-accent transition-all duration-300 group"
+                  >
+                    <div className="p-3 rounded-lg bg-dark border border-dark-border group-hover:border-accent transition-colors text-accent">
+                      {info.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-text-primary font-medium mb-1">{info.title}</h3>
+                      <p className="text-text-secondary text-sm">
+                        {info.value.replace(/^https?:\/\//, '')}
+                      </p>
+                    </div>
+                  </motion.a>
+                ))}
             </div>
 
             <motion.div
@@ -222,9 +221,7 @@ export default function Contact() {
               transition={{ delay: 0.8 }}
               className="mt-8 text-center"
             >
-              <p className="text-text-secondary">
-                أو تابعني على وسائل التواصل الاجتماعي
-              </p>
+              <p className="text-text-secondary">أو تابعني على وسائل التواصل الاجتماعي</p>
             </motion.div>
           </motion.div>
         </div>
