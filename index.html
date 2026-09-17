@@ -1,22 +1,21 @@
 ﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="neon">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تقرير إنجازات ميديا أسر صناع الحياة بالجامعات المصرية</title>
+    <title>A.Mahdy — جرافيك ديزاينر</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <!-- Access Gate -->
     <div class="access-gate" id="accessGate">
         <div class="access-gate-card">
-            <img src="assets/logo.png" alt="أسر صناع الحياة" class="access-gate-logo">
-            <h1 class="access-gate-title">تقرير إنجازات أسر صناع الحياة</h1>
-            <p class="access-gate-subtitle">هذا التقرير محمي — أدخل كود الدخول للمتابعة</p>
+            <img src="assets/logo.png" alt="A.Mahdy" class="access-gate-logo">
+            <h1 class="access-gate-title">بورتفوليو A.Mahdy</h1>
+            <p class="access-gate-subtitle">هذا المعرض محمي — أدخل كود الدخول للمتابعة</p>
             <form class="access-gate-form" id="accessForm">
                 <input type="password" id="accessCode" class="access-gate-input" placeholder="كود الدخول" autocomplete="off" dir="ltr">
                 <button type="submit" class="access-gate-btn">دخول</button>
@@ -25,7 +24,6 @@
 
             <div class="access-gate-admin">
                 <button type="button" class="access-gate-admin-toggle" id="adminToggle">دخول صاحب الحساب</button>
-
                 <form class="access-login hidden" id="adminForm">
                     <input type="text" id="adminUser" class="access-gate-input" placeholder="اسم المستخدم" autocomplete="username" dir="ltr">
                     <input type="password" id="adminPass" class="access-gate-input" placeholder="كلمة السر" autocomplete="current-password" dir="ltr">
@@ -39,1286 +37,165 @@
     <!-- Navigation -->
     <nav class="nav" id="mainNav">
         <div class="nav-inner">
-            <div class="nav-logo">أسر صناع الحياة</div>
+            <div class="nav-logo">A<span class="accent-dot">.</span>Mahdy</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#hero" class="nav-link active" data-section="hero">الرئيسية</a></li>
+                <li><a href="#about" class="nav-link" data-section="about">عني</a></li>
+                <li><a href="#projects" class="nav-link" data-section="projects">أعمالي</a></li>
+                <li><a href="#services" class="nav-link" data-section="services">الخدمات</a></li>
+                <li><a href="#contact" class="nav-link" data-section="contact">تواصل</a></li>
+            </ul>
+            <div class="nav-themes" id="themeSwitcher" aria-label="تغيير الثيم">
+                <button class="theme-dot" data-theme="neon" title="نيون" style="--dot-color:#8b5cf6"></button>
+                <button class="theme-dot" data-theme="light" title="مشمس" style="--dot-color:#f59e0b"></button>
+                <button class="theme-dot" data-theme="forest" title="غابة" style="--dot-color:#10b981"></button>
+                <button class="theme-dot" data-theme="royal" title="ملكي" style="--dot-color:#d4af37"></button>
+                <button class="theme-dot" data-theme="ocean" title="محيطي" style="--dot-color:#0ea5e9"></button>
+            </div>
             <button class="nav-toggle" id="navToggle" aria-label="القائمة">
                 <span></span><span></span><span></span>
             </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#hero" class="nav-link active" data-section="hero">نظرة عامة</a></li>
-                <li><a href="#team" class="nav-link" data-section="team">الفريق</a></li>
-                <li><a href="#universities" class="nav-link" data-section="universities">الجامعات</a></li>
-                <li><a href="#development" class="nav-link" data-section="development">التطوير</a></li>
-                <li><a href="#campaigns" class="nav-link" data-section="campaigns">الحملات</a></li>
-                <li><a href="#expansion" class="nav-link" data-section="expansion">التوسع</a></li>
-                <li><a href="#impact" class="nav-link" data-section="impact">التأثير</a></li>
-                <li><a href="#handover" class="nav-link" data-section="handover">التسليم</a></li>
-            </ul>
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Hero -->
     <section class="hero" id="hero">
         <div class="hero-bg">
             <div class="hero-pattern"></div>
+            <div class="hero-orb orb-a"></div>
+            <div class="hero-orb orb-b"></div>
         </div>
-        <div class="hero-content">
-            <img src="assets/logo.png" alt="أسر صناع الحياة بالجامعات المصرية" class="hero-logo">
-            <div class="hero-transition-badge">اللجنة تشهد مرحلة انتقال إلى نوادي صناع الحياة</div>
-            <div class="hero-badge">تقرير إنجازات</div>
-            <h1 class="hero-title">
-                <span class="hero-title-line">10 أشهر</span>
-                <span class="hero-title-accent">من بناء الميديا</span>
-            </h1>
-            <p class="hero-subtitle">تقرير إنجازات وتسليم مسؤولية فريق الميديا<br>أسر صناع الحياة بالجامعات المصرية</p>
-            <div class="hero-period">
-                <span>16 نوفمبر 2025</span>
-                <div class="hero-period-line"></div>
-                <span>16 سبتمبر 2026</span>
-            </div>
-            <div class="hero-metrics">
-                <div class="hero-metric">
-                    <div class="hero-metric-number" data-count="25" data-prefix="≈" data-suffix="">0</div>
-                    <div class="hero-metric-label">عضو في فريق الميديا</div>
-                    <div class="hero-metric-sub">بدأنا من 4 أفراد فقط</div>
+        <div class="container hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">بورتفوليو جرافيك ديزاين</div>
+                <h1 class="hero-title">
+                    <span class="hero-name" id="heroName">أحمد مهدي</span>
+                    <span class="hero-role" id="heroRole">جرافيك ديزاينر</span>
+                </h1>
+                <p class="hero-desc" id="heroTagline">أحوّل الأفكار إلى تصاميم بصرية تلمس — هويات بصرية، سوشيال ميديا، وموشن جاهزة تخلق تأثير حقيقي.</p>
+                <div class="hero-cta">
+                    <a href="#projects" class="btn btn-primary">شاهد أعمالي</a>
+                    <a href="#contact" class="btn btn-ghost">تواصل معي</a>
                 </div>
-                <div class="hero-metric">
-                    <div class="hero-metric-number" data-count="20" data-prefix="" data-suffix="+">0</div>
-                    <div class="hero-metric-label">جامعة تم العمل معها</div>
-                    <div class="hero-metric-sub">عامة وتوسع</div>
-                </div>
-                <div class="hero-metric">
-                    <div class="hero-metric-number" data-count="14" data-prefix="" data-suffix="">0</div>
-                    <div class="hero-metric-label">جامعة عامة شاركت في الحملات المركزية</div>
-                    <div class="hero-metric-sub"></div>
-                </div>
-                <div class="hero-metric">
-                    <div class="hero-metric-number" data-count="50" data-prefix="≈" data-suffix="">0</div>
-                    <div class="hero-metric-label">Interview في ميديا التوسّع</div>
-                    <div class="hero-metric-sub"></div>
+                <div class="hero-stats" id="heroStats">
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">+20</div>
+                        <div class="hero-stat-label">جامعة عملت معاها</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">+50</div>
+                        <div class="hero-stat-label">تصميم ومنشن</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="hero-stat-num">5+</div>
+                        <div class="hero-stat-label">سنوات خبرة</div>
+                    </div>
                 </div>
             </div>
-            <div class="scroll-indicator">
-                <span>اكتشف الرحلة</span>
-                <div class="scroll-arrow"></div>
+            <div class="hero-visual">
+                <div class="hero-frame">
+                    <div class="frame-topbar"><span></span><span></span><span></span></div>
+                    <div class="frame-art" id="heroArt"></div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Timeline Section -->
-    <section class="section timeline-section" id="timeline">
+    <!-- About -->
+    <section class="section" id="about">
         <div class="container">
             <div class="section-header">
                 <span class="section-number">01</span>
-                <h2 class="section-title">الرحلة</h2>
-                <p class="section-desc">من البداية إلى التأثير — 10 أشهر من العمل والبناء</p>
+                <h2 class="section-title">عني</h2>
+                <p class="section-desc">قصة شغفي بالألوان والتفاصيل</p>
             </div>
-            <div class="timeline">
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">16 نوفمبر 2025</div>
-                    <div class="timeline-card">
-                        <h3>البداية</h3>
-                        <p>استلام المسؤولية وفريق مكون من <strong>4 أفراد فقط</strong></p>
-                        <p class="timeline-note">تم تسليم المسؤولية من مسؤول الميديا السابق شادي عباس</p>
+            <div class="about-grid">
+                <div class="about-card">
+                    <div class="about-avatar">
+                        <img src="assets/logo.png" alt="A.Mahdy" id="aboutAvatar">
                     </div>
                 </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">الشهر الأول</div>
-                    <div class="timeline-card">
-                        <h3>بناء الفريق</h3>
-                        <p>انضم <strong>10 أفراد</strong> خلال الشهر الأول</p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">خلال الفترة</div>
-                    <div class="timeline-card">
-                        <h3>بناء منظومة العمل</h3>
-                        <p>تطبيق نظام المراجعة والمتابعة، وإعداد الخطط والتقويمات (Plans و Calendars)</p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">خلال الفترة</div>
-                    <div class="timeline-card">
-                        <h3>دعم وتطوير ميديا الجامعات</h3>
-                        <p>العمل مع أكثر من 20 جامعة وتدريب مسؤولي الميديا</p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">خلال الفترة</div>
-                    <div class="timeline-card">
-                        <h3>الحملات المركزية</h3>
-                        <p>مشاركة <strong>14 جامعة عامة</strong> في الحملات المركزية</p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">خلال الفترة</div>
-                    <div class="timeline-card">
-                        <h3>ميديا التوسع</h3>
-                        <p>إجراء ما يقارب <strong>50 Interview</strong> وإطلاق <strong>5 صفحات جامعية</strong></p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">خلال الفترة</div>
-                    <div class="timeline-card">
-                        <h3>التحول</h3>
-                        <p>انتقال جامعتين من ملف التوسع إلى الجامعات العامة</p>
-                    </div>
-                </div>
-                <div class="timeline-item" data-animate>
-                    <div class="timeline-marker"></div>
-                    <div class="timeline-date">16 سبتمبر 2026</div>
-                    <div class="timeline-card">
-                        <h3>نهاية فترة التقرير</h3>
-                        <p>تسليم المسؤولية</p>
+                <div class="about-card about-content">
+                    <p class="about-bio" id="aboutBio">
+                        مصمم جرافيك بشغف حقيقي للهوية البصرية والتفاصيل. اشتغلت مع أكثر من 20 جامعة مصرية على محتوى ميديا متكامل، وبنيت هويات بصرية ساهمت في وصول وصول أكثر من مليون مشاهدة. أؤمن إن التصميم الجيد مش شكلاً جميلاً فقط، بل رسالة تصل بوضوح وتأثير.
+                    </p>
+                    <div class="about-skills" id="aboutSkills">
+                        <span class="skill-tag">هوية بصرية</span>
+                        <span class="skill-tag">سوشيال ميديا ديزاين</span>
+                        <span class="skill-tag">موشن جرافيك</span>
+                        <span class="skill-tag">إخراج طباعي</span>
+                        <span class="skill-tag">تصميم بوسترات</span>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Team Section -->
-    <section class="section team-section" id="team">
+    <!-- Projects -->
+    <section class="section" id="projects">
         <div class="container">
             <div class="section-header">
                 <span class="section-number">02</span>
-                <h2 class="section-title">بناء الفريق</h2>
-                <p class="section-desc">من 4 أفراد إلى فريق يضم حوالي 25 عضوًا</p>
+                <h2 class="section-title">أعمالي</h2>
+                <p class="section-desc">مجموعة مختارة من المشاريع التي صممتها</p>
             </div>
-
-            <div class="team-growth">
-                <div class="growth-visual">
-                    <div class="growth-step">
-                        <div class="growth-number">4</div>
-                        <div class="growth-label">أفراد عند الاستلام</div>
-                    </div>
-                    <div class="growth-arrow">→</div>
-                    <div class="growth-step">
-                        <div class="growth-number">+10</div>
-                        <div class="growth-label">انضموا خلال الشهر الأول</div>
-                    </div>
-                    <div class="growth-arrow">→</div>
-                    <div class="growth-step highlight">
-                        <div class="growth-number">≈25</div>
-                        <div class="growth-label">عضوًا حاليًا</div>
-                    </div>
-                </div>
+            <div class="projects-toolbar">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="identity">هويات بصرية</button>
+                <button class="filter-btn" data-filter="social">سوشيال ميديا</button>
+                <button class="filter-btn" data-filter="motion">موشن</button>
+                <button class="filter-btn" data-filter="print">طباعي</button>
             </div>
-
-            <div class="team-structure">
-                <h3 class="subsection-title">هيكل الفريق</h3>
-                <div class="teams-grid">
-                    <div class="team-card" data-animate>
-                        <div class="team-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                        </div>
-                        <h4>فريق الكتابة والمحتوى</h4>
-                        <p class="team-leader">بقيادة أ. أمل محمد</p>
-                        <p>شهد الفريق تطورًا واضحًا في أدائه ومخرجاته خلال الموسم، مع ازدهار ملحوظ في الإنتاج.</p>
-                    </div>
-                    <div class="team-card" data-animate>
-                        <div class="team-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        </div>
-                        <h4>الفريق البصري</h4>
-                        <p class="team-leader">بقيادة أ. منة عبدالحليم</p>
-                        <p>يجمع بين المصممين ومحرري الفيديو، وشهد خلال الفترة تغييرات في نظام المراجعة والقيادة.</p>
-                    </div>
-                    <div class="team-card" data-animate>
-                        <div class="team-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                        </div>
-                        <h4>فريق القطاعات</h4>
-                        <p class="team-leader">بقيادة أ. حسناء موسى</p>
-                        <p>لاحظ الفريق معدّل دوران طبيعي في صفوف المتطوعين، إلى جانب بعض الاختلافات بين الهيكل المركزي ومسؤولي ميديا الجامعات.</p>
-                    </div>
-                    <div class="team-card" data-animate>
-                        <div class="team-card-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                        </div>
-                        <h4>السوشيال ميديا</h4>
-                        <p class="team-leader">المسؤول عن الميديا حاليًا</p>
-                        <p>الفريق غير نشط حاليًا، والمسؤول عن الميديا يقوم بهذا الدور.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="team-changes">
-                <h3 class="subsection-title">تطورات الهيكل</h3>
-                <div class="changes-content" data-animate>
-                    <p>مرّ الفريق خلال الفترة بتطورات تشغيلية طبيعية ضمن رحلة بناء الهيكل:</p>
-                    <ul class="changes-list">
-                        <li>
-                            <strong>أ. محمد فرماوي</strong> — عمل مراجعًا للفريق لمدة شهر تقريبًا، وشارك خلال هذه الفترة في إعداد بعض الشعارات والتصميمات، ثم اعتذر عن الاستمرار لانشغاله.
-                        </li>
-                        <li>
-                            <strong>م. محمود طارق</strong> — تولى مراجعة أعمال الفريق وأعمال الجامعات. عمل لنحو شهر ونصف وقدم مساهمات قوية وسريعة، ثم توقف عن الاستمرار لعدم التوافق مع بعض تحركات اللجنة ووجهات نظرها.
-                        </li>
-                    </ul>
-                    <p class="changes-note">عُرضت هذه التغييرات باعتبارها جزءًا من تطوّر الهيكل والتغيّرات التشغيلية التي مرّ بها الفريق.</p>
-                </div>
-            </div>
+            <div class="projects-grid" id="projectsGrid"></div>
         </div>
     </section>
 
-    <!-- Review System Section -->
-    <section class="section review-section" id="review">
+    <!-- Services -->
+    <section class="section" id="services">
         <div class="container">
             <div class="section-header">
                 <span class="section-number">03</span>
-                <h2 class="section-title">منظومة العمل</h2>
-                <p class="section-desc">بناء أنظمة عمل تضمن الجودة والاستمرارية</p>
+                <h2 class="section-title">الخدمات</h2>
+                <p class="section-desc">ما الذي أقدمه لعملائي</p>
             </div>
-
-            <div class="review-system">
-                <div class="review-card" data-animate>
-                    <div class="review-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                    </div>
-                    <h3>نظام المراجعة</h3>
-                    <p>نظام فعّال لتطوير العمل وضبط الجودة، يهدف إلى توحيد الهوية البصرية، وتطبيق معايير اللجنة، وتطوير قدرات المتطوعين.</p>
-                    <div class="review-details">
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>توحيد الهوية البصرية</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>تطبيق معايير اللجنة</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>تطوير المتطوعين</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>التوجيه الفني والإبداعي</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>رفع مستوى الفريق</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="review-card" data-animate>
-                    <div class="review-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    </div>
-                    <h3>Plans و Calendars</h3>
-                    <p>تمّت متابعة تعديلات الخطط والتقويمات (Plans و Calendars) الخاصة بالجامعات، وواجهت العملية بعض التحديات نظرًا لصعوبة المطلوب على عدد من المسؤولين.</p>
-                    <div class="review-card-note">
-                        <p>رُفعت هذه الصعوبات إلى مدير الرابطة للعمل على تخفيفها أو إيجاد حلّ مناسب.</p>
-                        <span class="note-badge">تحدي تشغيلي تم رصده ورفعه</span>
-                    </div>
-                </div>
-
-                <div class="review-card" data-animate>
-                    <div class="review-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
-                    </div>
-                    <h3>نظام التسليم والتسلّم</h3>
-                    <p>نظام مركزي لتسليم المسؤولية لمسؤولي ميديا الجامعات، وفقًا لتوجيهات الموارد البشرية (HR).</p>
-                    <div class="review-details">
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>إجراء Interview مع المسؤول الجديد</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>استطلاع جاهزية المسؤول الجديد</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>الوقوف على أسباب التغيير</span>
-                        </div>
-                        <div class="review-detail">
-                            <span class="detail-icon">✓</span>
-                            <span>ضمان انتقال منظّم للمسؤولية</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-coordination" data-animate>
-                <div class="coord-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
-                </div>
-                <h3>التنسيق الإداري</h3>
-                <p>تم التنسيق في التحرّكات والعمل مع الجهات والمسؤولين المعنيين، ومنهم: مدير العمليات الحالي، مدير الرابطة، مسؤولو العمليات بحسب السياق، ونائب مدير الرابطة السابق.</p>
-            </div>
+            <div class="services-grid" id="servicesGrid"></div>
         </div>
     </section>
 
-    <!-- Universities Section -->
-    <section class="section universities-section" id="universities">
+    <!-- Contact -->
+    <section class="section" id="contact">
         <div class="container">
             <div class="section-header">
                 <span class="section-number">04</span>
-                <h2 class="section-title">الجامعات</h2>
-                <p class="section-desc">العمل والتنسيق مع أكثر من 20 جامعة</p>
+                <h2 class="section-title">تواصل معي</h2>
+                <p class="section-desc">جاهز لنبدأ مشروعك؟ كلني يسّر</p>
             </div>
-
-            <div class="uni-overview">
-                <div class="uni-stat" data-animate>
-                    <div class="uni-stat-number" data-count="20" data-prefix="" data-suffix="+">0</div>
-                    <div class="uni-stat-label">جامعة تم العمل معها</div>
-                    <div class="uni-stat-desc">جامعات عامة وتوسع</div>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">@</div>
+                    <h3>البريد الإلكتروني</h3>
+                    <p id="contactEmail">mohamed_mahdy@example.com</p>
                 </div>
-                <div class="uni-stat" data-animate>
-                    <div class="uni-stat-number" data-count="14" data-prefix="" data-suffix="">0</div>
-                    <div class="uni-stat-label">جامعة عامة</div>
-                    <div class="uni-stat-desc">شاركت في الحملات المركزية</div>
+                <div class="contact-card">
+                    <div class="contact-icon">#</div>
+                    <h3>سوشيال ميديا</h3>
+                    <p id="contactSocials">Behance · Instagram · LinkedIn</p>
                 </div>
-            </div>
-
-            <div class="uni-activations">
-                <h3 class="subsection-title">تنشيط صفحات الجامعات</h3>
-                <div class="activation-content" data-animate>
-                    <p>تم العمل على تنشيط صفحات الجامعات قدر الإمكان، مع إتاحة الفرصة للجامعات لاستخدام أي منشور منشور على الصفحة المركزية عند الحاجة إليه.</p>
-                    <div class="activation-goal">
-                        <span class="goal-icon">★</span>
-                        <span>إتاحة محتوى جاهز للجامعات والاستفادة منه بدلًا من بدء كل جامعة من الصفر</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="uni-impact">
-                <h3 class="subsection-title">الجامعات قيد الإيقاف</h3>
-                <div class="suspended-unis" data-animate>
-                    <p>توجد حاليًا عدة جامعات قيد الإيقاف، مع وجود كوادر ميديا جُهّزت للمسؤولية بدرجات متفاوتة:</p>
-                    <div class="suspended-list">
-                        <div class="suspended-item">جامعة الأقصر الحكومية</div>
-                        <div class="suspended-item">جامعة العريش</div>
-                        <div class="suspended-item">جامعة الأزهر بأسيوط</div>
-                        <div class="suspended-item">جامعة الوادي الجديد</div>
-                    </div>
+                <div class="contact-card">
+                    <div class="contact-icon">✦</div>
+                    <h3>الموقع</h3>
+                    <p id="contactLocation">مصر</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Development Section -->
-    <section class="section development-section" id="development">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">05</span>
-                <h2 class="section-title">تطوير وتأهيل الكوادر</h2>
-                <p class="section-desc">إعداد مسؤولي ميديا الجامعات لمسؤولياتهم</p>
-            </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <p>صمم بمحبة © <span id="footerYear">2026</span> — A.Mahdy</p>
+    </footer>
 
-            <div class="dev-grid">
-                <div class="dev-card" data-animate>
-                    <div class="dev-number">01</div>
-                    <h3>فيديوهات تدريبية مسجلة</h3>
-                    <p>تم توفير فيديوهات تدريبية تُعلّم مسؤولي الميديا كيفية إعداد تقارير (Social Media Reports) من Meta الخاصة بالصفحات.</p>
-                </div>
-                <div class="dev-card" data-animate>
-                    <div class="dev-number">02</div>
-                    <h3>تدريبات كامب جذور</h3>
-                    <p>تم تنفيذ تدريبات متنوعة ضمن كامب جذور لتطوير مهارات مسؤولي الميديا.</p>
-                </div>
-                <div class="dev-card" data-animate>
-                    <div class="dev-number">03</div>
-                    <h3>التوجيه الفردي</h3>
-                    <p>العمل بشكل فردي مع كل مسؤول ميديا وفقًا لاحتياجاته، مع تقديم التوجيه اللازم لمسؤولي ميديا الجامعات العامة والتوسّع.</p>
-                </div>
-                <div class="dev-card" data-animate>
-                    <div class="dev-number">04</div>
-                    <h3>المراجعة والتطوير المستمر</h3>
-                    <p>الاستمرار في مراجعة أعمال مسؤولي الميديا وتطويرها، وهو ما انعكس في تطوّر ملحوظ على مستوى التصميمات والمحتوى والتفكير الإبداعي والتخطيطي.</p>
-                </div>
-            </div>
-
-            <div class="dev-evolution" data-animate>
-                <h3 class="subsection-title">التطور الملموس</h3>
-                <div class="evolution-bars">
-                    <div class="evolution-bar">
-                        <span class="bar-label">مستوى التصميمات</span>
-                        <div class="bar-track"><div class="bar-fill" data-width="85"></div></div>
-                    </div>
-                    <div class="evolution-bar">
-                        <span class="bar-label">مستوى المحتوى</span>
-                        <div class="bar-track"><div class="bar-fill" data-width="80"></div></div>
-                    </div>
-                    <div class="evolution-bar">
-                        <span class="bar-label">التفكير الإبداعي</span>
-                        <div class="bar-track"><div class="bar-fill" data-width="78"></div></div>
-                    </div>
-                    <div class="evolution-bar">
-                        <span class="bar-label">التفكير التخطيطي</span>
-                        <div class="bar-track"><div class="bar-fill" data-width="75"></div></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Campaigns Section -->
-    <section class="section campaigns-section" id="campaigns">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">06</span>
-                <h2 class="section-title">الحملات المركزية</h2>
-                <p class="section-desc">مشاركة 14 جامعة عامة في الحملات المركزية</p>
-            </div>
-
-            <div class="campaigns-highlight">
-                <div class="campaigns-number" data-animate>
-                    <span class="big-number" data-count="14" data-prefix="" data-suffix="">0</span>
-                    <span class="big-label">جامعة عامة شاركت في الحملات المركزية</span>
-                </div>
-            </div>
-
-            <div class="campaigns-list">
-                <h3 class="subsection-title">الحملات التي عمل عليها الفريق</h3>
-                <div class="campaign-tags" data-animate>
-                    <span class="campaign-tag">نقطة بداية</span>
-                    <span class="campaign-tag">ساعة جد</span>
-                    <span class="campaign-tag">رمضان</span>
-                    <span class="campaign-tag">عزوة</span>
-                    <span class="campaign-tag">همة</span>
-                    <span class="campaign-tag">جذور</span>
-                </div>
-            </div>
-
-            <div class="campaign-special">
-                <h3 class="subsection-title">أبرز إنجازات الحملات</h3>
-
-                <div class="campaign-spotlight" data-animate>
-                    <div class="spotlight-badge">★</div>
-                    <h4>حملة نقطة بداية</h4>
-                    <p>حقق المنشور (Post) أعلى أداء على الصفحة خلال أكثر من عامين — وفق البيانات المتاحة.</p>
-                </div>
-
-                <div class="campaign-spotlight" data-animate>
-                    <div class="spotlight-badge">★</div>
-                    <h4>حملة جذب ميديا الجامعات</h4>
-                    <p>تم إتاحة حملة جاهزة يمكن للجامعة استخدامها عند الحاجة لجذب فرق الميديا والمتطوعين والكوادر الجديدة، وذلك بالتنسيق مع متابع ميديا القطاع الخاص بالجامعة.</p>
-                </div>
-            </div>
-
-            <div class="campaigns-additional">
-                <h3 class="subsection-title">حملات أخرى</h3>
-                <p data-animate>كما شارك الفريق في إنتاج محتوى متنوع حول الأيام والمناسبات العالمية والدولية خلال الشهور، بالإضافة إلى حملات جذب:</p>
-                <div class="campaign-tags secondary" data-animate>
-                    <span class="campaign-tag secondary">متطوعي الميديا</span>
-                    <span class="campaign-tag secondary">مسؤولي قطاع التنمية</span>
-                    <span class="campaign-tag secondary">مسؤولي قطاع الجامعات</span>
-                    <span class="campaign-tag secondary">أعضاء اللجان المركزية</span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Expansion Section -->
-    <section class="section expansion-section" id="expansion">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">07</span>
-                <h2 class="section-title">ميديا التوسع</h2>
-                <p class="section-desc">بناء وتفعيل ميديا الجامعات الجديدة</p>
-            </div>
-
-            <div class="expansion-intro" data-animate>
-                <h3>ما هو ملف التوسع؟</h3>
-                <p>ملف مركزي يهدف إلى الانتشار داخل جامعات جديدة وتفعيل أسر صناع الحياة بها. شاركت لجنة الميديا في هذا الملف تحت مسؤولية:</p>
-                <div class="expansion-lead">
-                    <strong>أ. رقية خاطر</strong> — مسؤولة ميديا ملف التوسع
-                </div>
-            </div>
-
-            <div class="expansion-stages" data-animate>
-                <div class="stage-flow">
-                    <div class="stage">Interview</div>
-                    <div class="stage-arrow">→</div>
-                    <div class="stage">تأهيل</div>
-                    <div class="stage-arrow">→</div>
-                    <div class="stage">إطلاق</div>
-                    <div class="stage-arrow">→</div>
-                    <div class="stage">متابعة</div>
-                </div>
-            </div>
-
-            <div class="expansion-interviews">
-                <div class="expansion-stat" data-animate>
-                    <div class="expansion-stat-number" data-count="50" data-prefix="≈" data-suffix="">0</div>
-                    <div class="expansion-stat-label">Interview</div>
-                    <div class="expansion-stat-desc">لمسؤولي ميديا التوسع</div>
-                </div>
-                <div class="expansion-interview-details" data-animate>
-                    <p>شملت المقابلات: قبول المتقدمين أو رفضهم، واختيار رؤساء الفرق (Heads) وزملائهم النواب (Vice Heads).</p>
-                    <p>الهدف: ضمان اختيار مسؤولين قادرين على تحمّل المسؤولية، مع مراعاة نقص الكوادر والوصول إلى حلول وسط تراعي احتياجات جميع الأطراف.</p>
-                    <p class="interview-note">أُجريت المقابلات بشكل أساسي عبر أ. رقية خاطر، وعند عدم تفرّغها كان يتولاها أ. أحمد مهدي.</p>
-                </div>
-            </div>
-
-            <div class="expansion-launches">
-                <h3 class="subsection-title">إطلاق صفحات ميديا التوسع</h3>
-                <div class="launch-stat" data-animate>
-                    <span class="big-number" data-count="5" data-prefix="" data-suffix="">0</span>
-                    <span class="big-label">صفحات جامعية أُطلقت فعليًا</span>
-                </div>
-                <div class="launch-list" data-animate>
-                    <div class="launch-item">
-                        <span class="launch-check">✓</span>
-                        <span>جامعة الأزهر بالأقصر</span>
-                        <span class="launch-badge transferred">انتقلت إلى الجامعات العامة</span>
-                    </div>
-                    <div class="launch-item">
-                        <span class="launch-check">✓</span>
-                        <span>جامعة القاهرة</span>
-                        <span class="launch-badge transferred">انتقلت إلى الجامعات العامة</span>
-                    </div>
-                    <div class="launch-item">
-                        <span class="launch-check">✓</span>
-                        <span>جامعة ميريت</span>
-                    </div>
-                    <div class="launch-item">
-                        <span class="launch-check">✓</span>
-                        <span>جامعة الأقصر الحكومية</span>
-                        <span class="launch-badge suspended">متوقفة — بسبب مشكلة التصاريح</span>
-                    </div>
-                    <div class="launch-item">
-                        <span class="launch-check">✓</span>
-                        <span>جامعة الوادي الجديد</span>
-                        <span class="launch-badge suspended">متوقفة — بسبب مشكلة التصاريح</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="expansion-transfer" data-animate>
-                <h3 class="subsection-title">الانتقال من ملف التوسّع إلى الجامعات العامة</h3>
-                <div class="transfer-flow">
-                    <div class="transfer-stat">
-                        <span class="transfer-number">5</span>
-                        <span class="transfer-label">صفحات تم إطلاقها</span>
-                    </div>
-                    <div class="transfer-arrow">→</div>
-                    <div class="transfer-stat highlight">
-                        <span class="transfer-number">2</span>
-                        <span class="transfer-label">جامعة انتقلت إلى الجامعات العامة</span>
-                    </div>
-                </div>
-                <p class="transfer-note">تم ذلك بتوجيه من مدير الرابطة.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Impact Section -->
-    <section class="section impact-section" id="impact">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">08</span>
-                <h2 class="section-title">التأثير الرقمي</h2>
-                <p class="section-desc">16 نوفمبر 2025 إلى 16 سبتمبر 2026 — بيانات رسمية من Meta Insights</p>
-            </div>
-
-            <!-- Main Impact Number -->
-            <div class="impact-hero" data-animate>
-                <div class="impact-big-number" data-count="1129181" data-prefix="" data-suffix="">0</div>
-                <div class="impact-big-label">Views</div>
-                <div class="impact-big-sub">100% Organic</div>
-            </div>
-
-            <!-- Facebook Section -->
-            <div class="impact-platform">
-                <h3 class="subsection-title">Facebook</h3>
-
-                <div class="impact-cards-grid">
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Views</span>
-                        </div>
-                        <div class="impact-card-value">1,129,181</div>
-                        <div class="impact-card-growth positive">+417.6%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Page Visits</span>
-                        </div>
-                        <div class="impact-card-value">38.3K</div>
-                        <div class="impact-card-growth positive">+568.3%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>3-second Video Views</span>
-                        </div>
-                        <div class="impact-card-value">10.7K</div>
-                        <div class="impact-card-growth positive">+61.3%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Interactions</span>
-                        </div>
-                        <div class="impact-card-value">30K</div>
-                        <div class="impact-card-growth positive">+363.1%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Watch Time</span>
-                        </div>
-                        <div class="impact-card-value">2d 17h</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Organic</span>
-                        </div>
-                        <div class="impact-card-value">100%</div>
-                        <div class="impact-card-sub">1,129,181 Views</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Ads</span>
-                        </div>
-                        <div class="impact-card-value">0%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon fb">f</span>
-                            <span>Viewers</span>
-                        </div>
-                        <div class="impact-card-value">159,530</div>
-                    </div>
-                </div>
-
-                <!-- Facebook Overview -->
-                <div class="impact-subsection">
-                    <h4>Overview</h4>
-                    <div class="overview-grid">
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">1.1M</div>
-                            <div class="overview-label">Followers</div>
-                            <div class="overview-growth positive">+77.6%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">159.5K</div>
-                            <div class="overview-label">Views</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">30K</div>
-                            <div class="overview-label">Interactions</div>
-                            <div class="overview-growth positive">+363.1%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">1.8K</div>
-                            <div class="overview-label">Link Clicks</div>
-                            <div class="overview-growth positive">+110.3%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">3.2K</div>
-                            <div class="overview-label">Follows</div>
-                            <div class="overview-growth positive">+417.6%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">38.3K</div>
-                            <div class="overview-label">إيارات</div>
-                            <div class="overview-growth positive">+568.3%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Facebook Reels -->
-                <div class="impact-subsection">
-                    <h4>Reels</h4>
-                    <div class="overview-grid">
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">36.5K</div>
-                            <div class="overview-label">Views</div>
-                            <div class="overview-growth positive">+160.7%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">1.3K</div>
-                            <div class="overview-label">Interactions</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">2d 12h</div>
-                            <div class="overview-label">Watch Time</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Facebook Stories -->
-                <div class="impact-subsection">
-                    <h4>Stories</h4>
-                    <div class="overview-grid">
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">21.0K</div>
-                            <div class="overview-label">Views</div>
-                            <div class="overview-growth positive">+1664.2%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">164</div>
-                            <div class="overview-label">Interactions</div>
-                            <div class="overview-growth positive">+564.6%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Facebook Messages -->
-                <div class="impact-subsection">
-                    <h4>Messages</h4>
-                    <div class="overview-grid">
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">97</div>
-                            <div class="overview-label">Contacts</div>
-                            <div class="overview-growth positive">+460.7%</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">101</div>
-                            <div class="overview-label">Conversations</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">90</div>
-                            <div class="overview-label">New Contacts</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">73.6%</div>
-                            <div class="overview-label">Response Rate</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">5h 36m</div>
-                            <div class="overview-label">Response Time</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">0</div>
-                            <div class="overview-label">Requests</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">≈500</div>
-                            <div class="overview-label">Approx. Earnings</div>
-                        </div>
-                        <div class="overview-item" data-animate>
-                            <div class="overview-value">0</div>
-                            <div class="overview-label">Leads</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Content Formats -->
-                <div class="impact-subsection">
-                    <h4>Content Formats</h4>
-                    <div class="formats-grid">
-                        <div class="format-group" data-animate>
-                            <h5>Posts</h5>
-                            <div class="format-bars">
-                                <div class="format-bar">
-                                    <span class="format-label">Other</span>
-                                    <span class="format-value">277</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Stories</span>
-                                    <span class="format-value">36</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Image</span>
-                                    <span class="format-value">19</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Reels</span>
-                                    <span class="format-value">10</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Links</span>
-                                    <span class="format-value">1</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="format-group" data-animate>
-                            <h5>Views</h5>
-                            <div class="format-bars">
-                                <div class="format-bar">
-                                    <span class="format-label">Reels</span>
-                                    <span class="format-value">36,657</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Multi-image</span>
-                                    <span class="format-value">26,501</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Stories</span>
-                                    <span class="format-value">16,432</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Links</span>
-                                    <span class="format-value">9,186</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Other</span>
-                                    <span class="format-value">7,798</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Images</span>
-                                    <span class="format-value">6,771</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Text</span>
-                                    <span class="format-value">377</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Live</span>
-                                    <span class="format-value">306</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="format-group" data-animate>
-                            <h5>Interactions</h5>
-                            <div class="format-bars">
-                                <div class="format-bar">
-                                    <span class="format-label">Images</span>
-                                    <span class="format-value">13,359</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Other</span>
-                                    <span class="format-value">8,178</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Multi-image</span>
-                                    <span class="format-value">5,572</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Reels</span>
-                                    <span class="format-value">3,318</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Links</span>
-                                    <span class="format-value">1,200</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Stories</span>
-                                    <span class="format-value">176</span>
-                                </div>
-                                <div class="format-bar">
-                                    <span class="format-label">Other</span>
-                                    <span class="format-value">2</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Top Content -->
-                <div class="impact-subsection">
-                    <h4>أبرز محتوى Facebook</h4>
-                    <div class="top-content" data-animate>
-                        <p>المنشور الأعلى تحقيقًا للوصول سجل نحو 39.8K مشاهدة و272 إعجابًا (1 ديسمبر 2025)، تلاه منشور نحو 23.4K مشاهدة و76 إعجابًا (26 ديسمبر 2025)، ثم منشور نحو 19.6K مشاهدة و83 إعجابًا (21 مارس 2026)، ثم منشور نحو 14.3K مشاهدة و111 إعجابًا (27 مارس 2026).</p>
-                        <p>وشكّلت مقاطع Reels التوعوية نحو 36.5K مشاهدة، فيما تجاوزت بعض Stories الوصول إلى 21K مشاهدة.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Instagram Section -->
-            <div class="impact-platform">
-                <h3 class="subsection-title">Instagram</h3>
-                <div class="impact-cards-grid">
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Views</span>
-                        </div>
-                        <div class="impact-card-value">26.3K</div>
-                        <div class="impact-card-growth positive">+1.8%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Reach</span>
-                        </div>
-                        <div class="impact-card-value">709</div>
-                        <div class="impact-card-growth positive">+439.8%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Interactions</span>
-                        </div>
-                        <div class="impact-card-value">108</div>
-                        <div class="impact-card-growth positive">+2.5%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Link Clicks</span>
-                        </div>
-                        <div class="impact-card-value">0</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Follows</span>
-                        </div>
-                        <div class="impact-card-value">50</div>
-                        <div class="impact-card-growth positive">+1.9%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>إيارات</span>
-                        </div>
-                        <div class="impact-card-value">92</div>
-                        <div class="impact-card-growth positive">+187.5%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Total Views</span>
-                        </div>
-                        <div class="impact-card-value">2,886</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Organic</span>
-                        </div>
-                        <div class="impact-card-value">100%</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Posts</span>
-                        </div>
-                        <div class="impact-card-value">57</div>
-                    </div>
-                    <div class="impact-card" data-animate>
-                        <div class="impact-card-header">
-                            <span class="platform-icon ig">IG</span>
-                            <span>Stories</span>
-                        </div>
-                        <div class="impact-card-value">1</div>
-                    </div>
-                </div>
-
-                <div class="impact-subsection">
-                    <h4>Top Posts</h4>
-                    <div class="top-content" data-animate>
-                        <p>المنشور الأعلى حقق نحو 222 مشاهدة و12 إعجابًا، يليه نحو 135 مشاهدة و8 إعجاب، ثم نحو 118 مشاهدة و5 إعجاب، ثم نحو 115 مشاهدة و5 إعجاب.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <div class="charts-section" id="charts">
-                <h3 class="subsection-title">البيانات والإحصائيات التفاعلية</h3>
-                <p class="charts-subtitle">نُقلت من Meta Insights مباشرة — الفترة: 16 نوفمبر 2025 إلى 16 سبتمبر 2026</p>
-
-                <!-- Facebook Charts -->
-                <div class="charts-platform">
-                    <h4 class="charts-platform-title"><span class="platform-icon fb">f</span> Facebook</h4>
-                    <div class="charts-grid">
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">المشاهدات</span>
-                                    <span class="chart-card-total">1.1M</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 417.6%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-views"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">المشاهدون</span>
-                                    <span class="chart-card-total">159.5K</span>
-                                </div>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-viewers"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">التفاعلات مع المحتوى</span>
-                                    <span class="chart-card-total">30K</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 363.1%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-interactions"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">النقرات على الروابط</span>
-                                    <span class="chart-card-total">1.8K</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 110.3%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-clicks"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">زيارات الصفحة</span>
-                                    <span class="chart-card-total">38.3K</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 568.3%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-pagevisits"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">المتابعون الجدد</span>
-                                    <span class="chart-card-total">3.2K</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 417.6%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="fb-follows"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Instagram Charts -->
-                <div class="charts-platform">
-                    <h4 class="charts-platform-title"><span class="platform-icon ig">IG</span> Instagram</h4>
-                    <div class="charts-grid">
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">الوصول</span>
-                                    <span class="chart-card-total">709</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 439.8%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-reach"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">المشاهدات</span>
-                                    <span class="chart-card-total">26.3K</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 1.8%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-views"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">التفاعلات مع المحتوى</span>
-                                    <span class="chart-card-total">108</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 2.5%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-interactions"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">زيارات الملف الشخصي</span>
-                                    <span class="chart-card-total">92</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 187.5%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-profile"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">المتابعون الجدد</span>
-                                    <span class="chart-card-total">50</span>
-                                </div>
-                                <span class="chart-growth positive">↑ 1.9%</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-follows"></canvas></div>
-                        </div>
-                        <div class="chart-card" data-animate>
-                            <div class="chart-card-header">
-                                <div class="chart-card-info">
-                                    <span class="chart-card-title">النقرات على الروابط</span>
-                                    <span class="chart-card-total">0</span>
-                                </div>
-                                <span class="chart-growth neutral">—</span>
-                            </div>
-                            <div class="chart-container"><canvas id="ig-clicks"></canvas></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Challenges Section -->
-    <section class="section challenges-section" id="challenges">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">09</span>
-                <h2 class="section-title">التحديات</h2>
-                <p class="section-desc">تحديات واجهناها وكيف تعاملنا معها</p>
-            </div>
-
-            <div class="challenges-grid">
-                <div class="challenges-list" data-animate>
-                    <h3 class="subsection-title">التحديات</h3>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>نقص الكوادر في بعض مراحل التوسع</span>
-                    </div>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>صعوبة تنفيذ الخطط والتقويمات (Plans وCalendars) على بعض المسؤولين</span>
-                    </div>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>الاختلاف حول بعض التعديلات الفنية ونظام المراجعة</span>
-                    </div>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>معدل دوران بعض المتطوعين</span>
-                    </div>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>تغيير بعض مسؤولي وقيادات الفرق</span>
-                    </div>
-                    <div class="challenge-item">
-                        <span class="challenge-icon">!</span>
-                        <span>مشكلة التصاريح التي أدت إلى توقف جامعات التوسع</span>
-                    </div>
-                </div>
-
-                <div class="solutions-list" data-animate>
-                    <h3 class="subsection-title">التعامل معها</h3>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>نظام المراجعة والتطوير المستمر</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>التدريب الفردي والجماعي</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>التوجيه الفردي لمسؤولي الميديا</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>إجراء مقابلات (Interviews) لاختيار كوادر مناسبة</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>رفع تحديات الخطط والتقويمات (Plans وCalendars) إلى الإدارة</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>السعي إلى حلول وسط في اختيار كوادر التوسّع</span>
-                    </div>
-                    <div class="solution-item">
-                        <span class="solution-icon">✓</span>
-                        <span>دعم الجامعات المستمر</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Handover Section -->
-    <section class="section handover-section" id="handover">
-        <div class="container">
-            <div class="section-header">
-                <span class="section-number">10</span>
-                <h2 class="section-title">تسليم المسؤولية</h2>
-                <p class="section-desc">ملخص حالة فريق الميديا عند التسليم</p>
-            </div>
-
-            <div class="handover-content" data-animate>
-                <div class="handover-period">
-                    <div class="handover-period-label">الفترة</div>
-                    <div class="handover-period-value">16 نوفمبر 2025 — 16 سبتمبر 2026</div>
-                    <div class="handover-period-duration">10 أشهر</div>
-                </div>
-
-                <div class="handover-grid">
-                    <div class="handover-card">
-                        <h4>حالة فريق الميديا</h4>
-                        <p>الفريق نشط ويضم نحو 25 عضوًا بهيكل تنظيمي واضح.</p>
-                    </div>
-                    <div class="handover-card">
-                        <h4>هيكل الفريق</h4>
-                        <p>فريق الكتابة والمحتوى، الفريق البصري، فريق القطاعات، السوشيال ميديا.</p>
-                    </div>
-                    <div class="handover-card">
-                        <h4>أنظمة العمل</h4>
-                        <p>نظام المراجعة، الخطط والتقويمات (Plans وCalendars)، ونظام التسليم والتسلّم — جميعها محفوظة ومستمرة.</p>
-                    </div>
-                    <div class="handover-card">
-                        <h4>وضع ميديا الجامعات</h4>
-                        <p>أكثر من 20 جامعة تم العمل معها. بعض الجامعات نشطة وبعضها قيد الإيقاف.</p>
-                    </div>
-                    <div class="handover-card">
-                        <h4>وضع ميديا التوسع</h4>
-                        <p>تم إطلاق 5 صفحات، انتقلت جامعتان إلى الجامعات العامة. بعض الجامعات متوقفة بسبب مشكلة التصاريح.</p>
-                    </div>
-                    <div class="handover-card">
-                        <h4>نقاط تحتاج إلى استكمال</h4>
-                        <p>إعادة تفعيل الجامعات المتوقفة، استكمال الخطط والتقويمات (Plans وCalendars)، ومتابعة تطوير الكوادر.</p>
-                    </div>
-                </div>
-
-                <div class="handover-notes">
-                    <h3 class="subsection-title">ملاحظات التسليم</h3>
-                    <div class="notes-content">
-                        <p>غير متوفر حاليًا.</p>
-                    </div>
-                </div>
-
-                <div class="handover-priorities">
-                    <h3 class="subsection-title">أولويات المرحلة القادمة</h3>
-                    <div class="priorities-content">
-                        <p>غير متوفر حاليًا.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Final Message -->
-    <section class="section final-section" id="final">
-        <div class="container">
-            <div class="final-content" data-animate>
-                <div class="final-journey">
-                    <span>بناء الفريق</span>
-                    <div class="final-arrow">↓</div>
-                    <span>بناء منظومة العمل</span>
-                    <div class="final-arrow">↓</div>
-                    <span>تطوير الكوادر</span>
-                    <div class="final-arrow">↓</div>
-                    <span>دعم ميديا الجامعات</span>
-                    <div class="final-arrow">↓</div>
-                    <span>تنشيط الصفحات</span>
-                    <div class="final-arrow">↓</div>
-                    <span>المشاركة في الحملات</span>
-                    <div class="final-arrow">↓</div>
-                    <span>بناء ميديا التوسع</span>
-                    <div class="final-arrow">↓</div>
-                    <span>إطلاق جامعات جديدة</span>
-                    <div class="final-arrow">↓</div>
-                    <span>انتقال جامعات من التوسع إلى الجامعات العامة</span>
-                    <div class="final-arrow">↓</div>
-                    <span class="final-highlight">وصول العمل إلى أثر رقمي قابل للقياس</span>
-                </div>
-                <div class="final-message">
-                    <p>لم تكن الرحلة مجرد تنفيذ محتوى، بل بناء منظومة ميديا أكثر تنظيمًا واتساعًا وقدرة على التطور والاستمرار.</p>
-                </div>
-                <div class="final-footer">
-                    <p>تقرير إنجازات فريق الميديا — أسر صناع الحياة بالجامعات المصرية</p>
-                    <p class="final-period">16 نوفمبر 2025 — 16 سبتمبر 2026</p>
-                    <p class="final-author">إعداد: أحمد مهدي — مسؤول الميديا</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
