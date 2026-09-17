@@ -2,7 +2,7 @@
    Access Gate (كود الدخول)
    ============================================ */
 (function () {
-    // SHA-256 hash لكود الدخول الحالي "GIT2026@Asar"
+    // SHA-256 hash لكود الدخول الحالي
     var ACCESS_HASH = 'c63193f61619ed8a22c04552f76e6e6453982632f6f26d77d63b600f5caf7e20';
     var STORAGE_KEY = 'asar_access_ok';
     var enterCount = 0;
