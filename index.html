@@ -22,6 +22,17 @@
                 <button type="submit" class="access-gate-btn">دخول</button>
             </form>
             <p class="access-gate-error" id="accessError">الكود غير صحيح، حاول مجدداً</p>
+
+            <div class="access-gate-admin">
+                <button type="button" class="access-gate-admin-toggle" id="adminToggle">دخول صاحب الحساب</button>
+
+                <form class="access-login hidden" id="adminForm">
+                    <input type="text" id="adminUser" class="access-gate-input" placeholder="اسم المستخدم" autocomplete="username" dir="ltr">
+                    <input type="password" id="adminPass" class="access-gate-input" placeholder="كلمة السر" autocomplete="current-password" dir="ltr">
+                    <button type="submit" class="access-gate-btn access-login-btn">تسجيل الدخول</button>
+                </form>
+                <p class="access-gate-error" id="adminError">اسم المستخدم أو كلمة السر غير صحيحة</p>
+            </div>
         </div>
     </div>
 

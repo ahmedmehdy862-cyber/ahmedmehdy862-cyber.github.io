@@ -2707,6 +2707,51 @@ html {
     animation: gateShake 0.4s ease;
 }
 
+.access-gate-admin {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid var(--gray-200);
+}
+
+.access-gate-admin-toggle {
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: color 0.25s;
+}
+
+.access-gate-admin-toggle:hover {
+    color: var(--blue);
+}
+
+.access-login {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.access-login.hidden {
+    display: none;
+}
+
+.access-login .access-gate-input {
+    text-align: center;
+    letter-spacing: normal;
+}
+
+.access-login-btn {
+    width: 100%;
+    padding: 12px 22px;
+}
+
 @keyframes gateFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

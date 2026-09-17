@@ -4,6 +4,9 @@
 (function () {
     // SHA-256 hash لكود الدخول الحالي
     var ACCESS_HASH = 'c63193f61619ed8a22c04552f76e6e6453982632f6f26d77d63b600f5caf7e20';
+    // SHA-256 hash لحساب صاحب الموقع (username + password منفصلين)
+    var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
+    var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
     var STORAGE_KEY = 'asar_access_ok';
     var enterCount = 0;
 
@@ -78,6 +81,45 @@
             input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') form.requestSubmit();
             });
+
+            // خانة دخول صاحب الحساب (مخفية)
+            var adminToggle = document.getElementById('adminToggle');
+            var adminForm = document.getElementById('adminForm');
+            var adminUser = document.getElementById('adminUser');
+            var adminPass = document.getElementById('adminPass');
+            var adminError = document.getElementById('adminError');
+
+            if (adminToggle && adminForm) {
+                adminToggle.addEventListener('click', function () {
+                    var isHidden = adminForm.classList.toggle('hidden');
+                    adminToggle.textContent = isHidden ? 'دخول صاحب الحساب' : 'إغلاق';
+                    if (!isHidden) adminUser.focus();
+                });
+
+                adminForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var btn = adminForm.querySelector('.access-gate-btn');
+                    btn.disabled = true;
+                    Promise.all([
+                        sha256(adminUser.value.trim()),
+                        sha256(adminPass.value)
+                    ]).then(function (hashes) {
+                        if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
+                            adminError.classList.remove('show');
+                            adminUser.value = '';
+                            adminPass.value = '';
+                            unlock();
+                        } else {
+                            adminError.classList.add('show');
+                            setTimeout(function () {
+                                adminError.classList.remove('show');
+                                adminPass.select();
+                                btn.disabled = false;
+                            }, 1500);
+                        }
+                    });
+                });
+            }
 
             window.addEventListener('keydown', function (e) {
                 // منع النقر بزر الفأرة الأيمن على البوابة
