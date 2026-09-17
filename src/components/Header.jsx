@@ -39,12 +39,12 @@ export default function Header() {
           </ul>
 
           <div className="hidden md:flex items-center">
-            <a
-              href={`${import.meta.env.BASE_URL}admin/`}
+            <Link
+              to="/admin"
               className="px-4 py-2 text-sm border border-dark-border rounded-lg text-text-secondary hover:text-accent hover:border-accent transition-all duration-300"
             >
               الإدارة
-            </a>
+            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -96,13 +96,13 @@ export default function Header() {
               </li>
             ))}
             <li className="mt-2">
-              <a
-                href={`${import.meta.env.BASE_URL}admin/`}
+              <Link
+                to="/admin"
                 onClick={() => setIsMenuOpen(false)}
                 className="block py-2 px-4 text-sm border border-dark-border rounded-lg text-text-secondary hover:text-accent hover:border-accent transition-all duration-300 text-center"
               >
                 الإدارة
-              </a>
+              </Link>
             </li>
           </ul>
         )}
