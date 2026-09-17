@@ -11,6 +11,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <!-- Access Gate -->
+    <div class="access-gate" id="accessGate">
+        <div class="access-gate-card">
+            <img src="assets/logo.png" alt="أسر صناع الحياة" class="access-gate-logo">
+            <h1 class="access-gate-title">تقرير إنجازات أسر صناع الحياة</h1>
+            <p class="access-gate-subtitle">هذا التقرير محمي — أدخل كود الدخول للمتابعة</p>
+            <form class="access-gate-form" id="accessForm">
+                <input type="password" id="accessCode" class="access-gate-input" placeholder="كود الدخول" autocomplete="off" dir="ltr">
+                <button type="submit" class="access-gate-btn">دخول</button>
+            </form>
+            <p class="access-gate-error" id="accessError">الكود غير صحيح، حاول مجدداً</p>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="nav" id="mainNav">
         <div class="nav-inner">

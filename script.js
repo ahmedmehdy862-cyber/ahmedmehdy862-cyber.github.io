@@ -1,7 +1,98 @@
 /* ============================================
-   أسر صناع الحياة — تقرير إنجازات الميديا
-   Interactions & Animations
+   Access Gate (كود الدخول)
    ============================================ */
+(function () {
+    // SHA-256 hash لكود الدخول الحالي "GIT2026@Asar"
+    var ACCESS_HASH = 'c63193f61619ed8a22c04552f76e6e6453982632f6f26d77d63b600f5caf7e20';
+    var STORAGE_KEY = 'asar_access_ok';
+    var enterCount = 0;
+
+    function sha256(str) {
+        // استخدام Web Crypto API المدمجة (تشغّل على HTTPS تلقائياً)
+        var buf = new TextEncoder().encode(str);
+        return crypto.subtle.digest('SHA-256', buf).then(function (hash) {
+            var hex = '';
+            new Uint8Array(hash).forEach(function (b) {
+                hex += b.toString(16).padStart(2, '0');
+            });
+            return hex;
+        });
+    }
+
+    function unlock() {
+        var gate = document.getElementById('accessGate');
+        if (gate) gate.classList.add('hidden');
+        try {
+            sessionStorage.setItem(STORAGE_KEY, '1');
+        } catch (e) {}
+        document.body.style.overflow = '';
+    }
+
+    function tryAutoUnlock() {
+        var ok = false;
+        try {
+            ok = sessionStorage.getItem(STORAGE_KEY) === '1';
+        } catch (e) {}
+        if (ok) {
+            unlock();
+            return true;
+        }
+        return false;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var gate = document.getElementById('accessGate');
+        if (!gate) return;
+
+        // منع عمل المحتوى خلف البوابة قبل إدخال الكود
+        if (!tryAutoUnlock()) {
+            document.body.style.overflow = 'hidden';
+
+            var form = document.getElementById('accessForm');
+            var input = document.getElementById('accessCode');
+            var error = document.getElementById('accessError');
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var btn = form.querySelector('.access-gate-btn');
+                btn.disabled = true;
+                sha256(input.value.trim()).then(function (hash) {
+                    if (hash === ACCESS_HASH) {
+                        enterCount = 0;
+                        error.classList.remove('show');
+                        input.value = '';
+                        unlock();
+                        btn.disabled = false;
+                    } else {
+                        enterCount++;
+                        error.classList.add('show');
+                        setTimeout(function () {
+                            error.classList.remove('show');
+                            input.select();
+                            btn.disabled = false;
+                        }, entryRate());
+                    }
+                });
+            });
+
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') form.requestSubmit();
+            });
+
+            window.addEventListener('keydown', function (e) {
+                // منع النقر بزر الفأرة الأيمن على البوابة
+                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+
+    function entryRate() {
+        // فاصل زمني يتزايد لتقليل المحاولات التجريبية
+        return Math.min(1500 * Math.pow(enterCount, 1.4), 10000);
+    }
+})();
 
 document.addEventListener('DOMContentLoaded', function () {
     initNavigation();
