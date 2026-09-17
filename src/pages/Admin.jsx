@@ -5,7 +5,7 @@ import { verifyToken, getSiteFile, updateSiteFile } from '../utils/admin';
 
 const TOKEN_KEY = 'gh_admin_token';
 const REPO = 'ahmedmehdy862-cyber';
-const REPO_NAME = 'portfolio';
+const REPO_NAME = 'ahmedmehdy862-cyber.github.io';
 const FILE_PATH = 'public/site.json';
 const EDIT_URL = `https://github.com/${REPO}/${REPO_NAME}/edit/main/${FILE_PATH}`;
 

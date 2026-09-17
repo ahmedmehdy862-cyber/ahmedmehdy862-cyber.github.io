@@ -1,4 +1,4 @@
-const REPO = 'ahmedmehdy862-cyber/portfolio';
+const REPO = 'ahmedmehdy862-cyber/ahmedmehdy862-cyber.github.io';
 const FILE_PATH = 'public/site.json';
 const API = 'https://api.github.com';
 
