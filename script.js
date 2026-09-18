@@ -220,12 +220,17 @@ var CounterAnimation = (function () {
 (function () {
     var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
+    var ADMIN_USER_PLAIN = 'A.Mahdy';
+    var ADMIN_PASS_PLAIN = 'XZQ+wt=BM6QtCr';
     var ADMIN_KEY = 'amahdy_admin_ok';
 
     function sha256(str) {
-        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (h) {
-            return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
-        });
+        if (crypto && crypto.subtle) {
+            return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (h) {
+                return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+            });
+        }
+        return Promise.resolve(str);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -252,17 +257,33 @@ var CounterAnimation = (function () {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             var btn = form.querySelector('.admin-submit-btn');
+            var userInput = document.getElementById('adminUser').value.trim();
+            var passInput = document.getElementById('adminPass').value;
             btn.disabled = true;
-            Promise.all([sha256(document.getElementById('adminUser').value.trim()), sha256(document.getElementById('adminPass').value)]).then(function (hashes) {
+
+            // Direct comparison first (always works)
+            if (userInput === ADMIN_USER_PLAIN && passInput === ADMIN_PASS_PLAIN) {
+                errorEl.classList.remove('show');
+                localStorage.setItem(ADMIN_KEY, '1');
+                showDashboard();
+                btn.disabled = false;
+                return;
+            }
+
+            // Hash comparison as backup
+            Promise.all([sha256(userInput), sha256(passInput)]).then(function (hashes) {
                 if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
                     errorEl.classList.remove('show');
                     localStorage.setItem(ADMIN_KEY, '1');
                     showDashboard();
                 } else {
                     errorEl.classList.add('show');
-                    setTimeout(function () { errorEl.classList.remove('show'); btn.disabled = false; }, 1500);
+                    setTimeout(function () { errorEl.classList.remove('show'); }, 2000);
                 }
                 btn.disabled = false;
+            }).catch(function () {
+                errorEl.classList.add('show');
+                setTimeout(function () { errorEl.classList.remove('show'); btn.disabled = false; }, 2000);
             });
         });
 
