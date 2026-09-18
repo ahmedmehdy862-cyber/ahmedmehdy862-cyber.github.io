@@ -5,6 +5,7 @@ var DataManager = (function () {
     var DATA_KEY = 'amahdy_site_data';
     var LOGO_KEY = 'amahdy_logo';
     var THEME_KEY = 'amahdy_theme';
+    var LAYOUT_KEY = 'amahdy_layout';
 
     function getDefault() {
         return typeof SITE_DATA !== 'undefined' ? JSON.parse(JSON.stringify(SITE_DATA)) : null;
@@ -42,14 +43,27 @@ var DataManager = (function () {
         try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
     }
 
+    function getLayout() {
+        try {
+            var raw = localStorage.getItem(LAYOUT_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return { cardStyle: 'rounded', heroStyle: 'split', sectionGap: 'md', animations: 'subtle' };
+    }
+
+    function setLayout(layout) {
+        try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch (e) {}
+    }
+
     function reset() {
         try {
             localStorage.removeItem(DATA_KEY);
             localStorage.removeItem(LOGO_KEY);
+            localStorage.removeItem(LAYOUT_KEY);
         } catch (e) {}
     }
 
-    return { load: load, save: save, getDefault: getDefault, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, reset: reset };
+    return { load: load, save: save, getDefault: getDefault, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
 })();
 
 /* ============================================
@@ -80,10 +94,131 @@ var DataManager = (function () {
 })();
 
 /* ============================================
+   Layout Manager — أشكال الموقع
+   ============================================ */
+var LayoutManager = (function () {
+    var layoutKeys = ['cardStyle', 'heroStyle', 'sectionGap', 'animations'];
+    var layoutClasses = {
+        cardStyle: { rounded: 'cards-rounded', square: 'cards-square', minimal: 'cards-minimal' },
+        heroStyle: { split: 'hero-split', center: 'hero-center', minimal: 'hero-minimal' },
+        sectionGap: { sm: 'gap-sm', md: 'gap-md', lg: 'gap-lg' },
+        animations: { none: 'anim-none', subtle: 'anim-subtle', strong: 'anim-strong' }
+    };
+
+    function apply(layout) {
+        var body = document.body;
+        layoutKeys.forEach(function (key) {
+            Object.values(layoutClasses[key]).forEach(function (cls) { body.classList.remove(cls); });
+            if (layoutClasses[key][layout[key]]) body.classList.add(layoutClasses[key][layout[key]]);
+        });
+    }
+
+    function init() {
+        var saved = DataManager.getLayout();
+        apply(saved);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.admin-layout-choices').forEach(function (group) {
+                var key = group.getAttribute('data-layout-key');
+                var btns = group.querySelectorAll('.admin-layout-btn');
+                btns.forEach(function (btn) {
+                    if (btn.getAttribute('data-value') === saved[key]) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                    btn.addEventListener('click', function () {
+                        btns.forEach(function (b) { b.classList.remove('active'); });
+                        btn.classList.add('active');
+                        var layout = DataManager.getLayout();
+                        layout[key] = btn.getAttribute('data-value');
+                        DataManager.setLayout(layout);
+                        apply(layout);
+                    });
+                });
+            });
+        });
+    }
+
+    return { init: init, apply: apply };
+})();
+
+/* ============================================
+   Scroll Reveal
+   ============================================ */
+var ScrollReveal = (function () {
+    function init() {
+        if (!('IntersectionObserver' in window)) return;
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) {
+            observer.observe(el);
+        });
+    }
+
+    return { init: init };
+})();
+
+/* ============================================
+   Counter Animation
+   ============================================ */
+var CounterAnimation = (function () {
+    function animate(el, target) {
+        var start = 0;
+        var duration = 1200;
+        var startTime = null;
+        var prefix = '';
+        var suffix = '';
+        var numStr = String(target).replace(/[^0-9]/g, '');
+        var num = parseInt(numStr) || 0;
+        prefix = String(target).split(numStr)[0] || '';
+        suffix = String(target).split(numStr).slice(1).join('') || '';
+
+        function step(ts) {
+            if (!startTime) startTime = ts;
+            var progress = Math.min((ts - startTime) / duration, 1);
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var current = Math.round(eased * num);
+            el.textContent = prefix + current + suffix;
+            if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function init() {
+        if (!('IntersectionObserver' in window)) return;
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    var nums = entry.target.querySelectorAll('.hero-stat-num');
+                    nums.forEach(function (el) {
+                        var val = el.getAttribute('data-value') || el.textContent;
+                        animate(el, val);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        var heroStats = document.getElementById('heroStats');
+        if (heroStats) observer.observe(heroStats);
+    }
+
+    return { init: init };
+})();
+
+/* ============================================
    Admin Panel
    ============================================ */
 (function () {
-    var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
+    var ADMIN_USER_HASH = '096771b94c4e4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
     var ADMIN_KEY = 'amahdy_admin_ok';
 
@@ -147,6 +282,7 @@ var DataManager = (function () {
             loadProjectsForm();
             loadServicesForm();
             loadPhoto();
+            loadLayoutForm();
         }
 
         /* --- Tabs --- */
@@ -193,6 +329,8 @@ var DataManager = (function () {
             d.profile.socials.linkedin = getVal('editLinkedin');
             DataManager.save(d);
             renderSite();
+            ScrollReveal.init();
+            CounterAnimation.init();
             showSaved(this);
         });
 
@@ -226,6 +364,8 @@ var DataManager = (function () {
             d.stats = readDynamicList('statsList', ['value', 'label']);
             DataManager.save(d);
             renderSite();
+            ScrollReveal.init();
+            CounterAnimation.init();
             showSaved(this);
         });
 
@@ -259,6 +399,7 @@ var DataManager = (function () {
             d.skills = readSimpleList('skillsList');
             DataManager.save(d);
             renderSite();
+            ScrollReveal.init();
             showSaved(this);
         });
 
@@ -304,6 +445,7 @@ var DataManager = (function () {
             });
             DataManager.save(d);
             renderSite();
+            ScrollReveal.init();
             showSaved(this);
         });
 
@@ -347,6 +489,7 @@ var DataManager = (function () {
             });
             DataManager.save(d);
             renderSite();
+            ScrollReveal.init();
             showSaved(this);
         });
 
@@ -372,6 +515,17 @@ var DataManager = (function () {
             reader.readAsDataURL(file);
         });
 
+        /* --- Layout --- */
+        function loadLayoutForm() {
+            var layout = DataManager.getLayout();
+            document.querySelectorAll('.admin-layout-choices').forEach(function (group) {
+                var key = group.getAttribute('data-layout-key');
+                group.querySelectorAll('.admin-layout-btn').forEach(function (btn) {
+                    btn.classList.toggle('active', btn.getAttribute('data-value') === layout[key]);
+                });
+            });
+        }
+
         /* --- Download data.js --- */
         document.getElementById('downloadDataJS').addEventListener('click', function () {
             var d = DataManager.load();
@@ -395,7 +549,11 @@ var DataManager = (function () {
             loadProjectsForm();
             loadServicesForm();
             loadPhoto();
+            loadLayoutForm();
+            LayoutManager.apply(DataManager.getLayout());
             renderSite();
+            ScrollReveal.init();
+            CounterAnimation.init();
         });
     });
 
@@ -453,7 +611,7 @@ function renderSite() {
     var hs = $('heroStats');
     if (hs && d.stats) {
         hs.innerHTML = d.stats.map(function (s) {
-            return '<div class="hero-stat"><div class="hero-stat-num">' + s.value + '</div><div class="hero-stat-label">' + s.label + '</div></div>';
+            return '<div class="hero-stat"><div class="hero-stat-num" data-value="' + s.value + '">' + s.value + '</div><div class="hero-stat-label">' + s.label + '</div></div>';
         }).join('');
     }
 
@@ -493,7 +651,7 @@ function renderSite() {
             var img = p.image
                 ? '<div class="project-cover" style="background-image:url(\'' + p.image + '\')"></div>'
                 : '<div class="project-cover project-cover-art"><span class="project-art-label">' + (p.categoryLabel || p.category) + '</span></div>';
-            return '<article class="project-card" data-filter="' + p.category + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + (p.categoryLabel || p.category) + '</span><span class="project-year">' + (p.year || '') + '</span></div><h3 class="project-title">' + p.title + '</h3><p class="project-desc">' + p.description + '</p></div></article>';
+            return '<article class="project-card reveal" data-filter="' + p.category + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + (p.categoryLabel || p.category) + '</span><span class="project-year">' + (p.year || '') + '</span></div><h3 class="project-title">' + p.title + '</h3><p class="project-desc">' + p.description + '</p></div></article>';
         }).join('');
     }
 
@@ -501,16 +659,29 @@ function renderSite() {
     var sg = $('servicesGrid');
     if (sg && d.services) {
         sg.innerHTML = d.services.map(function (s) {
-            return '<div class="service-card' + (s.featured ? ' featured' : '') + '">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + s.name + '</h3><div class="service-price">' + s.price + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul><div class="service-delivery">' + (s.delivery || '') + '</div></div>';
+            return '<div class="service-card' + (s.featured ? ' featured' : '') + ' reveal">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + s.name + '</h3><div class="service-price">' + s.price + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul><div class="service-delivery">' + (s.delivery || '') + '</div></div>';
         }).join('');
     }
+
+    // Add reveal classes to sections
+    document.querySelectorAll('.section').forEach(function (sec) {
+        if (!sec.classList.contains('reveal')) sec.classList.add('reveal');
+    });
 }
 
 /* ============================================
    Navigation + Init
    ============================================ */
 document.addEventListener('DOMContentLoaded', function () {
+    // Init layout
+    LayoutManager.init();
+
+    // Render site
     renderSite();
+
+    // Init scroll reveal & counters
+    ScrollReveal.init();
+    CounterAnimation.init();
 
     var nav = document.getElementById('mainNav');
     var toggle = document.getElementById('navToggle');

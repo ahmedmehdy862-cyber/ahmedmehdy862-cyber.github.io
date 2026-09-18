@@ -1565,3 +1565,248 @@ ul {
         padding: 12px 16px;
     }
 }
+
+/* ============================================
+   Admin Layout Options
+   ============================================ */
+.admin-layout-group {
+    margin-bottom: 18px;
+}
+
+.admin-layout-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+}
+
+.admin-layout-choices {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.admin-layout-btn {
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.admin-layout-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+}
+
+.admin-layout-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+/* ============================================
+   Layout Variants — Card Styles
+   ============================================ */
+.cards-rounded .project-card,
+.cards-rounded .service-card,
+.cards-rounded .about-card,
+.cards-rounded .contact-card {
+    border-radius: 20px;
+}
+
+.cards-square .project-card,
+.cards-square .service-card,
+.cards-square .about-card,
+.cards-square .contact-card {
+    border-radius: 4px;
+}
+
+.cards-minimal .project-card,
+.cards-minimal .service-card,
+.cards-minimal .about-card,
+.cards-minimal .contact-card {
+    border-radius: 0;
+    border: none;
+    background: transparent;
+}
+
+/* ============================================
+   Layout Variants — Hero Style
+   ============================================ */
+.hero-center .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+}
+
+.hero-center .hero-desc { margin-left: auto; margin-right: auto; }
+.hero-center .hero-cta { justify-content: center; }
+.hero-center .hero-stats { margin: 0 auto; }
+
+.hero-minimal .hero-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+}
+
+.hero-minimal .hero-visual,
+.hero-minimal .hero-bg { display: none; }
+
+.hero-minimal .hero { min-height: 70vh; }
+
+/* ============================================
+   Layout Variants — Section Gaps
+   ============================================ */
+.gap-sm .section { padding: 60px 0; }
+.gap-md .section { padding: 100px 0; }
+.gap-lg .section { padding: 140px 0; }
+
+/* ============================================
+   Scroll Reveal Animations
+   ============================================ */
+.anim-subtle .reveal,
+.anim-strong .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.anim-subtle .reveal.revealed,
+.anim-strong .reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.anim-strong .reveal {
+    transform: translateY(50px);
+}
+
+.anim-strong .reveal.revealed {
+    transition-duration: 0.8s;
+}
+
+/* Staggered children reveal */
+.anim-subtle .reveal-stagger > *,
+.anim-strong .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(1),
+.anim-strong .reveal-stagger.revealed > *:nth-child(1) { transition-delay: 0s; }
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(2),
+.anim-strong .reveal-stagger.revealed > *:nth-child(2) { transition-delay: 0.08s; }
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(3),
+.anim-strong .reveal-stagger.revealed > *:nth-child(3) { transition-delay: 0.16s; }
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(4),
+.anim-strong .reveal-stagger.revealed > *:nth-child(4) { transition-delay: 0.24s; }
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(5),
+.anim-strong .reveal-stagger.revealed > *:nth-child(5) { transition-delay: 0.32s; }
+
+.anim-subtle .reveal-stagger.revealed > *:nth-child(6),
+.anim-strong .reveal-stagger.revealed > *:nth-child(6) { transition-delay: 0.4s; }
+
+.anim-subtle .reveal-stagger.revealed > *,
+.anim-strong .reveal-stagger.revealed > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================
+   Interactive Hover Effects
+   ============================================ */
+.anim-subtle .project-card,
+.anim-strong .project-card {
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.anim-subtle .project-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 28px 56px var(--shadow);
+}
+
+.anim-strong .project-card:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 36px 70px var(--shadow);
+    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.45s ease;
+}
+
+.anim-subtle .service-card,
+.anim-strong .service-card {
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.anim-subtle .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 48px var(--shadow);
+}
+
+.anim-strong .service-card:hover {
+    transform: translateY(-10px) scale(1.015);
+    box-shadow: 0 32px 60px var(--shadow);
+    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.45s ease;
+}
+
+.anim-subtle .contact-card,
+.anim-strong .contact-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.anim-subtle .contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 45px var(--shadow);
+}
+
+.anim-strong .contact-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 28px 55px var(--shadow);
+}
+
+.skill-tag {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.skill-tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+}
+
+.filter-btn {
+    transition: color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.filter-btn:hover {
+    transform: translateY(-1px);
+}
+
+.theme-dot {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.theme-dot:hover {
+    transform: scale(1.2);
+}
+
+/* Counter animation */
+.hero-stat-num {
+    animation: countUp 0.6s ease both;
+}
+
+.hero-stat:nth-child(2) .hero-stat-num { animation-delay: 0.15s; }
+.hero-stat:nth-child(3) .hero-stat-num { animation-delay: 0.3s; }
+.hero-stat:nth-child(4) .hero-stat-num { animation-delay: 0.45s; }
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
