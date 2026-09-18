@@ -1,5 +1,5 @@
 /* ============================================
-   A.Mahdy Portfolio — 5 Themes
+   A.Mahdy Portfolio — 10 Themes
    ============================================ */
 :root[data-theme="neon"] {
     --bg: #0a0a12;
@@ -69,6 +69,76 @@
     --border: rgba(14, 165, 233, 0.3);
     --shadow: rgba(14, 165, 233, 0.3);
     --dot-color: #0ea5e9;
+}
+
+:root[data-theme="sunset"] {
+    --bg: #120808;
+    --bg-soft: #1c0e0e;
+    --bg-card: #241414;
+    --text: #fff1f0;
+    --text-dim: #c9a0a0;
+    --accent: #f43f5e;
+    --accent-2: #fb923c;
+    --accent-soft: rgba(244, 63, 94, 0.14);
+    --border: rgba(244, 63, 94, 0.28);
+    --shadow: rgba(244, 63, 94, 0.28);
+    --dot-color: #f43f5e;
+}
+
+:root[data-theme="midnight"] {
+    --bg: #06081a;
+    --bg-soft: #0c1030;
+    --bg-card: #111640;
+    --text: #eef2ff;
+    --text-dim: #9499c4;
+    --accent: #6366f1;
+    --accent-2: #a78bfa;
+    --accent-soft: rgba(99, 102, 241, 0.14);
+    --border: rgba(99, 102, 241, 0.28);
+    --shadow: rgba(99, 102, 241, 0.28);
+    --dot-color: #6366f1;
+}
+
+:root[data-theme="rose"] {
+    --bg: #0f060a;
+    --bg-soft: #180c12;
+    --bg-card: #201018;
+    --text: #fff0f5;
+    --text-dim: #c4a0b4;
+    --accent: #ec4899;
+    --accent-2: #f472b6;
+    --accent-soft: rgba(236, 72, 153, 0.14);
+    --border: rgba(236, 72, 153, 0.28);
+    --shadow: rgba(236, 72, 153, 0.28);
+    --dot-color: #ec4899;
+}
+
+:root[data-theme="mint"] {
+    --bg: #040f0e;
+    --bg-soft: #081a18;
+    --bg-card: #0c2420;
+    --text: #ecfdf5;
+    --text-dim: #94b8b0;
+    --accent: #14b8a6;
+    --accent-2: #2dd4bf;
+    --accent-soft: rgba(20, 184, 166, 0.14);
+    --border: rgba(20, 184, 166, 0.28);
+    --shadow: rgba(20, 184, 166, 0.28);
+    --dot-color: #14b8a6;
+}
+
+:root[data-theme="lavender"] {
+    --bg: #0c0a12;
+    --bg-soft: #14101e;
+    --bg-card: #1c1628;
+    --text: #f5f0ff;
+    --text-dim: #b0a0c8;
+    --accent: #a855f7;
+    --accent-2: #c084fc;
+    --accent-soft: rgba(168, 85, 247, 0.14);
+    --border: rgba(168, 85, 247, 0.28);
+    --shadow: rgba(168, 85, 247, 0.28);
+    --dot-color: #a855f7;
 }
 
 * {
@@ -1785,6 +1855,89 @@ ul {
     border-radius: 0;
     border: none;
     background: transparent;
+}
+
+.cards-glass .project-card,
+.cards-glass .service-card,
+.cards-glass .about-card,
+.cards-glass .contact-card {
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cards-gradient .project-card,
+.cards-gradient .service-card,
+.cards-gradient .about-card,
+.cards-gradient .contact-card {
+    border-radius: 20px;
+    background: linear-gradient(135deg, var(--bg-card), var(--accent-soft));
+    border: 1px solid var(--border);
+}
+
+.cards-compact .project-card,
+.cards-compact .service-card,
+.cards-compact .about-card,
+.cards-compact .contact-card {
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.cards-outline .project-card,
+.cards-outline .service-card,
+.cards-outline .about-card,
+.cards-outline .contact-card {
+    border-radius: 16px;
+    background: transparent;
+    border: 2px solid var(--border);
+}
+
+/* ============================================
+   Font Variants
+   ============================================ */
+.font-cairo { font-family: 'Cairo', sans-serif; }
+.font-noto { font-family: 'Noto Kufi Arabic', sans-serif; }
+.font-tajawal { font-family: 'Tajawal', sans-serif; }
+.font-almarai { font-family: 'Almarai', sans-serif; }
+
+.font-cairo *, .font-cairo { font-family: 'Cairo', sans-serif; }
+.font-noto *, .font-noto { font-family: 'Noto Kufi Arabic', sans-serif; }
+.font-tajawal *, .font-tajawal { font-family: 'Tajawal', sans-serif; }
+.font-almarai *, .font-almarai { font-family: 'Almarai', sans-serif; }
+
+/* ============================================
+   Background Patterns
+   ============================================ */
+.bg-pattern-dots {
+    background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+.bg-pattern-lines {
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, var(--border) 10px, var(--border) 11px);
+}
+
+.bg-pattern-grid {
+    background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.bg-pattern-none {
+    background-image: none;
+}
+
+/* ============================================
+   Custom Accent Override
+   ============================================ */
+:root[data-accent="custom"] {
+    --accent: var(--custom-accent);
+    --accent-soft: color-mix(in srgb, var(--custom-accent) 14%, transparent);
+    --border: color-mix(in srgb, var(--custom-accent) 28%, transparent);
+    --shadow: color-mix(in srgb, var(--custom-accent) 28%, transparent);
 }
 
 /* ============================================

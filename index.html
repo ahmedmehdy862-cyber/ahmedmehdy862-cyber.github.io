@@ -6,7 +6,7 @@
     <title>A.Mahdy — معرض أعمالي</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -285,7 +285,7 @@
                 <!-- Tab: المظهر -->
                 <div class="admin-tab-panel" data-panel="appearance">
                     <div class="admin-section-block">
-                        <h3>الثيم</h3>
+                        <h3>الثيم (10 ثيمات)</h3>
                         <p class="admin-hint">اختار الثيم اللي يعجبك — بيتحفظ تلقائي</p>
                         <div class="admin-themes-grid" id="adminThemes">
                             <button class="admin-theme-btn" data-theme="neon"><span class="admin-theme-color" style="background:#8b5cf6"></span><span>نيون</span></button>
@@ -293,19 +293,40 @@
                             <button class="admin-theme-btn" data-theme="forest"><span class="admin-theme-color" style="background:#10b981"></span><span>غابة</span></button>
                             <button class="admin-theme-btn" data-theme="royal"><span class="admin-theme-color" style="background:#d4af37"></span><span>ملكي</span></button>
                             <button class="admin-theme-btn" data-theme="ocean"><span class="admin-theme-color" style="background:#0ea5e9"></span><span>محيطي</span></button>
+                            <button class="admin-theme-btn" data-theme="sunset"><span class="admin-theme-color" style="background:#f43f5e"></span><span>غروب</span></button>
+                            <button class="admin-theme-btn" data-theme="midnight"><span class="admin-theme-color" style="background:#6366f1"></span><span>منتصف الليل</span></button>
+                            <button class="admin-theme-btn" data-theme="rose"><span class="admin-theme-color" style="background:#ec4899"></span><span>وردي</span></button>
+                            <button class="admin-theme-btn" data-theme="mint"><span class="admin-theme-color" style="background:#14b8a6"></span><span>نعناع</span></button>
+                            <button class="admin-theme-btn" data-theme="lavender"><span class="admin-theme-color" style="background:#a855f7"></span><span>لافندر</span></button>
                         </div>
                     </div>
                     <div class="admin-section-block">
-                        <h3>الصورة الشخصية</h3>
-                        <div class="admin-logo-area">
-                            <div class="admin-logo-preview" id="adminLogoPreview"><span>A.M</span></div>
-                            <label class="admin-upload-btn" for="logoUpload">رفع صورتي</label>
-                            <input type="file" accept="image/*" id="logoUpload" hidden>
-                            <div class="admin-upload-progress hidden" id="logoProgress">
-                                <div class="admin-progress-bar"><div class="admin-progress-fill" id="logoProgressFill"></div></div>
-                                <span class="admin-progress-text" id="logoProgressText">جاري الرفع...</span>
-                            </div>
-                            <p class="admin-hint">ارفع صورة شخصية — أي حجم (بتدعم IndexedDB)</p>
+                        <h3>لون Accent مخصص</h3>
+                        <p class="admin-hint">اختار لون مخصصك — بيغيّر لون كل العناصر المميزة</p>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <input type="color" id="customAccent" value="#8b5cf6" style="width:50px;height:40px;border:none;cursor:pointer;border-radius:8px;">
+                            <button class="admin-save-btn" id="applyAccent" style="margin:0;">تطبيق اللون</button>
+                            <button class="admin-save-btn admin-save-btn--secondary" id="resetAccent" style="margin:0;">إرجاع الثيم الأصلي</button>
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>الخط</h3>
+                        <p class="admin-hint">اختار الخط اللي يعجبك</p>
+                        <div class="admin-layout-choices" data-layout-key="font">
+                            <button class="admin-layout-btn active" data-value="cairo">Cairo</button>
+                            <button class="admin-layout-btn" data-value="noto">Noto Kufi</button>
+                            <button class="admin-layout-btn" data-value="tajawal">Tajawal</button>
+                            <button class="admin-layout-btn" data-value="almarai">Almarai</button>
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>نمط الخلفية</h3>
+                        <p class="admin-hint">اختار نمط يظهر خلف الأقسام</p>
+                        <div class="admin-layout-choices" data-layout-key="bgPattern">
+                            <button class="admin-layout-btn active" data-value="none">بدون</button>
+                            <button class="admin-layout-btn" data-value="dots">نقاط</button>
+                            <button class="admin-layout-btn" data-value="lines">خطوط</button>
+                            <button class="admin-layout-btn" data-value="grid">شبكة</button>
                         </div>
                     </div>
                     <div class="admin-section-block">
@@ -317,6 +338,10 @@
                                 <button class="admin-layout-btn active" data-value="rounded">مستديرة</button>
                                 <button class="admin-layout-btn" data-value="square">مربعة</button>
                                 <button class="admin-layout-btn" data-value="minimal">بسيطة</button>
+                                <button class="admin-layout-btn" data-value="glass">زجاجية</button>
+                                <button class="admin-layout-btn" data-value="gradient">تدرجية</button>
+                                <button class="admin-layout-btn" data-value="compact">مضغوطة</button>
+                                <button class="admin-layout-btn" data-value="outline">حدود فقط</button>
                             </div>
                         </div>
                         <div class="admin-layout-group">
@@ -345,7 +370,20 @@
                         </div>
                     </div>
                     <div class="admin-section-block">
-                        <h3> descargar los cambios</h3>
+                        <h3>الصورة الشخصية</h3>
+                        <div class="admin-logo-area">
+                            <div class="admin-logo-preview" id="adminLogoPreview"><span>A.M</span></div>
+                            <label class="admin-upload-btn" for="logoUpload">رفع صورتي</label>
+                            <input type="file" accept="image/*" id="logoUpload" hidden>
+                            <div class="admin-upload-progress hidden" id="logoProgress">
+                                <div class="admin-progress-bar"><div class="admin-progress-fill" id="logoProgressFill"></div></div>
+                                <span class="admin-progress-text" id="logoProgressText">جاري الرفع...</span>
+                            </div>
+                            <p class="admin-hint">ارفع صورة شخصية — أي حجم (بتدعم IndexedDB)</p>
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>تصدير البيانات</h3>
                         <p class="admin-hint">حمّل ملف data.js المحدّث وارفعه على GitHub عشان التغييرات تظهر للجمهور</p>
                         <button class="admin-save-btn" id="downloadDataJS">تحميل data.js</button>
                         <button class="admin-save-btn admin-save-btn--secondary" id="resetAllData">إعادة تعيين البيانات</button>

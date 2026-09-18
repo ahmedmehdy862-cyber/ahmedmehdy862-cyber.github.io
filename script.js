@@ -234,20 +234,31 @@ var DataManager = (function () {
    Layout Manager — أشكال الموقع
    ============================================ */
 var LayoutManager = (function () {
-    var layoutKeys = ['cardStyle', 'heroStyle', 'sectionGap', 'animations'];
+    var layoutKeys = ['cardStyle', 'heroStyle', 'sectionGap', 'animations', 'font', 'bgPattern'];
     var layoutClasses = {
-        cardStyle: { rounded: 'cards-rounded', square: 'cards-square', minimal: 'cards-minimal' },
+        cardStyle: { rounded: 'cards-rounded', square: 'cards-square', minimal: 'cards-minimal', glass: 'cards-glass', gradient: 'cards-gradient', compact: 'cards-compact', outline: 'cards-outline' },
         heroStyle: { split: 'hero-split', center: 'hero-center', minimal: 'hero-minimal' },
         sectionGap: { sm: 'gap-sm', md: 'gap-md', lg: 'gap-lg' },
-        animations: { none: 'anim-none', subtle: 'anim-subtle', strong: 'anim-strong' }
+        animations: { none: 'anim-none', subtle: 'anim-subtle', strong: 'anim-strong' },
+        font: { cairo: 'font-cairo', noto: 'font-noto', tajawal: 'font-tajawal', almarai: 'font-almarai' },
+        bgPattern: { none: 'bg-pattern-none', dots: 'bg-pattern-dots', lines: 'bg-pattern-lines', grid: 'bg-pattern-grid' }
     };
 
     function apply(layout) {
         var body = document.body;
         layoutKeys.forEach(function (key) {
+            if (!layoutClasses[key]) return;
             Object.values(layoutClasses[key]).forEach(function (cls) { body.classList.remove(cls); });
             if (layoutClasses[key][layout[key]]) body.classList.add(layoutClasses[key][layout[key]]);
         });
+        // custom accent
+        if (layout.customAccent) {
+            document.documentElement.style.setProperty('--custom-accent', layout.customAccent);
+            document.documentElement.setAttribute('data-accent', 'custom');
+        } else {
+            document.documentElement.removeAttribute('data-accent');
+            document.documentElement.style.removeProperty('--custom-accent');
+        }
     }
 
     function init() {
@@ -255,8 +266,10 @@ var LayoutManager = (function () {
         apply(saved);
 
         document.addEventListener('DOMContentLoaded', function () {
+            // Layout choice buttons
             document.querySelectorAll('.admin-layout-choices').forEach(function (group) {
                 var key = group.getAttribute('data-layout-key');
+                if (key === 'customAccent') return;
                 var btns = group.querySelectorAll('.admin-layout-btn');
                 btns.forEach(function (btn) {
                     if (btn.getAttribute('data-value') === saved[key]) {
@@ -274,6 +287,32 @@ var LayoutManager = (function () {
                     });
                 });
             });
+
+            // Custom accent color
+            var accentInput = document.getElementById('customAccent');
+            var applyBtn = document.getElementById('applyAccent');
+            var resetBtn = document.getElementById('resetAccent');
+            if (accentInput && applyBtn) {
+                if (saved.customAccent) accentInput.value = saved.customAccent;
+                applyBtn.addEventListener('click', function () {
+                    var layout = DataManager.getLayout();
+                    layout.customAccent = accentInput.value;
+                    DataManager.setLayout(layout);
+                    apply(layout);
+                    var orig = applyBtn.textContent;
+                    applyBtn.textContent = 'تم التطبيق ✓';
+                    applyBtn.classList.add('saved');
+                    setTimeout(function () { applyBtn.textContent = orig; applyBtn.classList.remove('saved'); }, 2000);
+                });
+            }
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function () {
+                    var layout = DataManager.getLayout();
+                    delete layout.customAccent;
+                    DataManager.setLayout(layout);
+                    apply(layout);
+                });
+            }
         });
     }
 
