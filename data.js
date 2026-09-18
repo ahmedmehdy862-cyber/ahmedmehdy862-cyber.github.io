@@ -18,6 +18,23 @@ const SITE_DATA = {
             "instagram": ""
         }
     },
+    "site": {
+        "badge": "معرض أعمالي",
+        "heroBtn1": "شاهد أعمالي",
+        "heroBtn2": "تواصل معي",
+        "aboutTitle": "عني",
+        "aboutDesc": "قصة شغفي بالألوان والتفاصيل",
+        "projectsTitle": "أعمالي",
+        "projectsDesc": "مجموعة مختارة من المشاريع التي صممتها",
+        "servicesTitle": "الخدمات",
+        "servicesDesc": "ما الذي أقدمه لعملائي",
+        "contactTitle": "تواصل معي",
+        "contactDesc": "جاهز لنبدأ مشروعك؟ تواصل معي",
+        "contactCard1": "البريد الإلكتروني",
+        "contactCard2": "سوشيال ميديا",
+        "contactCard3": "الموقع",
+        "footerText": "صمم بمحبة"
+    },
     "stats": [
         {
             "value": "5+",

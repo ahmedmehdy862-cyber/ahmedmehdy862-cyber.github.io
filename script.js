@@ -283,6 +283,7 @@ var CounterAnimation = (function () {
             loadServicesForm();
             loadPhoto();
             loadLayoutForm();
+            loadContentForm();
         }
 
         /* --- Tabs --- */
@@ -526,6 +527,52 @@ var CounterAnimation = (function () {
             });
         }
 
+        /* --- Content --- */
+        function loadContentForm() {
+            var d = DataManager.load();
+            if (!d || !d.site) return;
+            setVal('editBadge', d.site.badge);
+            setVal('editHeroBtn1', d.site.heroBtn1);
+            setVal('editHeroBtn2', d.site.heroBtn2);
+            setVal('editAboutTitle', d.site.aboutTitle);
+            setVal('editAboutDesc', d.site.aboutDesc);
+            setVal('editProjectsTitle', d.site.projectsTitle);
+            setVal('editProjectsDesc', d.site.projectsDesc);
+            setVal('editServicesTitle', d.site.servicesTitle);
+            setVal('editServicesDesc', d.site.servicesDesc);
+            setVal('editContactTitle', d.site.contactTitle);
+            setVal('editContactDesc', d.site.contactDesc);
+            setVal('editContactCard1', d.site.contactCard1);
+            setVal('editContactCard2', d.site.contactCard2);
+            setVal('editContactCard3', d.site.contactCard3);
+            setVal('editFooterText', d.site.footerText);
+        }
+
+        document.getElementById('saveContent').addEventListener('click', function () {
+            var d = DataManager.load();
+            if (!d.site) d.site = {};
+            d.site.badge = getVal('editBadge');
+            d.site.heroBtn1 = getVal('editHeroBtn1');
+            d.site.heroBtn2 = getVal('editHeroBtn2');
+            d.site.aboutTitle = getVal('editAboutTitle');
+            d.site.aboutDesc = getVal('editAboutDesc');
+            d.site.projectsTitle = getVal('editProjectsTitle');
+            d.site.projectsDesc = getVal('editProjectsDesc');
+            d.site.servicesTitle = getVal('editServicesTitle');
+            d.site.servicesDesc = getVal('editServicesDesc');
+            d.site.contactTitle = getVal('editContactTitle');
+            d.site.contactDesc = getVal('editContactDesc');
+            d.site.contactCard1 = getVal('editContactCard1');
+            d.site.contactCard2 = getVal('editContactCard2');
+            d.site.contactCard3 = getVal('editContactCard3');
+            d.site.footerText = getVal('editFooterText');
+            DataManager.save(d);
+            renderSite();
+            ScrollReveal.init();
+            CounterAnimation.init();
+            showSaved(this);
+        });
+
         /* --- Download data.js --- */
         document.getElementById('downloadDataJS').addEventListener('click', function () {
             var d = DataManager.load();
@@ -550,6 +597,7 @@ var CounterAnimation = (function () {
             loadServicesForm();
             loadPhoto();
             loadLayoutForm();
+            loadContentForm();
             LayoutManager.apply(DataManager.getLayout());
             renderSite();
             ScrollReveal.init();
@@ -589,13 +637,30 @@ function renderSite() {
     function $(id) { return document.getElementById(id); }
     function fill(id, v) { var el = $(id); if (el && v) el.textContent = v; }
 
-    fill('heroName', d.profile.name);
-    fill('heroRole', d.profile.role);
-    fill('heroTagline', d.profile.tagline);
-    fill('aboutBio', d.profile.bio);
-    fill('aboutSubtitle', 'قصة شغفي بالألوان والتفاصيل');
-    fill('contactEmail', d.profile.email);
-    fill('contactLocation', d.profile.location);
+    var p = d.profile;
+    var s = d.site || {};
+
+    fill('heroName', p.name);
+    fill('heroRole', p.role);
+    fill('heroTagline', p.tagline);
+    fill('heroBadge', s.badge);
+    fill('heroBtn1', s.heroBtn1);
+    fill('heroBtn2', s.heroBtn2);
+    fill('aboutBio', p.bio);
+    fill('aboutTitle', s.aboutTitle);
+    fill('aboutDesc', s.aboutDesc);
+    fill('contactEmail', p.email);
+    fill('contactLocation', p.location);
+    fill('contactTitle', s.contactTitle);
+    fill('contactDesc', s.contactDesc);
+    fill('contactCard1Title', s.contactCard1);
+    fill('contactCard2Title', s.contactCard2);
+    fill('contactCard3Title', s.contactCard3);
+    fill('projectsTitle', s.projectsTitle);
+    fill('projectsDesc', s.projectsDesc);
+    fill('servicesTitle', s.servicesTitle);
+    fill('servicesDesc', s.servicesDesc);
+    fill('footerText', s.footerText);
     fill('footerYear', String(new Date().getFullYear()));
 
     var socials = d.profile.socials || {};
