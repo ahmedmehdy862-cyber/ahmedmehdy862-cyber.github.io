@@ -213,20 +213,28 @@ ul {
     background: var(--accent-soft);
     border: 1px solid var(--border);
     color: var(--accent);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     cursor: pointer;
     transition: background 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+.admin-btn-text {
+    font-family: 'Cairo', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
 }
 
 .admin-nav-btn:hover {
     background: var(--accent);
     color: #fff;
-    transform: scale(1.08);
+    transform: scale(1.04);
 }
 
 .nav-toggle {
@@ -1236,4 +1244,63 @@ ul {
 .admin-logout-btn:hover {
     background: #ef4444;
     color: #fff;
+}
+
+/* ============================================
+   Admin Themes Grid
+   ============================================ */
+.admin-themes-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.admin-theme-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 6px;
+    cursor: pointer;
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    transition: border-color 0.3s ease, transform 0.2s ease;
+}
+
+.admin-theme-btn:hover {
+    transform: scale(1.06);
+}
+
+.admin-theme-btn.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.admin-theme-color {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 560px) {
+    .admin-themes-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .admin-btn-text {
+        display: none;
+    }
+    .admin-nav-btn {
+        padding: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
 }

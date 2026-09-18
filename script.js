@@ -39,6 +39,16 @@
         // تحميل اللوجو المحفوظ
         loadSavedLogo(logoPreview, aboutAvatar);
 
+        // تحميل الثيم المحفوظ وتحديث الأزرار
+        var savedTheme = null;
+        try {
+            savedTheme = localStorage.getItem('amahdy_theme');
+        } catch (e) {}
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        }
+        updateAdminThemeButtons(savedTheme || 'neon');
+
         // فتح لوحة التحكم
         navBtn.addEventListener('click', function () {
             overlay.classList.remove('hidden');
@@ -115,6 +125,29 @@
             };
             reader.readAsDataURL(file);
         });
+
+        // التحكم بالثيمات من لوحة التحكم
+        var adminThemeBtns = document.querySelectorAll('.admin-theme-btn');
+        adminThemeBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var theme = btn.getAttribute('data-theme');
+                document.documentElement.setAttribute('data-theme', theme);
+                try {
+                    localStorage.setItem('amahdy_theme', theme);
+                } catch (e) {}
+                updateAdminThemeButtons(theme);
+                // تحديث أزرار الناف
+                document.querySelectorAll('.theme-dot').forEach(function (dot) {
+                    dot.classList.toggle('active', dot.getAttribute('data-theme') === theme);
+                });
+            });
+        });
+
+        function updateAdminThemeButtons(active) {
+            adminThemeBtns.forEach(function (btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-theme') === active);
+            });
+        }
 
         function showDashboard() {
             loginSection.classList.add('hidden');
