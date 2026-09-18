@@ -30,9 +30,9 @@
                     <button class="theme-dot" data-theme="royal" title="ملكي" style="--dot-color:#d4af37"></button>
                     <button class="theme-dot" data-theme="ocean" title="محيطي" style="--dot-color:#0ea5e9"></button>
                 </div>
-                <button class="admin-nav-btn" id="adminNavBtn" title="دخول صاحب الحساب">
+                <button class="admin-nav-btn" id="adminNavBtn" title="لوحة التحكم">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span class="admin-btn-text">دخول</span>
+                    <span class="admin-btn-text">لوحة التحكم</span>
                 </button>
                 <button class="nav-toggle" id="navToggle" aria-label="القائمة">
                     <span></span><span></span><span></span>
@@ -55,25 +55,12 @@
                     <span class="hero-name" id="heroName">أحمد مهدي</span>
                     <span class="hero-role" id="heroRole">جرافيك ديزاينر</span>
                 </h1>
-                <p class="hero-desc" id="heroTagline">أحوّل الأفكار إلى تصاميم بصرية تلمس — هويات بصرية، سوشيال ميديا، وموشن جاهزة تخلق تأثير حقيقي.</p>
+                <p class="hero-desc" id="heroTagline">أحوّل الأفكار إلى تصاميم بصرية تلمس</p>
                 <div class="hero-cta">
                     <a href="#projects" class="btn btn-primary">شاهد أعمالي</a>
                     <a href="#contact" class="btn btn-ghost">تواصل معي</a>
                 </div>
-                <div class="hero-stats" id="heroStats">
-                    <div class="hero-stat">
-                        <div class="hero-stat-num">+20</div>
-                        <div class="hero-stat-label">جامعة عملت معاها</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-num">+50</div>
-                        <div class="hero-stat-label">تصميم ومنشن</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="hero-stat-num">5+</div>
-                        <div class="hero-stat-label">سنوات خبرة</div>
-                    </div>
-                </div>
+                <div class="hero-stats" id="heroStats"></div>
             </div>
             <div class="hero-visual">
                 <div class="hero-frame">
@@ -90,7 +77,7 @@
             <div class="section-header">
                 <span class="section-number">01</span>
                 <h2 class="section-title">عني</h2>
-                <p class="section-desc">قصة شغفي بالألوان والتفاصيل</p>
+                <p class="section-desc" id="aboutSubtitle">قصة شغفي بالألوان والتفاصيل</p>
             </div>
             <div class="about-grid">
                 <div class="about-card">
@@ -99,16 +86,8 @@
                     </div>
                 </div>
                 <div class="about-card about-content">
-                    <p class="about-bio" id="aboutBio">
-                        مصمم جرافيك بشغف حقيقي للهوية البصرية والتفاصيل. اشتغلت مع أكثر من 20 جامعة مصرية على محتوى ميديا متكامل، وبنيت هويات بصرية ساهمت في وصول أكثر من مليون مشاهدة. أؤمن إن التصميم الجيد مش شكلاً جميلاً فقط، بل رسالة تصل بوضوح وتأثير.
-                    </p>
-                    <div class="about-skills" id="aboutSkills">
-                        <span class="skill-tag">هوية بصرية</span>
-                        <span class="skill-tag">سوشيال ميديا ديزاين</span>
-                        <span class="skill-tag">موشن جرافيك</span>
-                        <span class="skill-tag">إخراج طباعي</span>
-                        <span class="skill-tag">تصميم بوسترات</span>
-                    </div>
+                    <p class="about-bio" id="aboutBio"></p>
+                    <div class="about-skills" id="aboutSkills"></div>
                 </div>
             </div>
         </div>
@@ -122,12 +101,8 @@
                 <h2 class="section-title">أعمالي</h2>
                 <p class="section-desc">مجموعة مختارة من المشاريع التي صممتها</p>
             </div>
-            <div class="projects-toolbar">
+            <div class="projects-toolbar" id="projectsToolbar">
                 <button class="filter-btn active" data-filter="all">الكل</button>
-                <button class="filter-btn" data-filter="identity">هويات بصرية</button>
-                <button class="filter-btn" data-filter="social">سوشيال ميديا</button>
-                <button class="filter-btn" data-filter="motion">موشن</button>
-                <button class="filter-btn" data-filter="print">طباعي</button>
             </div>
             <div class="projects-grid" id="projectsGrid"></div>
         </div>
@@ -151,23 +126,23 @@
             <div class="section-header">
                 <span class="section-number">04</span>
                 <h2 class="section-title">تواصل معي</h2>
-                <p class="section-desc">جاهز لنبدأ مشروعك؟ كلني يسّر</p>
+                <p class="section-desc">جاهز لنبدأ مشروعك؟ تواصل معي</p>
             </div>
             <div class="contact-grid">
                 <div class="contact-card">
                     <div class="contact-icon">@</div>
                     <h3>البريد الإلكتروني</h3>
-                    <p id="contactEmail">mohamed_mahdy@example.com</p>
+                    <p id="contactEmail"></p>
                 </div>
                 <div class="contact-card">
                     <div class="contact-icon">#</div>
                     <h3>سوشيال ميديا</h3>
-                    <p id="contactSocials">Behance · Instagram · LinkedIn</p>
+                    <p id="contactSocials"></p>
                 </div>
                 <div class="contact-card">
                     <div class="contact-icon">✦</div>
                     <h3>الموقع</h3>
-                    <p id="contactLocation">مصر</p>
+                    <p id="contactLocation"></p>
                 </div>
             </div>
         </div>
@@ -178,7 +153,9 @@
         <p>صمم بمحبة © <span id="footerYear">2026</span> — A.Mahdy</p>
     </footer>
 
-    <!-- Admin Panel (لوحة تحكم صاحب الحساب) -->
+    <!-- ============================================
+         Admin Panel (لوحة تحكم صاحب الحساب)
+         ============================================ -->
     <div class="admin-overlay hidden" id="adminOverlay">
         <div class="admin-panel">
             <div class="admin-header">
@@ -186,7 +163,7 @@
                 <button class="admin-close" id="adminClose">✕</button>
             </div>
 
-            <!-- Login Section -->
+            <!-- Login -->
             <div id="adminLoginSection">
                 <p class="admin-login-hint">سجّل الدخول للوصول للوحة التحكم</p>
                 <form class="admin-form" id="adminForm">
@@ -197,60 +174,132 @@
                 <p class="admin-error" id="adminError">اسم المستخدم أو كلمة السر غير صحيحة</p>
             </div>
 
-            <!-- Dashboard Section (يظهر بعد تسجيل الدخول) -->
+            <!-- Dashboard -->
             <div class="admin-dashboard hidden" id="adminDashboard">
 
-                <div class="admin-section">
-                    <h3>الثيمات</h3>
-                    <p class="admin-hint">اختار الثيم اللي يعجبك — بيتحفظ تلقائي</p>
-                    <div class="admin-themes-grid" id="adminThemes">
-                        <button class="admin-theme-btn" data-theme="neon">
-                            <span class="admin-theme-color" style="background:#8b5cf6"></span>
-                            <span>نيون</span>
-                        </button>
-                        <button class="admin-theme-btn" data-theme="light">
-                            <span class="admin-theme-color" style="background:#f59e0b"></span>
-                            <span>مشمس</span>
-                        </button>
-                        <button class="admin-theme-btn" data-theme="forest">
-                            <span class="admin-theme-color" style="background:#10b981"></span>
-                            <span>غابة</span>
-                        </button>
-                        <button class="admin-theme-btn" data-theme="royal">
-                            <span class="admin-theme-color" style="background:#d4af37"></span>
-                            <span>ملكي</span>
-                        </button>
-                        <button class="admin-theme-btn" data-theme="ocean">
-                            <span class="admin-theme-color" style="background:#0ea5e9"></span>
-                            <span>محيطي</span>
-                        </button>
-                    </div>
+                <!-- Tabs -->
+                <div class="admin-tabs" id="adminTabs">
+                    <button class="admin-tab active" data-tab="profile">الملف الشخصي</button>
+                    <button class="admin-tab" data-tab="stats">الأرقام</button>
+                    <button class="admin-tab" data-tab="skills">المهارات</button>
+                    <button class="admin-tab" data-tab="projects">المشاريع</button>
+                    <button class="admin-tab" data-tab="services">الخدمات</button>
+                    <button class="admin-tab" data-tab="appearance">المظهر</button>
                 </div>
 
-                <div class="admin-section">
-                    <h3>صورتي</h3>
-                    <div class="admin-logo-area">
-                        <div class="admin-logo-preview" id="adminLogoPreview">
-                            <span>A.M</span>
+                <!-- Tab: الملف الشخصي -->
+                <div class="admin-tab-panel active" data-panel="profile">
+                    <div class="admin-field">
+                        <label>الاسم الكامل</label>
+                        <input type="text" id="editName" class="admin-input" placeholder="مثال: أحمد مهدي">
+                    </div>
+                    <div class="admin-field">
+                        <label>المسمى الوظيفي</label>
+                        <input type="text" id="editRole" class="admin-input" placeholder="مثال: جرافيك ديزاينر">
+                    </div>
+                    <div class="admin-field">
+                        <label>الوصف المختصر</label>
+                        <textarea id="editTagline" class="admin-input" rows="2" placeholder="جملة قصيرة تلخص شغفك"></textarea>
+                    </div>
+                    <div class="admin-field">
+                        <label>النبذة التعريفية</label>
+                        <textarea id="editBio" class="admin-input" rows="4" placeholder="وصف تفصيلي عن خبراتك وماقدمه"></textarea>
+                    </div>
+                    <div class="admin-field-row">
+                        <div class="admin-field">
+                            <label>الموقع</label>
+                            <input type="text" id="editLocation" class="admin-input" placeholder="مثال: مصر">
                         </div>
-                        <label class="admin-upload-btn" for="logoUpload">رفع صورتي</label>
-                        <input type="file" accept="image/*" id="logoUpload" hidden>
-                        <p class="admin-hint">ارفع صورة شخصية — هتظهر في قسم "عني" وفي اللوجو</p>
+                        <div class="admin-field">
+                            <label>البريد الإلكتروني</label>
+                            <input type="email" id="editEmail" class="admin-input" dir="ltr" placeholder="email@example.com">
+                        </div>
+                    </div>
+                    <div class="admin-field">
+                        <label>GitHub</label>
+                        <input type="url" id="editGithub" class="admin-input" dir="ltr" placeholder="https://github.com/username">
+                    </div>
+                    <div class="admin-field">
+                        <label>Behance</label>
+                        <input type="url" id="editBehance" class="admin-input" dir="ltr" placeholder="https://www.behance.net/username">
+                    </div>
+                    <div class="admin-field">
+                        <label>Instagram</label>
+                        <input type="url" id="editInstagram" class="admin-input" dir="ltr" placeholder="https://instagram.com/username">
+                    </div>
+                    <div class="admin-field">
+                        <label>LinkedIn</label>
+                        <input type="url" id="editLinkedin" class="admin-input" dir="ltr" placeholder="https://linkedin.com/in/username">
+                    </div>
+                    <button class="admin-save-btn" id="saveProfile">حفظ الملف الشخصي</button>
+                </div>
+
+                <!-- Tab: الأرقام -->
+                <div class="admin-tab-panel" data-panel="stats">
+                    <p class="admin-hint">الأرقام والإحصائيات المعروضة في الواجهة الرئيسية</p>
+                    <div class="admin-dynamic-list" id="statsList"></div>
+                    <button class="admin-add-btn" id="addStat">+ إضافة رقم</button>
+                    <button class="admin-save-btn" id="saveStats">حفظ التغييرات</button>
+                </div>
+
+                <!-- Tab: المهارات -->
+                <div class="admin-tab-panel" data-panel="skills">
+                    <p class="admin-hint">المهارات المعروضة في قسم "عني"</p>
+                    <div class="admin-dynamic-list" id="skillsList"></div>
+                    <button class="admin-add-btn" id="addSkill">+ إضافة مهارة</button>
+                    <button class="admin-save-btn" id="saveSkills">حفظ التغييرات</button>
+                </div>
+
+                <!-- Tab: المشاريع -->
+                <div class="admin-tab-panel" data-panel="projects">
+                    <p class="admin-hint">المشاريع المعروضة في معرض الأعمال</p>
+                    <div class="admin-dynamic-list" id="projectsList"></div>
+                    <button class="admin-add-btn" id="addProject">+ إضافة مشروع</button>
+                    <button class="admin-save-btn" id="saveProjects">حفظ التغييرات</button>
+                </div>
+
+                <!-- Tab: الخدمات -->
+                <div class="admin-tab-panel" data-panel="services">
+                    <p class="admin-hint">الخدمات والباقات المعروضة</p>
+                    <div class="admin-dynamic-list" id="servicesList"></div>
+                    <button class="admin-add-btn" id="addService">+ إضافة خدمة</button>
+                    <button class="admin-save-btn" id="saveServices">حفظ التغييرات</button>
+                </div>
+
+                <!-- Tab: المظهر -->
+                <div class="admin-tab-panel" data-panel="appearance">
+                    <div class="admin-section-block">
+                        <h3>الثيم</h3>
+                        <p class="admin-hint">اختار الثيم اللي يعجبك — بيتحفظ تلقائي</p>
+                        <div class="admin-themes-grid" id="adminThemes">
+                            <button class="admin-theme-btn" data-theme="neon"><span class="admin-theme-color" style="background:#8b5cf6"></span><span>نيون</span></button>
+                            <button class="admin-theme-btn" data-theme="light"><span class="admin-theme-color" style="background:#f59e0b"></span><span>مشمس</span></button>
+                            <button class="admin-theme-btn" data-theme="forest"><span class="admin-theme-color" style="background:#10b981"></span><span>غابة</span></button>
+                            <button class="admin-theme-btn" data-theme="royal"><span class="admin-theme-color" style="background:#d4af37"></span><span>ملكي</span></button>
+                            <button class="admin-theme-btn" data-theme="ocean"><span class="admin-theme-color" style="background:#0ea5e9"></span><span>محيطي</span></button>
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>الصورة الشخصية</h3>
+                        <div class="admin-logo-area">
+                            <div class="admin-logo-preview" id="adminLogoPreview"><span>A.M</span></div>
+                            <label class="admin-upload-btn" for="logoUpload">رفع صورتي</label>
+                            <input type="file" accept="image/*" id="logoUpload" hidden>
+                            <p class="admin-hint">ارفع صورة شخصية — هتظهر في قسم "عني"</p>
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3> descargar los cambios</h3>
+                        <p class="admin-hint">حمّل ملف data.js المحدّث وارفعه على GitHub عشان التغييرات تظهر للجمهور</p>
+                        <button class="admin-save-btn" id="downloadDataJS">تحميل data.js</button>
+                        <button class="admin-save-btn admin-save-btn--secondary" id="resetAllData">إعادة تعيين البيانات</button>
                     </div>
                 </div>
 
-                <div class="admin-section">
-                    <h3>تعديل البيانات</h3>
-                    <p class="admin-hint">لتعديل المحتوى والمشاريع والباقات، عدّل ملف <code>data.js</code> على GitHub مباشرة</p>
-                    <a href="https://github.com/ahmedmehdy862-cyber/ahmedmehdy862-cyber.github.io/edit/main/data.js" target="_blank" class="admin-edit-btn">تعديل data.js على GitHub</a>
+                <div class="admin-dashboard-footer">
+                    <button class="admin-logout-btn" id="adminLogout">تسجيل الخروج</button>
                 </div>
 
-                <div class="admin-section">
-                    <h3>معلومات الموقع</h3>
-                    <p class="admin-hint">الرابط العام: <a href="https://ahmedmehdy862-cyber.github.io/" target="_blank" class="admin-link">ahmedmehdy862-cyber.github.io</a></p>
-                </div>
-
-                <button class="admin-logout-btn" id="adminLogout">تسجيل الخروج</button>
             </div>
         </div>
     </div>

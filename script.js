@@ -1,21 +1,95 @@
 /* ============================================
-   Admin Panel (لوحة تحكم صاحب الحساب)
+   Data Manager — حفظ/تحميل من localStorage
+   ============================================ */
+var DataManager = (function () {
+    var DATA_KEY = 'amahdy_site_data';
+    var LOGO_KEY = 'amahdy_logo';
+    var THEME_KEY = 'amahdy_theme';
+
+    function getDefault() {
+        return typeof SITE_DATA !== 'undefined' ? JSON.parse(JSON.stringify(SITE_DATA)) : null;
+    }
+
+    function load() {
+        try {
+            var raw = localStorage.getItem(DATA_KEY);
+            if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return getDefault();
+    }
+
+    function save(data) {
+        try {
+            localStorage.setItem(DATA_KEY, JSON.stringify(data));
+        } catch (e) {
+            alert('خطأ في الحفظ — تأكد من تفعيل التخزين المحلي');
+        }
+    }
+
+    function getLogo() {
+        try { return localStorage.getItem(LOGO_KEY); } catch (e) { return null; }
+    }
+
+    function setLogo(dataUrl) {
+        try { localStorage.setItem(LOGO_KEY, dataUrl); } catch (e) {}
+    }
+
+    function getTheme() {
+        try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+    }
+
+    function setTheme(theme) {
+        try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+    }
+
+    function reset() {
+        try {
+            localStorage.removeItem(DATA_KEY);
+            localStorage.removeItem(LOGO_KEY);
+        } catch (e) {}
+    }
+
+    return { load: load, save: save, getDefault: getDefault, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, reset: reset };
+})();
+
+/* ============================================
+   Themes
    ============================================ */
 (function () {
-    // SHA-256 hash لحساب صاحب الموقع (username + password منفصلين)
+    var root = document.documentElement;
+    var saved = DataManager.getTheme();
+    if (saved) root.setAttribute('data-theme', saved);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateDots(theme) {
+            document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
+                el.classList.toggle('active', el.getAttribute('data-theme') === theme);
+            });
+        }
+        updateDots(saved || 'neon');
+
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest('.theme-dot, .admin-theme-btn');
+            if (!btn) return;
+            var theme = btn.getAttribute('data-theme');
+            root.setAttribute('data-theme', theme);
+            DataManager.setTheme(theme);
+            updateDots(theme);
+        });
+    });
+})();
+
+/* ============================================
+   Admin Panel
+   ============================================ */
+(function () {
     var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
     var ADMIN_KEY = 'amahdy_admin_ok';
-    var LOGO_KEY = 'amahdy_logo';
 
     function sha256(str) {
-        var buf = new TextEncoder().encode(str);
-        return crypto.subtle.digest('SHA-256', buf).then(function (hash) {
-            var hex = '';
-            new Uint8Array(hash).forEach(function (b) {
-                hex += b.toString(16).padStart(2, '0');
-            });
-            return hex;
+        return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (h) {
+            return Array.from(new Uint8Array(h)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
         });
     }
 
@@ -26,355 +100,446 @@
         var loginSection = document.getElementById('adminLoginSection');
         var dashboard = document.getElementById('adminDashboard');
         var form = document.getElementById('adminForm');
-        var userInput = document.getElementById('adminUser');
-        var passInput = document.getElementById('adminPass');
         var errorEl = document.getElementById('adminError');
         var logoutBtn = document.getElementById('adminLogout');
-        var logoUpload = document.getElementById('logoUpload');
-        var logoPreview = document.getElementById('adminLogoPreview');
-        var aboutAvatar = document.getElementById('aboutAvatar');
-
         if (!overlay || !navBtn) return;
 
-        // تحميل اللوجو المحفوظ
-        loadSavedLogo(logoPreview, aboutAvatar);
-
-        // تحميل الثيم المحفوظ وتحديث الأزرار
-        var savedTheme = null;
-        try {
-            savedTheme = localStorage.getItem('amahdy_theme');
-        } catch (e) {}
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        }
-        updateAdminThemeButtons(savedTheme || 'neon');
-
-        // فتح لوحة التحكم
         navBtn.addEventListener('click', function () {
             overlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            // لو مسجل دخول بالفعل
-            if (localStorage.getItem(ADMIN_KEY) === '1') {
-                showDashboard();
-            }
+            if (localStorage.getItem(ADMIN_KEY) === '1') showDashboard();
         });
 
-        // إغلاق لوحة التحكم
-        function closePanel() {
-            overlay.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
+        function closePanel() { overlay.classList.add('hidden'); document.body.style.overflow = ''; }
         closeBtn.addEventListener('click', closePanel);
-        overlay.addEventListener('click', function (e) {
-            if (e.target === overlay) closePanel();
-        });
+        overlay.addEventListener('click', function (e) { if (e.target === overlay) closePanel(); });
 
-        // تسجيل الدخول
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             var btn = form.querySelector('.admin-submit-btn');
             btn.disabled = true;
-            Promise.all([
-                sha256(userInput.value.trim()),
-                sha256(passInput.value)
-            ]).then(function (hashes) {
+            Promise.all([sha256(document.getElementById('adminUser').value.trim()), sha256(document.getElementById('adminPass').value)]).then(function (hashes) {
                 if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
                     errorEl.classList.remove('show');
                     localStorage.setItem(ADMIN_KEY, '1');
                     showDashboard();
-                    btn.disabled = false;
                 } else {
                     errorEl.classList.add('show');
-                    setTimeout(function () {
-                        errorEl.classList.remove('show');
-                        passInput.select();
-                        btn.disabled = false;
-                    }, 1500);
+                    setTimeout(function () { errorEl.classList.remove('show'); btn.disabled = false; }, 1500);
                 }
+                btn.disabled = false;
             });
         });
 
-        // تسجيل الخروج
-        logoutBtn.addEventListener('click', function () {
+        if (logoutBtn) logoutBtn.addEventListener('click', function () {
             localStorage.removeItem(ADMIN_KEY);
             loginSection.classList.remove('hidden');
             dashboard.classList.add('hidden');
-            userInput.value = '';
-            passInput.value = '';
         });
-
-        // رفع اللوجو
-        logoUpload.addEventListener('change', function (e) {
-            var file = e.target.files[0];
-            if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                alert('الملف أكبر من 2MB');
-                return;
-            }
-            var reader = new FileReader();
-            reader.onload = function (ev) {
-                var dataUrl = ev.target.result;
-                try {
-                    localStorage.setItem(LOGO_KEY, dataUrl);
-                } catch (err) {
-                    alert('الملف كبير جداً للحفظ في المتصفح');
-                    return;
-                }
-                loadSavedLogo(logoPreview, aboutAvatar);
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // التحكم بالثيمات من لوحة التحكم
-        var adminThemeBtns = document.querySelectorAll('.admin-theme-btn');
-        adminThemeBtns.forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                var theme = btn.getAttribute('data-theme');
-                document.documentElement.setAttribute('data-theme', theme);
-                try {
-                    localStorage.setItem('amahdy_theme', theme);
-                } catch (e) {}
-                updateAdminThemeButtons(theme);
-                // تحديث أزرار الناف
-                document.querySelectorAll('.theme-dot').forEach(function (dot) {
-                    dot.classList.toggle('active', dot.getAttribute('data-theme') === theme);
-                });
-            });
-        });
-
-        function updateAdminThemeButtons(active) {
-            adminThemeBtns.forEach(function (btn) {
-                btn.classList.toggle('active', btn.getAttribute('data-theme') === active);
-            });
-        }
 
         function showDashboard() {
             loginSection.classList.add('hidden');
             dashboard.classList.remove('hidden');
+            initTabs();
+            loadProfileForm();
+            loadStatsForm();
+            loadSkillsForm();
+            loadProjectsForm();
+            loadServicesForm();
+            loadPhoto();
         }
 
-        function loadSavedLogo(previewEl, avatarEl) {
-            var saved = null;
-            try {
-                saved = localStorage.getItem(LOGO_KEY);
-            } catch (e) {}
-            if (saved) {
-                if (previewEl) {
-                    previewEl.innerHTML = '<img src="' + saved + '" alt="Logo">';
-                }
-                if (avatarEl) {
-                    avatarEl.innerHTML = '<img src="' + saved + '" alt="A.Mahdy">';
-                    avatarEl.classList.add('has-logo');
-                }
-            }
-        }
-    });
-})();
-
-/* ============================================
-   Themes (تغيير الثيم مع حفظ الاختيار)
-   ============================================ */
-(function () {
-    var THEME_KEY = 'amahdy_theme';
-    var root = document.documentElement;
-
-    var savedTheme = null;
-    try {
-        savedTheme = localStorage.getItem(THEME_KEY);
-    } catch (e) {}
-
-    if (savedTheme) {
-        root.setAttribute('data-theme', savedTheme);
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        var dots = document.querySelectorAll('.theme-dot');
-        if (!dots.length) return;
-        highlightCurrent();
-
-        dots.forEach(function (dot) {
-            dot.addEventListener('click', function () {
-                var theme = dot.getAttribute('data-theme');
-                root.setAttribute('data-theme', theme);
-                try {
-                    localStorage.setItem(THEME_KEY, theme);
-                } catch (e) {}
-                highlightCurrent();
+        /* --- Tabs --- */
+        function initTabs() {
+            document.querySelectorAll('.admin-tab').forEach(function (tab) {
+                tab.addEventListener('click', function () {
+                    document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
+                    document.querySelectorAll('.admin-tab-panel').forEach(function (p) { p.classList.remove('active'); });
+                    tab.classList.add('active');
+                    var panel = document.querySelector('[data-panel="' + tab.getAttribute('data-tab') + '"]');
+                    if (panel) panel.classList.add('active');
+                });
             });
+        }
+
+        /* --- Profile --- */
+        function loadProfileForm() {
+            var d = DataManager.load();
+            if (!d) return;
+            setVal('editName', d.profile.name);
+            setVal('editRole', d.profile.role);
+            setVal('editTagline', d.profile.tagline);
+            setVal('editBio', d.profile.bio);
+            setVal('editLocation', d.profile.location);
+            setVal('editEmail', d.profile.email);
+            setVal('editGithub', d.profile.socials.github);
+            setVal('editBehance', d.profile.socials.behance);
+            setVal('editInstagram', d.profile.socials.instagram);
+            setVal('editLinkedin', d.profile.socials.linkedin);
+        }
+
+        document.getElementById('saveProfile').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.profile.name = getVal('editName');
+            d.profile.brand = d.profile.name;
+            d.profile.role = getVal('editRole');
+            d.profile.tagline = getVal('editTagline');
+            d.profile.bio = getVal('editBio');
+            d.profile.location = getVal('editLocation');
+            d.profile.email = getVal('editEmail');
+            d.profile.socials.github = getVal('editGithub');
+            d.profile.socials.behance = getVal('editBehance');
+            d.profile.socials.instagram = getVal('editInstagram');
+            d.profile.socials.linkedin = getVal('editLinkedin');
+            DataManager.save(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- Stats --- */
+        function loadStatsForm() {
+            var d = DataManager.load();
+            var list = document.getElementById('statsList');
+            list.innerHTML = '';
+            (d.stats || []).forEach(function (s, i) {
+                list.innerHTML += '<div class="admin-dynamic-item"><input class="admin-input admin-input-sm" value="' + esc(s.value) + '" data-field="value" placeholder="الرقم"><input class="admin-input admin-input-sm" value="' + esc(s.label) + '" data-field="label" placeholder="التسمية"><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+            });
+            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var d2 = DataManager.load();
+                    d2.stats.splice(parseInt(btn.getAttribute('data-idx')), 1);
+                    DataManager.save(d2);
+                    loadStatsForm();
+                });
+            });
+        }
+
+        document.getElementById('addStat').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.stats.push({ value: '', label: '' });
+            DataManager.save(d);
+            loadStatsForm();
+        });
+
+        document.getElementById('saveStats').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.stats = readDynamicList('statsList', ['value', 'label']);
+            DataManager.save(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- Skills --- */
+        function loadSkillsForm() {
+            var d = DataManager.load();
+            var list = document.getElementById('skillsList');
+            list.innerHTML = '';
+            (d.skills || []).forEach(function (s, i) {
+                list.innerHTML += '<div class="admin-dynamic-item"><input class="admin-input admin-input-sm" value="' + esc(s) + '" placeholder="اسم المهارة"><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+            });
+            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var d2 = DataManager.load();
+                    d2.skills.splice(parseInt(btn.getAttribute('data-idx')), 1);
+                    DataManager.save(d2);
+                    loadSkillsForm();
+                });
+            });
+        }
+
+        document.getElementById('addSkill').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.skills.push('');
+            DataManager.save(d);
+            loadSkillsForm();
+        });
+
+        document.getElementById('saveSkills').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.skills = readSimpleList('skillsList');
+            DataManager.save(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- Projects --- */
+        function loadProjectsForm() {
+            var d = DataManager.load();
+            var list = document.getElementById('projectsList');
+            list.innerHTML = '';
+            (d.projects || []).forEach(function (p, i) {
+                list.innerHTML += '<div class="admin-dynamic-item admin-project-item"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div>';
+            });
+            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var d2 = DataManager.load();
+                    d2.projects.splice(parseInt(btn.getAttribute('data-idx')), 1);
+                    DataManager.save(d2);
+                    loadProjectsForm();
+                });
+            });
+        }
+
+        document.getElementById('addProject').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.projects.push({ title: 'مشروع جديد', category: 'social', categoryLabel: 'سوشيال ميديا', description: 'وصف المشروع', image: '', tags: [], year: '2026' });
+            DataManager.save(d);
+            loadProjectsForm();
+        });
+
+        document.getElementById('saveProjects').addEventListener('click', function () {
+            var d = DataManager.load();
+            var items = document.querySelectorAll('#projectsList .admin-project-item');
+            d.projects = [];
+            items.forEach(function (item) {
+                d.projects.push({
+                    title: item.querySelector('[data-field="title"]').value,
+                    category: item.querySelector('[data-field="category"]').value,
+                    categoryLabel: item.querySelector('[data-field="categoryLabel"]').value,
+                    description: item.querySelector('[data-field="description"]').value,
+                    image: item.querySelector('[data-field="image"]').value,
+                    tags: [item.querySelector('[data-field="categoryLabel"]').value],
+                    year: item.querySelector('[data-field="year"]').value
+                });
+            });
+            DataManager.save(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- Services --- */
+        function loadServicesForm() {
+            var d = DataManager.load();
+            var list = document.getElementById('servicesList');
+            list.innerHTML = '';
+            (d.services || []).forEach(function (s, i) {
+                list.innerHTML += '<div class="admin-dynamic-item admin-service-item"><div class="admin-project-header"><strong>' + esc(s.name) + '</strong><span class="project-tag">' + esc(s.price) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(s.name) + '" data-field="name" placeholder="اسم الخدمة"><input class="admin-input admin-input-sm" value="' + esc(s.price) + '" data-field="price" placeholder="السعر"><textarea class="admin-input admin-input-sm" data-field="features" rows="3" placeholder="المميزات (كل سطر ميزة)">' + (s.features || []).join('\n') + '</textarea><input class="admin-input admin-input-sm" value="' + esc(s.delivery) + '" data-field="delivery" placeholder="مدة التسليم"></div><label class="admin-check-label"><input type="checkbox" data-field="featured"' + (s.featured ? ' checked' : '') + '> الأكثر طلباً</label><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف الخدمة</button></div>';
+            });
+            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var d2 = DataManager.load();
+                    d2.services.splice(parseInt(btn.getAttribute('data-idx')), 1);
+                    DataManager.save(d2);
+                    loadServicesForm();
+                });
+            });
+        }
+
+        document.getElementById('addService').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.services.push({ name: 'خدمة جديدة', price: 'ابتداءً من 0$', features: ['ميزة 1', 'ميزة 2'], delivery: 'مدة التسليم: أسبوع', featured: false });
+            DataManager.save(d);
+            loadServicesForm();
+        });
+
+        document.getElementById('saveServices').addEventListener('click', function () {
+            var d = DataManager.load();
+            var items = document.querySelectorAll('#servicesList .admin-service-item');
+            d.services = [];
+            items.forEach(function (item) {
+                d.services.push({
+                    name: item.querySelector('[data-field="name"]').value,
+                    price: item.querySelector('[data-field="price"]').value,
+                    features: item.querySelector('[data-field="features"]').value.split('\n').filter(function (l) { return l.trim(); }),
+                    delivery: item.querySelector('[data-field="delivery"]').value,
+                    featured: item.querySelector('[data-field="featured"]').checked
+                });
+            });
+            DataManager.save(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- Photo --- */
+        function loadPhoto() {
+            var logo = DataManager.getLogo();
+            var preview = document.getElementById('adminLogoPreview');
+            var avatar = document.getElementById('aboutAvatar');
+            if (logo) {
+                if (preview) preview.innerHTML = '<img src="' + logo + '" alt="Logo">';
+                if (avatar) { avatar.innerHTML = '<img src="' + logo + '" alt="A.M">'; avatar.classList.add('has-logo'); }
+            }
+        }
+
+        document.getElementById('logoUpload').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (!file || file.size > 2 * 1024 * 1024) { alert('الملف أكبر من 2MB'); return; }
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                DataManager.setLogo(ev.target.result);
+                loadPhoto();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        /* --- Download data.js --- */
+        document.getElementById('downloadDataJS').addEventListener('click', function () {
+            var d = DataManager.load();
+            var content = '/* data.js — تم التصدير من لوحة التحكم */\nvar SITE_DATA = ' + JSON.stringify(d, null, 4) + ';\n';
+            var blob = new Blob([content], { type: 'application/javascript' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.js';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        /* --- Reset --- */
+        document.getElementById('resetAllData').addEventListener('click', function () {
+            if (!confirm('هل أنت متأكد؟ هيتمسح كل التغييرات وترجع البيانات الأصلية')) return;
+            DataManager.reset();
+            loadProfileForm();
+            loadStatsForm();
+            loadSkillsForm();
+            loadProjectsForm();
+            loadServicesForm();
+            loadPhoto();
+            renderSite();
         });
     });
 
-    function highlightCurrent() {
-        var current = root.getAttribute('data-theme');
-        document.querySelectorAll('.theme-dot').forEach(function (dot) {
-            if (dot.getAttribute('data-theme') === current) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
+    function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
+    function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function esc(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+    function showSaved(btn) { var orig = btn.textContent; btn.textContent = 'تم الحفظ ✓'; btn.classList.add('saved'); setTimeout(function () { btn.textContent = orig; btn.classList.remove('saved'); }, 2000); }
+    function readDynamicList(listId, fields) {
+        var items = document.querySelectorAll('#' + listId + ' .admin-dynamic-item');
+        var result = [];
+        items.forEach(function (item) {
+            var obj = {};
+            fields.forEach(function (f) { var el = item.querySelector('[data-field="' + f + '"]'); if (el) obj[f] = el.value; });
+            result.push(obj);
         });
+        return result;
+    }
+    function readSimpleList(listId) {
+        var items = document.querySelectorAll('#' + listId + ' .admin-dynamic-item input');
+        var result = [];
+        items.forEach(function (inp) { if (inp.value.trim()) result.push(inp.value.trim()); });
+        return result;
     }
 })();
 
 /* ============================================
-   Portfolio Data Rendering (من data.js)
+   Render Site (من البيانات المحفوظة)
    ============================================ */
-(function () {
-    var data = typeof SITE_DATA !== 'undefined' ? SITE_DATA : null;
+function renderSite() {
+    var d = DataManager.load();
+    if (!d) return;
 
-    function $(id) {
-        return document.getElementById(id);
+    function $(id) { return document.getElementById(id); }
+    function fill(id, v) { var el = $(id); if (el && v) el.textContent = v; }
+
+    fill('heroName', d.profile.name);
+    fill('heroRole', d.profile.role);
+    fill('heroTagline', d.profile.tagline);
+    fill('aboutBio', d.profile.bio);
+    fill('aboutSubtitle', 'قصة شغفي بالألوان والتفاصيل');
+    fill('contactEmail', d.profile.email);
+    fill('contactLocation', d.profile.location);
+    fill('footerYear', String(new Date().getFullYear()));
+
+    var socials = d.profile.socials || {};
+    var names = [];
+    if (socials.behance) names.push('Behance');
+    if (socials.github) names.push('GitHub');
+    if (socials.linkedin) names.push('LinkedIn');
+    if (socials.instagram) names.push('Instagram');
+    var cs = $('contactSocials');
+    if (cs) cs.textContent = names.join(' · ') || '—';
+
+    // Stats
+    var hs = $('heroStats');
+    if (hs && d.stats) {
+        hs.innerHTML = d.stats.map(function (s) {
+            return '<div class="hero-stat"><div class="hero-stat-num">' + s.value + '</div><div class="hero-stat-label">' + s.label + '</div></div>';
+        }).join('');
     }
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+    // Skills
+    var sk = $('aboutSkills');
+    if (sk && d.skills) {
+        sk.innerHTML = d.skills.map(function (s) {
+            return '<span class="skill-tag">' + s + '</span>';
+        }).join('');
     }
 
-    function fillText(id, value) {
-        var el = $(id);
-        if (el && value) el.textContent = value;
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        if (!data) return;
-
-        // Hero
-        fillText('heroName', data.profile.name);
-        fillText('heroRole', data.profile.role);
-        fillText('heroTagline', data.profile.tagline);
-
-        // About
-        fillText('aboutBio', data.profile.bio);
-        var skillsWrap = $('aboutSkills');
-        if (skillsWrap) {
-            skillsWrap.innerHTML = (data.skills || [])
-                .map(function (s) {
-                    return '<span class="skill-tag">' + escapeHtml(s) + '</span>';
-                })
-                .join('');
-        }
-
-        // Hero Stats
-        var heroStats = $('heroStats');
-        if (heroStats && data.stats && data.stats.length) {
-            heroStats.innerHTML = data.stats.map(function (stat) {
-                return '<div class="hero-stat">' +
-                    '<div class="hero-stat-num">' + escapeHtml(stat.value) + '</div>' +
-                    '<div class="hero-stat-label">' + escapeHtml(stat.label) + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        // Projects Grid
-        var grid = $('projectsGrid');
-        if (grid && data.projects && data.projects.length) {
-            grid.innerHTML = data.projects.map(function (p, i) {
-                var img = p.image
-                    ? '<div class="project-cover" style="background-image:url(\'' + escapeHtml(p.image) + '\')"></div>'
-                    : '<div class="project-cover project-cover-art" data-index="' + i + '">' + '<span class="project-art-label">' + escapeHtml(p.categoryLabel || p.category) + '</span></div>';
-                return '<article class="project-card" data-filter="' + escapeHtml(p.category) + '">' +
-                    img +
-                    '<div class="project-body">' +
-                    '<div class="project-meta"><span class="project-tag">' + escapeHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escapeHtml(p.year) + '</span></div>' +
-                    '<h3 class="project-title">' + escapeHtml(p.title) + '</h3>' +
-                    '<p class="project-desc">' + escapeHtml(p.description) + '</p>' +
-                    '<div class="project-tags">' + (p.tags || []).map(function (t) {
-                        return '<span class="project-tag-mini">' + escapeHtml(t) + '</span>';
-                    }).join('') + '</div>' +
-                    '</div>' +
-                    '</article>';
-            }).join('');
-        }
-
-        // Services Grid
-        var services = $('servicesGrid');
-        if (services && data.services && data.services.length) {
-            services.innerHTML = data.services.map(function (s) {
-                var featured = s.featured ? ' featured' : '';
-                return '<div class="service-card' + featured + '">' +
-                    (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') +
-                    '<h3 class="service-name">' + escapeHtml(s.name) + '</h3>' +
-                    '<div class="service-price">' + escapeHtml(s.price) + '</div>' +
-                    '<ul class="service-features">' + (s.features || []).map(function (f) {
-                        return '<li>' + escapeHtml(f) + '</li>';
-                    }).join('') + '</ul>' +
-                    '<div class="service-delivery">' + escapeHtml(s.delivery || '') + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        // Contact
-        fillText('contactEmail', data.profile.email);
-        fillText('contactLocation', data.profile.location);
-
-        var socials = data.profile.socials || {};
-        var socialNames = [];
-        if (socials.behance) socialNames.push('Behance');
-        if (socials.github) socialNames.push('GitHub');
-        if (socials.linkedin) socialNames.push('LinkedIn');
-        if (socials.instagram) socialNames.push('Instagram');
-        var contactSocials = $('contactSocials');
-        if (contactSocials && socialNames.length) {
-            contactSocials.textContent = socialNames.join(' · ');
-        }
-
-        // Footer Year
-        fillText('footerYear', String(new Date().getFullYear()));
-
-        // Filters
-        var filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(function (btn) {
+    // Filter toolbar
+    var cats = {};
+    (d.projects || []).forEach(function (p) { cats[p.category] = p.categoryLabel; });
+    var tb = $('projectsToolbar');
+    if (tb) {
+        tb.innerHTML = '<button class="filter-btn active" data-filter="all">الكل</button>';
+        Object.keys(cats).forEach(function (k) {
+            tb.innerHTML += '<button class="filter-btn" data-filter="' + k + '">' + cats[k] + '</button>';
+        });
+        tb.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
-                filterBtns.forEach(function (b) { b.classList.remove('active'); });
+                tb.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
                 btn.classList.add('active');
                 var filter = btn.getAttribute('data-filter');
                 document.querySelectorAll('.project-card').forEach(function (card) {
-                    if (filter === 'all') {
-                        card.classList.remove('hide');
-                    } else {
-                        card.classList.toggle('hide', card.getAttribute('data-filter') !== filter);
-                    }
+                    card.classList.toggle('hide', filter !== 'all' && card.getAttribute('data-filter') !== filter);
                 });
             });
         });
-    });
-})();
+    }
+
+    // Projects
+    var grid = $('projectsGrid');
+    if (grid && d.projects) {
+        grid.innerHTML = d.projects.map(function (p, i) {
+            var img = p.image
+                ? '<div class="project-cover" style="background-image:url(\'' + p.image + '\')"></div>'
+                : '<div class="project-cover project-cover-art"><span class="project-art-label">' + (p.categoryLabel || p.category) + '</span></div>';
+            return '<article class="project-card" data-filter="' + p.category + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + (p.categoryLabel || p.category) + '</span><span class="project-year">' + (p.year || '') + '</span></div><h3 class="project-title">' + p.title + '</h3><p class="project-desc">' + p.description + '</p></div></article>';
+        }).join('');
+    }
+
+    // Services
+    var sg = $('servicesGrid');
+    if (sg && d.services) {
+        sg.innerHTML = d.services.map(function (s) {
+            return '<div class="service-card' + (s.featured ? ' featured' : '') + '">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + s.name + '</h3><div class="service-price">' + s.price + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul><div class="service-delivery">' + (s.delivery || '') + '</div></div>';
+        }).join('');
+    }
+}
 
 /* ============================================
-   Navigation
+   Navigation + Init
    ============================================ */
-(function () {
-    document.addEventListener('DOMContentLoaded', function () {
-        var nav = document.getElementById('mainNav');
-        var toggle = document.getElementById('navToggle');
-        var links = document.getElementById('navLinks');
+document.addEventListener('DOMContentLoaded', function () {
+    renderSite();
 
-        if (toggle && links) {
-            toggle.addEventListener('click', function () {
-                links.classList.toggle('open');
-            });
+    var nav = document.getElementById('mainNav');
+    var toggle = document.getElementById('navToggle');
+    var links = document.getElementById('navLinks');
 
-            links.querySelectorAll('a').forEach(function (link) {
-                link.addEventListener('click', function () {
-                    links.classList.remove('open');
+    if (toggle && links) {
+        toggle.addEventListener('click', function () { links.classList.toggle('open'); });
+        links.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () { links.classList.remove('open'); });
+        });
+    }
+
+    if (nav) {
+        window.addEventListener('scroll', function () {
+            nav.classList.toggle('scrolled', window.scrollY > 50);
+        }, { passive: true });
+    }
+
+    // Active nav on scroll
+    var sections = document.querySelectorAll('.hero, .section');
+    window.addEventListener('scroll', function () {
+        var scrollPos = window.scrollY + 100;
+        sections.forEach(function (sec) {
+            if (sec.offsetTop <= scrollPos && sec.offsetTop + sec.offsetHeight > scrollPos) {
+                var id = sec.getAttribute('id');
+                document.querySelectorAll('.nav-link').forEach(function (l) {
+                    l.classList.toggle('active', l.getAttribute('data-section') === id);
                 });
-            });
-        }
-
-        if (nav) {
-            window.addEventListener('scroll', function () {
-                if (window.scrollY > 50) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
-            }, { passive: true });
-        }
-    });
-})();
+            }
+        });
+    }, { passive: true });
+});
