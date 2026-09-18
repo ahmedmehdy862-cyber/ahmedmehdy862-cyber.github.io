@@ -2113,3 +2113,219 @@ ul {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* ============================================
+   Mobile Responsive — Comprehensive
+   ============================================ */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 30px;
+    }
+    .hero-visual { display: none; }
+    .hero-desc { margin-left: auto; margin-right: auto; }
+    .hero-cta { justify-content: center; }
+    .hero-stats { margin: 0 auto; }
+    .about-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    .services-grid { grid-template-columns: repeat(2, 1fr); }
+    .contact-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Mobile Large */
+@media (max-width: 768px) {
+    .section { padding: 70px 0; }
+    .hero { min-height: auto; padding: 120px 0 60px; }
+    .hero-title { font-size: clamp(28px, 7vw, 42px); }
+    .hero-badge { font-size: 12px; padding: 5px 14px; }
+    .hero-desc { font-size: 15px; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .services-grid { grid-template-columns: 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .admin-panel { width: 100vw; max-height: 100vh; border-radius: 0; }
+    .admin-overlay { padding: 0; }
+    .admin-tabs { gap: 2px; padding: 10px 12px; }
+    .admin-tab { padding: 7px 10px; font-size: 11px; }
+    .admin-tab-panel { padding: 16px; }
+    .admin-field-row { grid-template-columns: 1fr; }
+    .admin-themes-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Mobile Small */
+@media (max-width: 480px) {
+    .container { padding: 0 16px; }
+    .section { padding: 50px 0; }
+    .hero { padding: 100px 0 40px; }
+    .hero-title { font-size: clamp(24px, 8vw, 34px); }
+    .hero-role { font-size: clamp(18px, 5vw, 24px); }
+    .hero-desc { font-size: 14px; }
+    .hero-cta { flex-direction: column; gap: 10px; }
+    .hero-cta .btn { width: 100%; justify-content: center; padding: 14px 24px; }
+    .hero-stats { grid-template-columns: 1fr 1fr; gap: 12px; max-width: 100%; }
+    .hero-stat { padding: 14px 10px; }
+    .hero-stat-num { font-size: 22px; }
+    .hero-stat-label { font-size: 11px; }
+    .section-header { margin-bottom: 30px; }
+    .section-title { font-size: clamp(22px, 5vw, 30px); }
+    .section-desc { font-size: 13px; }
+    .project-card { border-radius: 14px; }
+    .project-body { padding: 14px; }
+    .project-title { font-size: 15px; }
+    .project-desc { font-size: 12px; }
+    .service-card { padding: 20px; border-radius: 14px; }
+    .service-name { font-size: 17px; }
+    .service-price { font-size: 20px; }
+    .contact-card { padding: 20px; border-radius: 14px; }
+    .about-bio { font-size: 14px; }
+    .skill-tag { font-size: 12px; padding: 6px 12px; }
+    .filter-btn { padding: 7px 14px; font-size: 12px; }
+    .btn { padding: 12px 24px; font-size: 13px; }
+    .footer { padding: 24px 16px; font-size: 12px; }
+    .nav-inner { padding: 0 16px; }
+
+    /* Admin mobile */
+    .admin-panel { width: 100vw; max-height: 100vh; border-radius: 0; }
+    .admin-header { padding: 16px; }
+    .admin-tab-panel { padding: 12px; }
+    .admin-section-block { margin-bottom: 20px; padding-bottom: 16px; }
+    .admin-themes-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-layout-choices { gap: 6px; }
+    .admin-layout-btn { padding: 6px 10px; font-size: 11px; }
+    .admin-dynamic-item { padding: 10px; }
+    .admin-save-btn { width: 100%; padding: 14px; }
+    .admin-add-btn { padding: 12px; font-size: 13px; }
+
+    /* Touch targets — minimum 44px */
+    .nav-link { min-height: 44px; display: flex; align-items: center; }
+    .nav-toggle { min-width: 44px; min-height: 44px; }
+    .admin-nav-btn { min-width: 44px; min-height: 44px; }
+    .admin-close { min-width: 44px; min-height: 44px; }
+    .filter-btn { min-height: 40px; }
+    .theme-dot { min-width: 44px; min-height: 44px; }
+
+    /* Safe area for notched phones */
+    .hero { padding-top: max(100px, env(safe-area-inset-top)); }
+    .footer { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+    .hero-stats { grid-template-columns: 1fr; }
+    .admin-themes-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Landscape mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero { min-height: auto; padding: 80px 0 40px; }
+    .hero-bg { display: none; }
+}
+
+/* Hover capability detection */
+@media (hover: none) {
+    .project-card:hover,
+    .service-card:hover,
+    .contact-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    .skill-tag:hover { transform: none; box-shadow: none; }
+    .filter-btn:hover { transform: none; }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    html { scroll-behavior: auto; }
+    .reveal, .reveal-stagger > * { opacity: 1 !important; transform: none !important; }
+}
+
+/* Dark mode forced (prevent light theme on dark OS) */
+@media (prefers-color-scheme: light) {
+    :root:not([data-theme="light"]) body {
+        color-scheme: dark;
+    }
+}
+
+/* Print styles */
+@media print {
+    .nav, .admin-overlay, .admin-nav-btn, .hero-bg, .hero-cta,
+    .projects-toolbar, .comments-form-wrapper, .footer { display: none !important; }
+    body { background: #fff; color: #000; }
+    .section { padding: 20px 0; }
+    .project-card, .service-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+}
+
+/* ============================================
+   Performance — Contain & Optimize
+   ============================================ */
+.project-card, .service-card, .contact-card, .about-card {
+    contain: layout style paint;
+    will-change: transform;
+}
+
+.hero-bg {
+    contain: strict;
+    will-change: opacity;
+}
+
+.section {
+    contain: layout style;
+}
+
+/* GPU acceleration for animations */
+.anim-subtle .project-card,
+.anim-strong .project-card,
+.anim-subtle .service-card,
+.anim-strong .service-card,
+.anim-subtle .contact-card,
+.anim-strong .contact-card {
+    will-change: transform, box-shadow;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Smooth font rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Prevent layout shifts from images */
+.project-cover img,
+.about-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Selection color */
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Prevent overscroll bounce */
+html, body {
+    overscroll-behavior: none;
+}
+
+/* Touch action optimization */
+.project-card, .service-card, .contact-card, .btn, .filter-btn, .nav-link {
+    touch-action: manipulation;
+}

@@ -939,10 +939,10 @@ function renderSite() {
     var grid = $('projectsGrid');
     if (grid && d.projects) {
         grid.innerHTML = d.projects.map(function (p, i) {
-            var img = p.image
-                ? '<div class="project-cover" style="background-image:url(\'' + p.image + '\')"></div>'
-                : '<div class="project-cover project-cover-art"><span class="project-art-label">' + (p.categoryLabel || p.category) + '</span></div>';
-            return '<article class="project-card reveal" data-filter="' + p.category + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + (p.categoryLabel || p.category) + '</span><span class="project-year">' + (p.year || '') + '</span></div><h3 class="project-title">' + p.title + '</h3><p class="project-desc">' + p.description + '</p></div></article>';
+            var img = p.image && isValidURL(p.image)
+                ? '<div class="project-cover" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
+                : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(p.categoryLabel || p.category) + '</span></div>';
+            return '<article class="project-card reveal" data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + escHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span></div><h3 class="project-title">' + escHtml(p.title) + '</h3><p class="project-desc">' + escHtml(p.description) + '</p></div></article>';
         }).join('');
     }
 
@@ -950,7 +950,7 @@ function renderSite() {
     var sg = $('servicesGrid');
     if (sg && d.services) {
         sg.innerHTML = d.services.map(function (s) {
-            return '<div class="service-card' + (s.featured ? ' featured' : '') + ' reveal">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + s.name + '</h3><div class="service-price">' + s.price + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + f + '</li>'; }).join('') + '</ul><div class="service-delivery">' + (s.delivery || '') + '</div></div>';
+            return '<div class="service-card' + (s.featured ? ' featured' : '') + ' reveal">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + escHtml(s.name) + '</h3><div class="service-price">' + escHtml(s.price) + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + escHtml(f) + '</li>'; }).join('') + '</ul><div class="service-delivery">' + escHtml(s.delivery || '') + '</div></div>';
         }).join('');
     }
 
@@ -1045,4 +1045,16 @@ function escHtml(s) {
     var div = document.createElement('div');
     div.textContent = s;
     return div.innerHTML;
+}
+
+function escAttr(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function sanitizeInput(str) {
+    return String(str || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<iframe[\s\S]*?<\/iframe>/gi, '').replace(/on\w+="[^"]*"/gi, '').replace(/on\w+='[^']*'/gi, '').trim();
+}
+
+function isValidURL(str) {
+    try { var u = new URL(str); return u.protocol === 'http:' || u.protocol === 'https:'; } catch (e) { return false; }
 }
