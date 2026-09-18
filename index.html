@@ -10,29 +10,6 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- Access Gate -->
-    <div class="access-gate" id="accessGate">
-        <div class="access-gate-card">
-            <img src="assets/logo.png" alt="A.Mahdy" class="access-gate-logo">
-            <h1 class="access-gate-title">بورتفوليو A.Mahdy</h1>
-            <p class="access-gate-subtitle">هذا المعرض محمي — أدخل كود الدخول للمتابعة</p>
-            <form class="access-gate-form" id="accessForm">
-                <input type="password" id="accessCode" class="access-gate-input" placeholder="كود الدخول" autocomplete="off" dir="ltr">
-                <button type="submit" class="access-gate-btn">دخول</button>
-            </form>
-            <p class="access-gate-error" id="accessError">الكود غير صحيح، حاول مجدداً</p>
-
-            <div class="access-gate-admin">
-                <button type="button" class="access-gate-admin-toggle" id="adminToggle">دخول صاحب الحساب</button>
-                <form class="access-login hidden" id="adminForm">
-                    <input type="text" id="adminUser" class="access-gate-input" placeholder="اسم المستخدم" autocomplete="username" dir="ltr">
-                    <input type="password" id="adminPass" class="access-gate-input" placeholder="كلمة السر" autocomplete="current-password" dir="ltr">
-                    <button type="submit" class="access-gate-btn access-login-btn">تسجيل الدخول</button>
-                </form>
-                <p class="access-gate-error" id="adminError">اسم المستخدم أو كلمة السر غير صحيحة</p>
-            </div>
-        </div>
-    </div>
 
     <!-- Navigation -->
     <nav class="nav" id="mainNav">
@@ -45,16 +22,21 @@
                 <li><a href="#services" class="nav-link" data-section="services">الخدمات</a></li>
                 <li><a href="#contact" class="nav-link" data-section="contact">تواصل</a></li>
             </ul>
-            <div class="nav-themes" id="themeSwitcher" aria-label="تغيير الثيم">
-                <button class="theme-dot" data-theme="neon" title="نيون" style="--dot-color:#8b5cf6"></button>
-                <button class="theme-dot" data-theme="light" title="مشمس" style="--dot-color:#f59e0b"></button>
-                <button class="theme-dot" data-theme="forest" title="غابة" style="--dot-color:#10b981"></button>
-                <button class="theme-dot" data-theme="royal" title="ملكي" style="--dot-color:#d4af37"></button>
-                <button class="theme-dot" data-theme="ocean" title="محيطي" style="--dot-color:#0ea5e9"></button>
+            <div class="nav-right">
+                <div class="nav-themes" id="themeSwitcher" aria-label="تغيير الثيم">
+                    <button class="theme-dot" data-theme="neon" title="نيون" style="--dot-color:#8b5cf6"></button>
+                    <button class="theme-dot" data-theme="light" title="مشمس" style="--dot-color:#f59e0b"></button>
+                    <button class="theme-dot" data-theme="forest" title="غابة" style="--dot-color:#10b981"></button>
+                    <button class="theme-dot" data-theme="royal" title="ملكي" style="--dot-color:#d4af37"></button>
+                    <button class="theme-dot" data-theme="ocean" title="محيطي" style="--dot-color:#0ea5e9"></button>
+                </div>
+                <button class="admin-nav-btn" id="adminNavBtn" title="دخول صاحب الحساب">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </button>
+                <button class="nav-toggle" id="navToggle" aria-label="القائمة">
+                    <span></span><span></span><span></span>
+                </button>
             </div>
-            <button class="nav-toggle" id="navToggle" aria-label="القائمة">
-                <span></span><span></span><span></span>
-            </button>
         </div>
     </nav>
 
@@ -112,12 +94,12 @@
             <div class="about-grid">
                 <div class="about-card">
                     <div class="about-avatar">
-                        <img src="assets/logo.png" alt="A.Mahdy" id="aboutAvatar">
+                        <div class="about-avatar-placeholder" id="aboutAvatar">A.M</div>
                     </div>
                 </div>
                 <div class="about-card about-content">
                     <p class="about-bio" id="aboutBio">
-                        مصمم جرافيك بشغف حقيقي للهوية البصرية والتفاصيل. اشتغلت مع أكثر من 20 جامعة مصرية على محتوى ميديا متكامل، وبنيت هويات بصرية ساهمت في وصول وصول أكثر من مليون مشاهدة. أؤمن إن التصميم الجيد مش شكلاً جميلاً فقط، بل رسالة تصل بوضوح وتأثير.
+                        مصمم جرافيك بشغف حقيقي للهوية البصرية والتفاصيل. اشتغلت مع أكثر من 20 جامعة مصرية على محتوى ميديا متكامل، وبنيت هويات بصرية ساهمت في وصول أكثر من مليون مشاهدة. أؤمن إن التصميم الجيد مش شكلاً جميلاً فقط، بل رسالة تصل بوضوح وتأثير.
                     </p>
                     <div class="about-skills" id="aboutSkills">
                         <span class="skill-tag">هوية بصرية</span>
@@ -194,6 +176,55 @@
     <footer class="footer">
         <p>صمم بمحبة © <span id="footerYear">2026</span> — A.Mahdy</p>
     </footer>
+
+    <!-- Admin Panel (لوحة تحكم صاحب الحساب) -->
+    <div class="admin-overlay hidden" id="adminOverlay">
+        <div class="admin-panel">
+            <div class="admin-header">
+                <h2>لوحة التحكم</h2>
+                <button class="admin-close" id="adminClose">✕</button>
+            </div>
+
+            <!-- Login Section -->
+            <div id="adminLoginSection">
+                <p class="admin-login-hint">سجّل الدخول للوصول للوحة التحكم</p>
+                <form class="admin-form" id="adminForm">
+                    <input type="text" id="adminUser" class="admin-input" placeholder="اسم المستخدم" autocomplete="username" dir="ltr">
+                    <input type="password" id="adminPass" class="admin-input" placeholder="كلمة السر" autocomplete="current-password" dir="ltr">
+                    <button type="submit" class="admin-submit-btn">تسجيل الدخول</button>
+                </form>
+                <p class="admin-error" id="adminError">اسم المستخدم أو كلمة السر غير صحيحة</p>
+            </div>
+
+            <!-- Dashboard Section (يظهر بعد تسجيل الدخول) -->
+            <div class="admin-dashboard hidden" id="adminDashboard">
+                <div class="admin-section">
+                    <h3>اللوجو</h3>
+                    <div class="admin-logo-area">
+                        <div class="admin-logo-preview" id="adminLogoPreview">
+                            <span>A.M</span>
+                        </div>
+                        <label class="admin-upload-btn" for="logoUpload">رفع لوجو</label>
+                        <input type="file" accept="image/*" id="logoUpload" hidden>
+                        <p class="admin-hint">ارفع صورة اللوجو هنا — ستُحفظ في متصفحك فقط</p>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>تعديل البيانات</h3>
+                    <p class="admin-hint">لتعديل المحتوى والمشاريع والباقات، عدّل ملف <code>data.js</code> على GitHub مباشرة</p>
+                    <a href="https://github.com/ahmedmehdy862-cyber/ahmedmehdy862-cyber.github.io/edit/main/data.js" target="_blank" class="admin-edit-btn">تعديل data.js على GitHub</a>
+                </div>
+
+                <div class="admin-section">
+                    <h3>معلومات الموقع</h3>
+                    <p class="admin-hint">الرابط العام: <a href="https://ahmedmehdy862-cyber.github.io/" target="_blank" class="admin-link">ahmedmehdy862-cyber.github.io</a></p>
+                </div>
+
+                <button class="admin-logout-btn" id="adminLogout">تسجيل الخروج</button>
+            </div>
+        </div>
+    </div>
 
     <script src="data.js"></script>
     <script src="script.js"></script>

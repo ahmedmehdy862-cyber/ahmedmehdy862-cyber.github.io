@@ -1,17 +1,14 @@
 /* ============================================
-   Access Gate (كود الدخول)
+   Admin Panel (لوحة تحكم صاحب الحساب)
    ============================================ */
 (function () {
-    // SHA-256 hash لكود الدخول الحالي
-    var ACCESS_HASH = 'c63193f61619ed8a22c04552f76e6e6453982632f6f26d77d63b600f5caf7e20';
     // SHA-256 hash لحساب صاحب الموقع (username + password منفصلين)
     var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
-    var STORAGE_KEY = 'asar_access_ok';
-    var enterCount = 0;
+    var ADMIN_KEY = 'amahdy_admin_ok';
+    var LOGO_KEY = 'amahdy_logo';
 
     function sha256(str) {
-        // استخدام Web Crypto API المدمجة (تشغّل على HTTPS تلقائياً)
         var buf = new TextEncoder().encode(str);
         return crypto.subtle.digest('SHA-256', buf).then(function (hash) {
             var hex = '';
@@ -22,118 +19,124 @@
         });
     }
 
-    function unlock() {
-        var gate = document.getElementById('accessGate');
-        if (gate) gate.classList.add('hidden');
-        try {
-            sessionStorage.setItem(STORAGE_KEY, '1');
-        } catch (e) {}
-        document.body.style.overflow = '';
-    }
-
-    function tryAutoUnlock() {
-        var ok = false;
-        try {
-            ok = sessionStorage.getItem(STORAGE_KEY) === '1';
-        } catch (e) {}
-        if (ok) {
-            unlock();
-            return true;
-        }
-        return false;
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
-        var gate = document.getElementById('accessGate');
-        if (!gate) return;
+        var overlay = document.getElementById('adminOverlay');
+        var navBtn = document.getElementById('adminNavBtn');
+        var closeBtn = document.getElementById('adminClose');
+        var loginSection = document.getElementById('adminLoginSection');
+        var dashboard = document.getElementById('adminDashboard');
+        var form = document.getElementById('adminForm');
+        var userInput = document.getElementById('adminUser');
+        var passInput = document.getElementById('adminPass');
+        var errorEl = document.getElementById('adminError');
+        var logoutBtn = document.getElementById('adminLogout');
+        var logoUpload = document.getElementById('logoUpload');
+        var logoPreview = document.getElementById('adminLogoPreview');
+        var aboutAvatar = document.getElementById('aboutAvatar');
 
-        // منع عمل المحتوى خلف البوابة قبل إدخال الكود
-        if (!tryAutoUnlock()) {
+        if (!overlay || !navBtn) return;
+
+        // تحميل اللوجو المحفوظ
+        loadSavedLogo(logoPreview, aboutAvatar);
+
+        // فتح لوحة التحكم
+        navBtn.addEventListener('click', function () {
+            overlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-
-            var form = document.getElementById('accessForm');
-            var input = document.getElementById('accessCode');
-            var error = document.getElementById('accessError');
-
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                var btn = form.querySelector('.access-gate-btn');
-                btn.disabled = true;
-                sha256(input.value.trim()).then(function (hash) {
-                    if (hash === ACCESS_HASH) {
-                        enterCount = 0;
-                        error.classList.remove('show');
-                        input.value = '';
-                        unlock();
-                        btn.disabled = false;
-                    } else {
-                        enterCount++;
-                        error.classList.add('show');
-                        setTimeout(function () {
-                            error.classList.remove('show');
-                            input.select();
-                            btn.disabled = false;
-                        }, entryRate());
-                    }
-                });
-            });
-
-            input.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') form.requestSubmit();
-            });
-
-            // خانة دخول صاحب الحساب (مخفية)
-            var adminToggle = document.getElementById('adminToggle');
-            var adminForm = document.getElementById('adminForm');
-            var adminUser = document.getElementById('adminUser');
-            var adminPass = document.getElementById('adminPass');
-            var adminError = document.getElementById('adminError');
-
-            if (adminToggle && adminForm) {
-                adminToggle.addEventListener('click', function () {
-                    var isHidden = adminForm.classList.toggle('hidden');
-                    adminToggle.textContent = isHidden ? 'دخول صاحب الحساب' : 'إغلاق';
-                    if (!isHidden) adminUser.focus();
-                });
-
-                adminForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    var btn = adminForm.querySelector('.access-gate-btn');
-                    btn.disabled = true;
-                    Promise.all([
-                        sha256(adminUser.value.trim()),
-                        sha256(adminPass.value)
-                    ]).then(function (hashes) {
-                        if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
-                            adminError.classList.remove('show');
-                            adminUser.value = '';
-                            adminPass.value = '';
-                            unlock();
-                        } else {
-                            adminError.classList.add('show');
-                            setTimeout(function () {
-                                adminError.classList.remove('show');
-                                adminPass.select();
-                                btn.disabled = false;
-                            }, 1500);
-                        }
-                    });
-                });
+            // لو مسجل دخول بالفعل
+            if (localStorage.getItem(ADMIN_KEY) === '1') {
+                showDashboard();
             }
+        });
 
-            window.addEventListener('keydown', function (e) {
-                // منع النقر بزر الفأرة الأيمن على البوابة
-                if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
-                    e.preventDefault();
+        // إغلاق لوحة التحكم
+        function closePanel() {
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        closeBtn.addEventListener('click', closePanel);
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) closePanel();
+        });
+
+        // تسجيل الدخول
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var btn = form.querySelector('.admin-submit-btn');
+            btn.disabled = true;
+            Promise.all([
+                sha256(userInput.value.trim()),
+                sha256(passInput.value)
+            ]).then(function (hashes) {
+                if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
+                    errorEl.classList.remove('show');
+                    localStorage.setItem(ADMIN_KEY, '1');
+                    showDashboard();
+                    btn.disabled = false;
+                } else {
+                    errorEl.classList.add('show');
+                    setTimeout(function () {
+                        errorEl.classList.remove('show');
+                        passInput.select();
+                        btn.disabled = false;
+                    }, 1500);
                 }
             });
+        });
+
+        // تسجيل الخروج
+        logoutBtn.addEventListener('click', function () {
+            localStorage.removeItem(ADMIN_KEY);
+            loginSection.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+            userInput.value = '';
+            passInput.value = '';
+        });
+
+        // رفع اللوجو
+        logoUpload.addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) {
+                alert('الملف أكبر من 2MB');
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var dataUrl = ev.target.result;
+                try {
+                    localStorage.setItem(LOGO_KEY, dataUrl);
+                } catch (err) {
+                    alert('الملف كبير جداً للحفظ في المتصفح');
+                    return;
+                }
+                loadSavedLogo(logoPreview, aboutAvatar);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function showDashboard() {
+            loginSection.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+        }
+
+        function loadSavedLogo(previewEl, avatarEl) {
+            var saved = null;
+            try {
+                saved = localStorage.getItem(LOGO_KEY);
+            } catch (e) {}
+            if (saved) {
+                if (previewEl) {
+                    previewEl.innerHTML = '<img src="' + saved + '" alt="Logo">';
+                }
+                if (avatarEl) {
+                    avatarEl.innerHTML = '<img src="' + saved + '" alt="A.Mahdy">';
+                    avatarEl.classList.add('has-logo');
+                }
+            }
         }
     });
-
-    function entryRate() {
-        // فاصل زمني يتزايد لتقليل المحاولات التجريبية
-        return Math.min(1500 * Math.pow(enterCount, 1.4), 10000);
-    }
 })();
 
 /* ============================================
