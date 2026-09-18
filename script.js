@@ -218,7 +218,7 @@ var CounterAnimation = (function () {
    Admin Panel
    ============================================ */
 (function () {
-    var ADMIN_USER_HASH = '096771b94c4e4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
+    var ADMIN_USER_HASH = '096771b94c4e41db001544503f961369d1dd4268f3d5cb44029c9c46accba476';
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
     var ADMIN_KEY = 'amahdy_admin_ok';
 
