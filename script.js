@@ -1,4 +1,141 @@
 /* ============================================
+   CommentStore — IndexedDB التعليقات
+   ============================================ */
+var CommentStore = (function () {
+    var DB_NAME = 'amahdy_comments';
+    var STORE_NAME = 'comments';
+    var DB_VERSION = 1;
+    var db = null;
+
+    function open() {
+        if (db) return Promise.resolve(db);
+        return new Promise(function (resolve, reject) {
+            var req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = function (e) {
+                var d = e.target.result;
+                if (!d.objectStoreNames.contains(STORE_NAME)) {
+                    var store = d.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                    store.createIndex('by_date', 'date');
+                }
+            };
+            req.onsuccess = function (e) { db = e.target.result; resolve(db); };
+            req.onerror = function (e) { reject(e.target.error); };
+        });
+    }
+
+    function add(name, text) {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).add({ name: name, text: text, date: new Date().toISOString() });
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function getAll() {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readonly');
+                var req = tx.objectStore(STORE_NAME).index('by_date').getAll();
+                req.onsuccess = function (e) { resolve((e.target.result || []).reverse()); };
+                req.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function remove(id) {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).delete(id);
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function clear() {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).clear();
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    return { add: add, getAll: getAll, remove: remove, clear: clear };
+})();
+
+/* ============================================
+   FileStore — IndexedDB لتخزين الملفات الكبيرة
+   ============================================ */
+var FileStore = (function () {
+    var DB_NAME = 'amahdy_files';
+    var STORE_NAME = 'blobs';
+    var DB_VERSION = 1;
+    var db = null;
+
+    function open() {
+        if (db) return Promise.resolve(db);
+        return new Promise(function (resolve, reject) {
+            var req = indexedDB.open(DB_NAME, DB_VERSION);
+            req.onupgradeneeded = function (e) {
+                var d = e.target.result;
+                if (!d.objectStoreNames.contains(STORE_NAME)) d.createObjectStore(STORE_NAME);
+            };
+            req.onsuccess = function (e) { db = e.target.result; resolve(db); };
+            req.onerror = function (e) { reject(e.target.error); };
+        });
+    }
+
+    function put(key, blob) {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put(blob, key);
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function get(key) {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readonly');
+                var req = tx.objectStore(STORE_NAME).get(key);
+                req.onsuccess = function (e) { resolve(e.target.result || null); };
+                req.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function del(key) {
+        return open().then(function (d) {
+            return new Promise(function (resolve, reject) {
+                var tx = d.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).delete(key);
+                tx.oncomplete = function () { resolve(); };
+                tx.onerror = function (e) { reject(e.target.error); };
+            });
+        });
+    }
+
+    function getURL(key) {
+        return get(key).then(function (blob) {
+            if (!blob) return null;
+            return URL.createObjectURL(blob);
+        });
+    }
+
+    return { put: put, get: get, del: del, getURL: getURL };
+})();
+
+/* ============================================
    Data Manager — حفظ/تحميل من localStorage
    ============================================ */
 var DataManager = (function () {
@@ -305,6 +442,7 @@ var CounterAnimation = (function () {
             loadPhoto();
             loadLayoutForm();
             loadContentForm();
+            loadCommentsAdmin();
         }
 
         /* --- Tabs --- */
@@ -594,6 +732,34 @@ var CounterAnimation = (function () {
             showSaved(this);
         });
 
+        /* --- Comments Admin --- */
+        function loadCommentsAdmin() {
+            CommentStore.getAll().then(function (comments) {
+                var list = document.getElementById('adminCommentsList');
+                if (!list) return;
+                if (!comments || comments.length === 0) {
+                    list.innerHTML = '<p class="admin-hint">لا توجد تعليقات بعد</p>';
+                    return;
+                }
+                list.innerHTML = comments.map(function (c) {
+                    var d = new Date(c.date);
+                    var dateStr = d.toLocaleDateString('ar-EG') + ' ' + d.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+                    return '<div class="admin-dynamic-item" style="flex-direction:column;align-items:stretch;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><strong>' + esc(c.name) + '</strong><span style="font-size:11px;color:var(--text-dim);">' + dateStr + '</span></div><p style="font-size:13px;color:var(--text-dim);margin:0 0 8px;">' + esc(c.text) + '</p><button class="admin-remove-btn" data-id="' + c.id + '">✕ حذف</button></div>';
+                }).join('');
+                list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        var id = parseInt(btn.getAttribute('data-id'));
+                        CommentStore.remove(id).then(function () { loadCommentsAdmin(); renderComments(); });
+                    });
+                });
+            });
+        }
+
+        document.getElementById('clearAllComments').addEventListener('click', function () {
+            if (!confirm('هل أنت متأكد؟ هيتمسح كل التعليقات')) return;
+            CommentStore.clear().then(function () { loadCommentsAdmin(); renderComments(); });
+        });
+
         /* --- Download data.js --- */
         document.getElementById('downloadDataJS').addEventListener('click', function () {
             var d = DataManager.load();
@@ -799,4 +965,45 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }, { passive: true });
+
+    // Comment form
+    var commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var name = document.getElementById('commentName').value.trim();
+            var text = document.getElementById('commentText').value.trim();
+            if (!name || !text) return;
+            CommentStore.add(name, text).then(function () {
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentText').value = '';
+                renderComments();
+            });
+        });
+    }
+
+    renderComments();
 });
+
+function renderComments() {
+    var list = document.getElementById('commentsList');
+    if (!list) return;
+    CommentStore.getAll().then(function (comments) {
+        if (!comments || comments.length === 0) {
+            list.innerHTML = '<div class="comments-empty">لا توجد تعليقات بعد — كن أول من يعلّق!</div>';
+            return;
+        }
+        list.innerHTML = comments.map(function (c) {
+            var initial = (c.name || '?')[0];
+            var d = new Date(c.date);
+            var dateStr = d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+            return '<div class="comment-card"><div class="comment-header"><div class="comment-avatar">' + initial + '</div><div class="comment-name">' + escHtml(c.name) + '</div><div class="comment-date">' + dateStr + '</div></div><div class="comment-text">' + escHtml(c.text) + '</div></div>';
+        }).join('');
+    });
+}
+
+function escHtml(s) {
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}

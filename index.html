@@ -141,6 +141,27 @@
         </div>
     </section>
 
+    <!-- Comments -->
+    <section class="section" id="comments">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-number">05</span>
+                <h2 class="section-title" id="commentsTitle">تعليقات الزوار</h2>
+                <p class="section-desc" id="commentsDesc">شاركنا رأيك أو اكتب كلمة حلوة</p>
+            </div>
+            <div class="comments-form-wrapper">
+                <form class="comments-form" id="commentForm">
+                    <div class="comments-form-row">
+                        <input type="text" id="commentName" class="admin-input" placeholder="اسمك" required>
+                    </div>
+                    <textarea id="commentText" class="admin-input" rows="3" placeholder="اكتب تعليقك هنا..." required></textarea>
+                    <button type="submit" class="btn btn-primary">أرسل التعليق</button>
+                </form>
+            </div>
+            <div class="comments-list" id="commentsList"></div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
         <p><span id="footerText">صمم بمحبة</span> © <span id="footerYear">2026</span> — A.Mahdy</p>
@@ -179,6 +200,7 @@
                     <button class="admin-tab" data-tab="services">الخدمات</button>
                     <button class="admin-tab" data-tab="appearance">المظهر</button>
                     <button class="admin-tab" data-tab="content">المحتوى</button>
+                    <button class="admin-tab" data-tab="comments">التعليقات</button>
                 </div>
 
                 <!-- Tab: الملف الشخصي -->
@@ -279,7 +301,11 @@
                             <div class="admin-logo-preview" id="adminLogoPreview"><span>A.M</span></div>
                             <label class="admin-upload-btn" for="logoUpload">رفع صورتي</label>
                             <input type="file" accept="image/*" id="logoUpload" hidden>
-                            <p class="admin-hint">ارفع صورة شخصية — هتظهر في قسم "عني"</p>
+                            <div class="admin-upload-progress hidden" id="logoProgress">
+                                <div class="admin-progress-bar"><div class="admin-progress-fill" id="logoProgressFill"></div></div>
+                                <span class="admin-progress-text" id="logoProgressText">جاري الرفع...</span>
+                            </div>
+                            <p class="admin-hint">ارفع صورة شخصية — أي حجم (بتدعم IndexedDB)</p>
                         </div>
                     </div>
                     <div class="admin-section-block">
@@ -413,6 +439,13 @@
                         </div>
                     </div>
                     <button class="admin-save-btn" id="saveContent">حفظ المحتوى</button>
+                </div>
+
+                <!-- Tab: التعليقات -->
+                <div class="admin-tab-panel" data-panel="comments">
+                    <p class="admin-hint">تعليقات الزوار على الموقع — تقدر تحذف أي تعليق</p>
+                    <div class="admin-dynamic-list" id="adminCommentsList"></div>
+                    <button class="admin-save-btn admin-save-btn--secondary" id="clearAllComments">حذف كل التعليقات</button>
                 </div>
 
                 <div class="admin-dashboard-footer">
