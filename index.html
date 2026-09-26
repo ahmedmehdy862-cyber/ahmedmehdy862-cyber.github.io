@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=4">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
     <nav class="nav" id="mainNav">
         <div class="nav-inner">
             <div class="nav-logo">
-                <img src="assets/logo-icon.svg" alt="A.Mahdy" class="nav-logo-img" width="36" height="36">
+                <img src="assets/Asset-1.png" alt="A.Mahdy" class="nav-logo-img" width="36" height="36">
                 <span class="nav-logo-text">Ahmed<span class="accent-dot"> Mahdy.</span></span>
             </div>
             <ul class="nav-links" id="navLinks">
@@ -53,7 +53,7 @@
         </div>
         <div class="container hero-content">
             <div class="hero-text">
-                <div class="hero-logo"><img src="assets/logo-vertical.svg" alt="Ahmed Mahdy" class="hero-logo-img"></div>
+                <div class="hero-logo"><img src="assets/Asset-1-1.png" alt="Ahmed Mahdy" class="hero-logo-img"></div>
                 <div class="hero-badge" id="heroBadge">معرض أعمالي</div>
                 <h1 class="hero-title">
                     <span class="hero-name" id="heroName">أحمد مهدي</span>
@@ -394,8 +394,26 @@
                         </div>
                     </div>
                     <div class="admin-section-block">
-                        <h3>تصدير البيانات</h3>
-                        <p class="admin-hint">حمّل ملف data.js المحدّث وارفعه على GitHub عشان التغييرات تظهر للجمهور</p>
+                        <h3>النشر التلقائي على الموقع</h3>
+                        <p class="admin-hint">اربط GitHub Token مرة واحدة — وبعدها أي تعديل تحفظه في اللوحة يتنشر للجمهور تلقائيًا خلال دقيقة.</p>
+                        <div class="admin-field">
+                            <label>GitHub Personal Access Token</label>
+                            <input type="password" id="ghTokenInput" class="admin-input" dir="ltr" placeholder="ghp_..." autocomplete="off">
+                        </div>
+                        <div class="admin-field">
+                            <label class="admin-check-label">
+                                <input type="checkbox" id="autoPublishChk">
+                                نشر تلقائي بعد كل تعديل
+                            </label>
+                        </div>
+                        <button class="admin-save-btn" id="saveGhToken">حفظ التوكن</button>
+                        <button class="admin-save-btn admin-save-btn--secondary" id="publishNowBtn">انشر الآن</button>
+                        <p class="admin-hint" id="publishStatus"></p>
+                        <p class="admin-hint">لإنشاء التوكن: GitHub ← Settings ← Developer settings ← Personal access tokens ← Fine-grained token ← اختر المستودع ده ومنحه صلاحية <strong>Contents: Read and write</strong>.</p>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>تصدير البيانات (طريقة يدوية)</h3>
+                        <p class="admin-hint">بديل لو النشر التلقائي متوقف — حمّل ملف data.js المحدّث وارفعه على GitHub يدويًا</p>
                         <button class="admin-save-btn" id="downloadDataJS">تحميل data.js</button>
                         <button class="admin-save-btn admin-save-btn--secondary" id="resetAllData">إعادة تعيين البيانات</button>
                     </div>
@@ -505,7 +523,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=3"></script>
-    <script src="script.js?v=3"></script>
+    <script src="data.js?v=4"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>

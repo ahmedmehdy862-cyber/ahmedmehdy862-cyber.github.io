@@ -143,8 +143,17 @@ var DataManager = (function () {
     var LOGO_KEY = 'amahdy_logo';
     var THEME_KEY = 'amahdy_theme';
     var LAYOUT_KEY = 'amahdy_layout';
+    var remote = null;
+
+    function setRemote(d) { remote = d || null; }
+    function getRemote() { return remote; }
+
+    function notifyChange() {
+        if (typeof Publisher !== 'undefined' && Publisher && Publisher.schedule) Publisher.schedule();
+    }
 
     function getDefault() {
+        if (remote && remote.profile) return JSON.parse(JSON.stringify(remote));
         return typeof SITE_DATA !== 'undefined' ? JSON.parse(JSON.stringify(SITE_DATA)) : null;
     }
 
@@ -159,25 +168,44 @@ var DataManager = (function () {
     function save(data) {
         try {
             localStorage.setItem(DATA_KEY, JSON.stringify(data));
+            notifyChange();
         } catch (e) {
             alert('خطأ في الحفظ — تأكد من تفعيل التخزين المحلي');
         }
     }
 
+    function hasLocalLogo() {
+        try { return !!localStorage.getItem(LOGO_KEY); } catch (e) { return false; }
+    }
+
     function getLogo() {
-        try { return localStorage.getItem(LOGO_KEY); } catch (e) { return null; }
+        try {
+            var v = localStorage.getItem(LOGO_KEY);
+            if (v) return v;
+        } catch (e) {}
+        if (remote && remote.photoUrl) return remote.photoUrl;
+        return null;
     }
 
     function setLogo(dataUrl) {
-        try { localStorage.setItem(LOGO_KEY, dataUrl); } catch (e) {}
+        try {
+            localStorage.setItem(LOGO_KEY, dataUrl);
+            if (typeof Publisher !== 'undefined' && Publisher && Publisher.markPhoto) Publisher.markPhoto();
+            notifyChange();
+            return true;
+        } catch (e) { return false; }
     }
 
     function getTheme() {
-        try { return localStorage.getItem(THEME_KEY); } catch (e) { return null; }
+        try {
+            var v = localStorage.getItem(THEME_KEY);
+            if (v) return v;
+        } catch (e) {}
+        return (remote && remote.theme) || null;
     }
 
     function setTheme(theme) {
-        try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
+        try { localStorage.setItem(THEME_KEY, theme); notifyChange(); } catch (e) {}
     }
 
     function getLayout() {
@@ -185,11 +213,12 @@ var DataManager = (function () {
             var raw = localStorage.getItem(LAYOUT_KEY);
             if (raw) return JSON.parse(raw);
         } catch (e) {}
+        if (remote && remote.layout) return JSON.parse(JSON.stringify(remote.layout));
         return { cardStyle: 'rounded', heroStyle: 'split', sectionGap: 'md', animations: 'subtle' };
     }
 
     function setLayout(layout) {
-        try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch (e) {}
+        try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); notifyChange(); } catch (e) {}
     }
 
     function reset() {
@@ -197,10 +226,242 @@ var DataManager = (function () {
             localStorage.removeItem(DATA_KEY);
             localStorage.removeItem(LOGO_KEY);
             localStorage.removeItem(LAYOUT_KEY);
+            localStorage.removeItem(THEME_KEY);
         } catch (e) {}
     }
 
-    return { load: load, save: save, getDefault: getDefault, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
+    return { load: load, save: save, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
+})();
+
+/* ============================================
+   RemoteData — يجلب data.json المنشور من الموقع
+   ============================================ */
+var RemoteData = (function () {
+    function load() {
+        if (!window.fetch || window.location.protocol === 'file:') return Promise.resolve(null);
+        return new Promise(function (resolve) {
+            var done = false;
+            var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 5000);
+            fetch('data.json', { cache: 'no-cache' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (d) {
+                    clearTimeout(timer);
+                    if (done) return;
+                    done = true;
+                    if (d && d.profile) { DataManager.setRemote(d); resolve(d); }
+                    else resolve(null);
+                })
+                .catch(function () {
+                    clearTimeout(timer);
+                    if (!done) { done = true; resolve(null); }
+                });
+        });
+    }
+    return { load: load };
+})();
+
+/* يبدأ جلب data.json المنشور فور تحميل السكربت */
+var remoteReady = RemoteData.load();
+var Publisher = (function () {
+    var TOKEN_KEY = 'amahdy_gh_token';
+    var AUTO_KEY = 'amahdy_auto_publish';
+    var REPO = 'ahmedmehdy862-cyber/ahmedmehdy862-cyber.github.io';
+    var FILE_PATH = 'data.json';
+    var BRANCH = 'main';
+    var API = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH;
+    var timer = null;
+    var publishing = false;
+    var queued = false;
+
+    function getToken() { try { return (localStorage.getItem(TOKEN_KEY) || '').trim(); } catch (e) { return ''; } }
+    function setToken(v) { try { if (v) localStorage.setItem(TOKEN_KEY, v.trim()); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
+    function isAuto() { try { return localStorage.getItem(AUTO_KEY) !== '0'; } catch (e) { return true; } }
+    function setAuto(v) { try { localStorage.setItem(AUTO_KEY, v ? '1' : '0'); } catch (e) {} }
+
+    function statusEl() { return document.getElementById('publishStatus'); }
+
+    function setStatus(state, extra) {
+        var el = statusEl();
+        if (!el) return;
+        var map = {
+            noToken: ['status-warn', 'أدخل GitHub Token واحفظه — عشان أي تعديل يوصل للجمهور تلقائيًا.'],
+            autoOff: ['status-warn', 'النشر التلقائي متوقف — التعديلات محفوظة محليًا فقط.'],
+            publishing: ['', 'جاري النشر إلى الموقع...'],
+            ok: ['status-ok', 'تم النشر ✓ — الموقع هيتحدث خلال دقيقة تقريبًا.'],
+            idleReady: ['status-ok', 'النشر التلقائي مفعّل — أي تعديل تحفظه هيتنشر تلقائيًا.'],
+            error: ['status-err', 'فشل النشر: ' + (extra || 'خطأ غير معروف')]
+        };
+        var m = map[state] || ['', extra || ''];
+        el.className = 'admin-hint ' + m[0];
+        el.textContent = m[1];
+    }
+
+    function refreshStatus() {
+        if (!getToken()) setStatus('noToken');
+        else if (!isAuto()) setStatus('autoOff');
+        else setStatus('idleReady');
+    }
+
+    function b64encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    function headers(extra) {
+        var h = {
+            'Authorization': 'Bearer ' + getToken(),
+            'Accept': 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+        };
+        if (extra) for (var k in extra) h[k] = extra[k];
+        return h;
+    }
+
+    function api(url, method, body) {
+        return fetch(url, {
+            method: method,
+            headers: headers(body ? { 'Content-Type': 'application/json' } : null),
+            body: body ? JSON.stringify(body) : undefined
+        });
+    }
+
+    function shrinkImage(src, maxSide, quality, cb) {
+        var img = new Image();
+        img.onload = function () {
+            try {
+                var scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+                var w = Math.max(1, Math.round(img.width * scale));
+                var h = Math.max(1, Math.round(img.height * scale));
+                var c = document.createElement('canvas');
+                c.width = w; c.height = h;
+                var ctx = c.getContext('2d');
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, w, h);
+                ctx.drawImage(img, 0, 0, w, h);
+                cb(c.toDataURL('image/jpeg', quality));
+            } catch (e) { cb(src); }
+        };
+        img.onerror = function () { cb(src); };
+        img.src = src;
+    }
+
+    function buildPayload(cb) {
+        var d = DataManager.load() || {};
+        var payload = {
+            profile: d.profile || {},
+            site: d.site || {},
+            stats: d.stats || [],
+            skills: d.skills || [],
+            projects: d.projects || [],
+            services: d.services || [],
+            contactNote: d.contactNote || '',
+            theme: DataManager.getTheme() || 'neon',
+            layout: DataManager.getLayout(),
+            photoUrl: null,
+            updatedAt: new Date().toISOString()
+        };
+
+        function withRemotePhoto() {
+            var rem = DataManager.getRemote();
+            payload.photoUrl = (rem && rem.photoUrl) || null;
+            cb(payload);
+        }
+
+        var logo = DataManager.getLogo();
+        if (DataManager.hasLocalLogo() && logo && logo.indexOf('data:') === 0) {
+            if (logo.length <= 400000) {
+                payload.photoUrl = logo;
+                cb(payload);
+            } else {
+                shrinkImage(logo, 1024, 0.85, function (small) {
+                    payload.photoUrl = small;
+                    cb(payload);
+                });
+            }
+        } else {
+            withRemotePhoto();
+        }
+    }
+
+    function getSha() {
+        return api(API + '?ref=' + BRANCH, 'GET').then(function (r) {
+            if (r.status === 404) return null;
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json().then(function (j) { return j.sha || null; });
+        });
+    }
+
+    function put(content, sha, attempt) {
+        var body = {
+            message: 'publish: تحديث محتوى الموقع ' + new Date().toISOString(),
+            content: content,
+            branch: BRANCH
+        };
+        if (sha) body.sha = sha;
+        return api(API, 'PUT', body).then(function (r) {
+            if (r.status === 409 && !attempt) {
+                return getSha().then(function (newSha) { return put(content, newSha, true); });
+            }
+            if (!r.ok) {
+                return r.json().catch(function () { return {}; }).then(function (j) {
+                    throw new Error((j && j.message) || ('HTTP ' + r.status));
+                });
+            }
+            return true;
+        });
+    }
+
+    function ensureRemote(done) {
+        if (DataManager.getRemote()) { done(); return; }
+        fetch('data.json', { cache: 'no-cache' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) { if (d && d.profile) DataManager.setRemote(d); })
+            .catch(function () {})
+            .then(done, done);
+    }
+
+    function publish() {
+        var token = getToken();
+        if (!token) { setStatus('noToken'); return Promise.resolve(false); }
+        if (publishing) { queued = true; return Promise.resolve(false); }
+        publishing = true;
+        setStatus('publishing');
+        return new Promise(function (resolve) {
+            ensureRemote(function () {
+                buildPayload(function (payload) {
+                    var json = JSON.stringify(payload, null, 2);
+                    var content = b64encode(json);
+                    getSha().then(function (sha) {
+                        return put(content, sha, false);
+                    }).then(function () {
+                        publishing = false;
+                        DataManager.setRemote(payload);
+                        setStatus('ok');
+                        resolve(true);
+                        if (queued) { queued = false; setTimeout(publish, 800); }
+                    }).catch(function (err) {
+                        publishing = false;
+                        setStatus('error', err && err.message);
+                        resolve(false);
+                        if (queued) { queued = false; }
+                    });
+                });
+            });
+        });
+    }
+
+    function schedule() {
+        if (!isAuto() || !getToken()) return;
+        clearTimeout(timer);
+        timer = setTimeout(publish, 1500);
+    }
+
+    function markPhoto() { /* الصورة جت مع أي نشر تلقائي */ }
+
+    return {
+        getToken: getToken, setToken: setToken, isAuto: isAuto, setAuto: setAuto,
+        publish: publish, schedule: schedule, setStatus: setStatus, refreshStatus: refreshStatus,
+        markPhoto: markPhoto
+    };
 })();
 
 /* ============================================
@@ -265,7 +526,7 @@ var LayoutManager = (function () {
         var saved = DataManager.getLayout();
         apply(saved);
 
-        document.addEventListener('DOMContentLoaded', function () {
+        function setup() {
             // Layout choice buttons
             document.querySelectorAll('.admin-layout-choices').forEach(function (group) {
                 var key = group.getAttribute('data-layout-key');
@@ -313,7 +574,13 @@ var LayoutManager = (function () {
                     apply(layout);
                 });
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setup);
+        } else {
+            setup();
+        }
     }
 
     return { init: init, apply: apply };
@@ -469,6 +736,28 @@ var CounterAnimation = (function () {
             dashboard.classList.add('hidden');
         });
 
+        /* --- Auto publish (GitHub) --- */
+        var tokenInput = document.getElementById('ghTokenInput');
+        var saveTokenBtn = document.getElementById('saveGhToken');
+        var autoChk = document.getElementById('autoPublishChk');
+        var publishNowBtn = document.getElementById('publishNowBtn');
+
+        if (tokenInput) tokenInput.value = Publisher.getToken();
+        if (autoChk) autoChk.checked = Publisher.isAuto();
+        if (saveTokenBtn) saveTokenBtn.addEventListener('click', function () {
+            Publisher.setToken(tokenInput.value);
+            tokenInput.value = Publisher.getToken();
+            Publisher.refreshStatus();
+            showSaved(saveTokenBtn);
+        });
+        if (autoChk) autoChk.addEventListener('change', function () {
+            Publisher.setAuto(autoChk.checked);
+            Publisher.refreshStatus();
+        });
+        if (publishNowBtn) publishNowBtn.addEventListener('click', function () {
+            Publisher.publish();
+        });
+
         function showDashboard() {
             loginSection.classList.add('hidden');
             dashboard.classList.remove('hidden');
@@ -482,6 +771,7 @@ var CounterAnimation = (function () {
             loadLayoutForm();
             loadContentForm();
             loadCommentsAdmin();
+            if (typeof Publisher !== 'undefined') Publisher.refreshStatus();
         }
 
         /* --- Tabs --- */
@@ -693,14 +983,38 @@ var CounterAnimation = (function () {
         });
 
         /* --- Photo --- */
-        function loadPhoto() {
-            var logo = DataManager.getLogo();
+        function shrinkDataUrl(dataUrl, cb) {
+            var img = new Image();
+            img.onload = function () {
+                try {
+                    var max = 1024;
+                    var scale = Math.min(1, max / Math.max(img.width, img.height));
+                    var w = Math.max(1, Math.round(img.width * scale));
+                    var h = Math.max(1, Math.round(img.height * scale));
+                    var c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    var ctx = c.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    cb(c.toDataURL('image/jpeg', 0.85));
+                } catch (e) { cb(dataUrl); }
+            };
+            img.onerror = function () { cb(dataUrl); };
+            img.src = dataUrl;
+        }
+
+        function applyPhoto(src) {
+            if (!src) return false;
             var preview = document.getElementById('adminLogoPreview');
             var avatar = document.getElementById('aboutAvatar');
-            if (logo) {
-                if (preview) preview.innerHTML = '<img src="' + logo + '" alt="Logo">';
-                if (avatar) { avatar.innerHTML = '<img src="' + logo + '" alt="A.M">'; avatar.classList.add('has-logo'); }
-            }
+            if (preview) preview.innerHTML = '<img src="' + esc(src) + '" alt="Logo">';
+            if (avatar) { avatar.innerHTML = '<img src="' + esc(src) + '" alt="A.M">'; avatar.classList.add('has-logo'); }
+            return true;
+        }
+
+        function loadPhoto() {
+            var logo = DataManager.getLogo();
+            if (applyPhoto(logo)) return;
+            FileStore.getURL('profile_logo').then(function (url) { applyPhoto(url); });
         }
 
         document.getElementById('logoUpload').addEventListener('change', function (e) {
@@ -714,10 +1028,12 @@ var CounterAnimation = (function () {
                 if (fill) fill.style.width = '70%';
                 var reader = new FileReader();
                 reader.onload = function (ev) {
-                    DataManager.setLogo(ev.target.result);
-                    if (fill) fill.style.width = '100%';
-                    loadPhoto();
-                    setTimeout(function () { if (progress) progress.classList.add('hidden'); if (fill) fill.style.width = '0%'; }, 800);
+                    shrinkDataUrl(ev.target.result, function (small) {
+                        if (!DataManager.setLogo(small)) DataManager.setLogo(ev.target.result);
+                        if (fill) fill.style.width = '100%';
+                        loadPhoto();
+                        setTimeout(function () { if (progress) progress.classList.add('hidden'); if (fill) fill.style.width = '0%'; }, 800);
+                    });
                 };
                 reader.readAsDataURL(file);
             }).catch(function () {
@@ -828,6 +1144,13 @@ var CounterAnimation = (function () {
         document.getElementById('resetAllData').addEventListener('click', function () {
             if (!confirm('هل أنت متأكد؟ هيتمسح كل التغييرات وترجع البيانات الأصلية')) return;
             DataManager.reset();
+            DataManager.setRemote(null);
+            try { var del = FileStore.del('profile_logo'); if (del && del.catch) del.catch(function () {}); } catch (e) {}
+            var t = DataManager.getTheme() || 'neon';
+            document.documentElement.setAttribute('data-theme', t);
+            document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
+                el.classList.toggle('active', el.getAttribute('data-theme') === t);
+            });
             loadProfileForm();
             loadStatsForm();
             loadSkillsForm();
@@ -840,6 +1163,7 @@ var CounterAnimation = (function () {
             renderSite();
             ScrollReveal.init();
             CounterAnimation.init();
+            if (typeof Publisher !== 'undefined') Publisher.schedule();
         });
     });
 
@@ -898,6 +1222,23 @@ function renderSite() {
     fill('servicesDesc', s.servicesDesc);
     fill('footerText', s.footerText);
     fill('footerYear', String(new Date().getFullYear()));
+
+    // Profile photo — from localStorage or published data.json
+    var av = $('aboutAvatar');
+    if (av && !av.querySelector('img')) {
+        var logoSrc = DataManager.getLogo();
+        if (logoSrc) {
+            av.innerHTML = '<img src="' + escAttr(logoSrc) + '" alt="' + escAttr(p.name || 'A.M') + '">';
+            av.classList.add('has-logo');
+        } else if (DataManager.hasLocalLogo()) {
+            FileStore.getURL('profile_logo').then(function (url) {
+                if (url && !av.querySelector('img')) {
+                    av.innerHTML = '<img src="' + escAttr(url) + '" alt="' + escAttr(p.name || 'A.M') + '">';
+                    av.classList.add('has-logo');
+                }
+            });
+        }
+    }
 
     var socials = d.profile.socials || {};
 
@@ -999,6 +1340,21 @@ document.addEventListener('DOMContentLoaded', function () {
     // Init scroll reveal & counters
     ScrollReveal.init();
     CounterAnimation.init();
+
+    // لو وصل data.json المنشور بعدها — طبّق الثيم واللايوت والبيانات وارسم من جديد
+    remoteReady.then(function () {
+        if (!DataManager.getRemote()) return;
+        var root = document.documentElement;
+        var t = DataManager.getTheme() || 'neon';
+        root.setAttribute('data-theme', t);
+        document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
+            el.classList.toggle('active', el.getAttribute('data-theme') === t);
+        });
+        LayoutManager.apply(DataManager.getLayout());
+        renderSite();
+        ScrollReveal.init();
+        CounterAnimation.init();
+    });
 
     var nav = document.getElementById('mainNav');
     var toggle = document.getElementById('navToggle');

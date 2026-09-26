@@ -200,10 +200,6 @@ ul {
     padding: 8px 0;
     border-bottom: 1px solid var(--border);
 }
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    padding: 10px 0;
-}
 
 :root[data-theme="light"] .nav.scrolled {
     background: rgba(255, 255, 255, 0.85);
@@ -2588,4 +2584,31 @@ html, body {
 /* Touch action optimization */
 .project-card, .service-card, .contact-card, .btn, .filter-btn, .nav-link {
     touch-action: manipulation;
+}
+/* ==== Publisher status ==== */
+.status-ok { color: #10b981 !important; }
+.status-err { color: #ef4444 !important; }
+.status-warn { color: #f59e0b !important; }
+
+.admin-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    user-select: none;
+}
+.admin-check-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+/* ==== الشعار الأبيض على الثيم الفاتح ==== */
+:root[data-theme="light"] .nav-logo-img,
+:root[data-theme="light"] .hero-logo-img {
+    filter: brightness(0.12);
 }

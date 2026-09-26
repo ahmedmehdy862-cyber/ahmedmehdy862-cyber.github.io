@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 100" fill="none">
-  <path d="M50 4 L96 30 L96 76 L50 100 L4 76 L4 30 Z" stroke="#000" stroke-width="6" fill="none"/>
-  <path d="M50 24 L74 80 L62 80 L57 68 L43 68 L38 80 L26 80 Z" fill="#000"/>
-  <path d="M50 24 L62 50 L55 50 L50 38 L45 50 L38 50 Z" fill="#FFF"/>
-  <rect x="43" y="60" width="14" height="7" fill="#000"/>
-  <line x1="115" y1="20" x2="115" y2="84" stroke="#000" stroke-width="4"/>
-  <text x="135" y="48" font-family="Arial Black, sans-serif" font-weight="900" font-size="36" fill="#000">Ahmed</text>
-  <text x="135" y="86" font-family="Arial Black, sans-serif" font-weight="900" font-size="36" fill="#000">Mahdy.</text>
-</svg>
