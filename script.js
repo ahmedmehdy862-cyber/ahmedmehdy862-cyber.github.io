@@ -705,13 +705,25 @@ var CounterAnimation = (function () {
 
         document.getElementById('logoUpload').addEventListener('change', function (e) {
             var file = e.target.files[0];
-            if (!file || file.size > 2 * 1024 * 1024) { alert('الملف أكبر من 2MB'); return; }
-            var reader = new FileReader();
-            reader.onload = function (ev) {
-                DataManager.setLogo(ev.target.result);
-                loadPhoto();
-            };
-            reader.readAsDataURL(file);
+            if (!file) return;
+            var progress = document.getElementById('logoProgress');
+            var fill = document.getElementById('logoProgressFill');
+            if (progress) { progress.classList.remove('hidden'); if (fill) fill.style.width = '30%'; }
+            // Store large files in IndexedDB (no size limit)
+            FileStore.put('profile_logo', file).then(function () {
+                if (fill) fill.style.width = '70%';
+                var reader = new FileReader();
+                reader.onload = function (ev) {
+                    DataManager.setLogo(ev.target.result);
+                    if (fill) fill.style.width = '100%';
+                    loadPhoto();
+                    setTimeout(function () { if (progress) progress.classList.add('hidden'); if (fill) fill.style.width = '0%'; }, 800);
+                };
+                reader.readAsDataURL(file);
+            }).catch(function () {
+                if (progress) progress.classList.add('hidden');
+                alert('خطأ في رفع الملف');
+            });
         });
 
         /* --- Layout --- */
@@ -875,8 +887,6 @@ function renderSite() {
     fill('aboutBio', p.bio);
     fill('aboutTitle', s.aboutTitle);
     fill('aboutDesc', s.aboutDesc);
-    fill('contactEmail', p.email);
-    fill('contactLocation', p.location);
     fill('contactTitle', s.contactTitle);
     fill('contactDesc', s.contactDesc);
     fill('contactCard1Title', s.contactCard1);
@@ -890,13 +900,29 @@ function renderSite() {
     fill('footerYear', String(new Date().getFullYear()));
 
     var socials = d.profile.socials || {};
-    var names = [];
-    if (socials.behance) names.push('Behance');
-    if (socials.github) names.push('GitHub');
-    if (socials.linkedin) names.push('LinkedIn');
-    if (socials.instagram) names.push('Instagram');
+
+    // Make email card clickable
+    var ce = $('contactEmail');
+    if (ce && p.email) {
+        ce.innerHTML = '<a href="mailto:' + escAttr(p.email) + '" class="contact-link">' + escHtml(p.email) + '</a>';
+    }
+
+    // Make socials clickable
     var cs = $('contactSocials');
-    if (cs) cs.textContent = names.join(' · ') || '—';
+    if (cs) {
+        var links = [];
+        if (socials.behance) links.push('<a href="' + escAttr(socials.behance) + '" target="_blank" rel="noopener noreferrer" class="contact-link">Behance</a>');
+        if (socials.github) links.push('<a href="' + escAttr(socials.github) + '" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>');
+        if (socials.linkedin) links.push('<a href="' + escAttr(socials.linkedin) + '" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>');
+        if (socials.instagram) links.push('<a href="' + escAttr(socials.instagram) + '" target="_blank" rel="noopener noreferrer" class="contact-link">Instagram</a>');
+        cs.innerHTML = links.join(' · ') || '—';
+    }
+
+    // Make location card clickable (Google Maps)
+    var cl = $('contactLocation');
+    if (cl && p.location) {
+        cl.innerHTML = '<a href="https://maps.google.com/?q=' + encodeURIComponent(p.location) + '" target="_blank" rel="noopener noreferrer" class="contact-link">' + escHtml(p.location) + '</a>';
+    }
 
     // Stats
     var hs = $('heroStats');

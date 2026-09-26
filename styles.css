@@ -154,7 +154,7 @@ html {
 
 body {
     font-family: 'Cairo', 'Noto Kufi Arabic', sans-serif;
-    background: var(--bg);
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 40%, var(--bg) 100%);
     color: var(--text);
     line-height: 1.7;
     overflow-x: hidden;
@@ -188,7 +188,7 @@ ul {
     left: 0;
     right: 0;
     z-index: 100;
-    padding: 18px 0;
+    padding: 14px 0;
     transition: background-color 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
 }
 
@@ -197,7 +197,7 @@ ul {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.25);
-    padding: 12px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--border);
 }
     -webkit-backdrop-filter: blur(16px);
@@ -224,9 +224,23 @@ ul {
 }
 
 .nav-logo {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 900;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-logo-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+}
+
+.nav-logo-text {
+    font-family: 'Almarai', 'Arial Black', sans-serif;
+    font-weight: 800;
 }
 
 .accent-dot {
@@ -366,10 +380,11 @@ ul {
    ============================================ */
 .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 85vh;
     display: flex;
     align-items: center;
-    padding-top: 90px;
+    padding-top: 80px;
+    padding-bottom: 40px;
     overflow: hidden;
 }
 
@@ -417,7 +432,7 @@ ul {
     position: relative;
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
-    gap: 60px;
+    gap: 40px;
     align-items: center;
     width: 100%;
 }
@@ -482,7 +497,7 @@ ul {
     display: flex;
     gap: 14px;
     flex-wrap: wrap;
-    margin-bottom: 44px;
+    margin-bottom: 30px;
     animation: fadeInUp 0.6s ease 0.3s both;
 }
 
@@ -621,13 +636,13 @@ ul {
    Sections
    ============================================ */
 .section {
-    padding: 100px 0;
+    padding: 70px 0;
     position: relative;
 }
 
 .section-header {
     text-align: center;
-    margin-bottom: 56px;
+    margin-bottom: 40px;
     position: relative;
 }
 
@@ -698,6 +713,24 @@ ul {
     left: -80px;
     pointer-events: none;
     filter: blur(80px);
+}
+
+/* Visual connector between sections */
+.section + .section {
+    border-top: 1px solid var(--border);
+    position: relative;
+}
+
+.section + .section::after {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 1px;
 }
 
 /* ============================================
@@ -1152,6 +1185,18 @@ ul {
     color: var(--text-dim);
     font-size: 14px;
     direction: ltr;
+}
+
+.contact-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+    text-decoration: underline;
+    color: var(--accent-2);
 }
 
 /* ============================================
