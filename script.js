@@ -310,6 +310,7 @@ var Publisher = (function () {
             publishing: ['', 'جاري النشر إلى الموقع...'],
             ok: ['status-ok', 'تم النشر ✓ — الموقع هيتحدث خلال دقيقة تقريبًا.'],
             idleReady: ['status-ok', 'النشر التلقائي مفعّل — أي تعديل تحفظه هيتنشر تلقائيًا.'],
+            photoPending: ['status-warn', 'صورتك لسه محليًا بس — اضغط «انشر الآن» عشان تظهر للزوار في كل الأجهزة.'],
             error: ['status-err', 'فشل النشر: ' + (extra || 'خطأ غير معروف')]
         };
         var m = map[state] || ['', extra || ''];
@@ -318,9 +319,13 @@ var Publisher = (function () {
     }
 
     function refreshStatus() {
-        if (!getToken()) setStatus('noToken');
-        else if (!isAuto()) setStatus('autoOff');
-        else setStatus('idleReady');
+        if (!getToken()) { setStatus('noToken'); return; }
+        if (!isAuto()) { setStatus('autoOff'); return; }
+        var rem = DataManager.getRemote();
+        var localPhoto = false;
+        try { localPhoto = !!localStorage.getItem('amahdy_logo'); } catch (e) {}
+        if (localPhoto && !(rem && rem.photoUrl)) { setStatus('photoPending'); return; }
+        setStatus('idleReady');
     }
 
     function b64encode(str) {
@@ -467,6 +472,7 @@ var Publisher = (function () {
                         publishing = false;
                         DataManager.setRemote(payload);
                         setStatus('ok');
+                        setTimeout(refreshStatus, 6000);
                         resolve(true);
                         if (queued) { queued = false; setTimeout(publish, 800); }
                     }).catch(function (err) {
