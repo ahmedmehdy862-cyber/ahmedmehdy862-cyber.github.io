@@ -166,12 +166,30 @@ var DataManager = (function () {
     }
 
     function save(data) {
-        try {
-            localStorage.setItem(DATA_KEY, JSON.stringify(data));
-            notifyChange();
-        } catch (e) {
-            alert('خطأ في الحفظ — تأكد من تفعيل التخزين المحلي');
+        if (!lsSet(DATA_KEY, JSON.stringify(data))) {
+            alert('خطأ في الحفظ — المساحة المحلية ممتلئة');
+            return;
         }
+        notifyChange();
+    }
+
+    /* كتابة آمنة — لو المساحة ممتلئة بتحاول تفضي مكان الصورة الكبيرة */
+    function lsSet(key, value) {
+        try { localStorage.setItem(key, value); return true; } catch (e) {}
+        try {
+            var v = localStorage.getItem(LOGO_KEY);
+            if (key !== LOGO_KEY && v && v.length > 400000) localStorage.removeItem(LOGO_KEY);
+            localStorage.setItem(key, value);
+            return true;
+        } catch (e2) { return false; }
+    }
+
+    /* الصورة محفوظة في IndexedDB — لو localStorage مليان نشيلها من هناك */
+    function cleanupOversizedLogo() {
+        try {
+            var v = localStorage.getItem(LOGO_KEY);
+            if (v && v.length > 400000) localStorage.removeItem(LOGO_KEY);
+        } catch (e) {}
     }
 
     function hasLocalLogo() {
@@ -188,13 +206,16 @@ var DataManager = (function () {
     }
 
     function setLogo(dataUrl) {
-        try {
-            localStorage.setItem(LOGO_KEY, dataUrl);
+        if (storeLogo(dataUrl)) {
             if (typeof Publisher !== 'undefined' && Publisher && Publisher.markPhoto) Publisher.markPhoto();
             notifyChange();
             return true;
-        } catch (e) { return false; }
+        }
+        return false;
     }
+
+    /* حفظ بدون إشعار (مستخدم أثناء النشر عشان يمنع حلقة) */
+    function storeLogo(dataUrl) { return lsSet(LOGO_KEY, dataUrl); }
 
     function getTheme() {
         try {
@@ -230,7 +251,7 @@ var DataManager = (function () {
         } catch (e) {}
     }
 
-    return { load: load, save: save, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
+    return { load: load, save: save, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, storeLogo: storeLogo, cleanupOversizedLogo: cleanupOversizedLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
 })();
 
 /* ============================================
@@ -344,6 +365,11 @@ var Publisher = (function () {
         img.src = src;
     }
 
+    function withShrink(src, cb) {
+        if (src && src.indexOf('data:') === 0 && src.length > 400000) shrinkImage(src, 1024, 0.85, cb);
+        else cb(src);
+    }
+
     function buildPayload(cb) {
         var d = DataManager.load() || {};
         var payload = {
@@ -360,26 +386,31 @@ var Publisher = (function () {
             updatedAt: new Date().toISOString()
         };
 
-        function withRemotePhoto() {
+        function remotePhoto() {
             var rem = DataManager.getRemote();
-            payload.photoUrl = (rem && rem.photoUrl) || null;
-            cb(payload);
+            return (rem && rem.photoUrl) || null;
         }
 
+        function finish(photo) { payload.photoUrl = photo; cb(payload); }
+
+        // 1) الصورة في localStorage
         var logo = DataManager.getLogo();
         if (DataManager.hasLocalLogo() && logo && logo.indexOf('data:') === 0) {
-            if (logo.length <= 400000) {
-                payload.photoUrl = logo;
-                cb(payload);
-            } else {
-                shrinkImage(logo, 1024, 0.85, function (small) {
-                    payload.photoUrl = small;
-                    cb(payload);
-                });
-            }
-        } else {
-            withRemotePhoto();
+            withShrink(logo, finish);
+            return;
         }
+        // 2) لو مش موجودة — جيبها من IndexedDB واحفظها محليًا
+        FileStore.get('profile_logo').then(function (blob) {
+            if (!blob) { finish(remotePhoto()); return; }
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var dataUrl = ev.target.result;
+                DataManager.storeLogo(dataUrl);
+                withShrink(dataUrl, finish);
+            };
+            reader.onerror = function () { finish(remotePhoto()); };
+            reader.readAsDataURL(blob);
+        }).catch(function () { finish(remotePhoto()); });
     }
 
     function getSha() {
@@ -667,6 +698,23 @@ var CounterAnimation = (function () {
     var ADMIN_PASS_PLAIN = 'XZQ+wt=BM6QtCr';
     var ADMIN_KEY = 'amahdy_admin_ok';
 
+    /* الجلسة تتحفظ في localStorage، ولو المساحة ممتلئة أو محظورة نرجع على sessionStorage و كوكي */
+    function setAdminFlag(on) {
+        try { on ? localStorage.setItem(ADMIN_KEY, '1') : localStorage.removeItem(ADMIN_KEY); } catch (e) {}
+        try { on ? sessionStorage.setItem(ADMIN_KEY, '1') : sessionStorage.removeItem(ADMIN_KEY); } catch (e) {}
+        try {
+            document.cookie = on ? (ADMIN_KEY + '=1; path=/; max-age=31536000; SameSite=Lax')
+                                 : (ADMIN_KEY + '=; path=/; max-age=0; SameSite=Lax');
+        } catch (e) {}
+    }
+
+    function hasAdminFlag() {
+        try { if (localStorage.getItem(ADMIN_KEY) === '1') return true; } catch (e) {}
+        try { if (sessionStorage.getItem(ADMIN_KEY) === '1') return true; } catch (e) {}
+        try { if (document.cookie.indexOf(ADMIN_KEY + '=1') !== -1) return true; } catch (e) {}
+        return false;
+    }
+
     function sha256(str) {
         if (crypto && crypto.subtle) {
             return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)).then(function (h) {
@@ -690,7 +738,7 @@ var CounterAnimation = (function () {
         navBtn.addEventListener('click', function () {
             overlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            if (localStorage.getItem(ADMIN_KEY) === '1') showDashboard();
+            if (hasAdminFlag()) showDashboard();
         });
 
         function closePanel() { overlay.classList.add('hidden'); document.body.style.overflow = ''; }
@@ -707,7 +755,7 @@ var CounterAnimation = (function () {
             // Direct comparison first (always works)
             if (userInput === ADMIN_USER_PLAIN && passInput === ADMIN_PASS_PLAIN) {
                 errorEl.classList.remove('show');
-                localStorage.setItem(ADMIN_KEY, '1');
+                setAdminFlag(true);
                 showDashboard();
                 btn.disabled = false;
                 return;
@@ -717,7 +765,7 @@ var CounterAnimation = (function () {
             Promise.all([sha256(userInput), sha256(passInput)]).then(function (hashes) {
                 if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
                     errorEl.classList.remove('show');
-                    localStorage.setItem(ADMIN_KEY, '1');
+                    setAdminFlag(true);
                     showDashboard();
                 } else {
                     errorEl.classList.add('show');
@@ -731,7 +779,7 @@ var CounterAnimation = (function () {
         });
 
         if (logoutBtn) logoutBtn.addEventListener('click', function () {
-            localStorage.removeItem(ADMIN_KEY);
+            setAdminFlag(false);
             loginSection.classList.remove('hidden');
             dashboard.classList.add('hidden');
         });
@@ -1223,21 +1271,21 @@ function renderSite() {
     fill('footerText', s.footerText);
     fill('footerYear', String(new Date().getFullYear()));
 
-    // Profile photo — from localStorage or published data.json
+    // Profile photo — from localStorage, else IndexedDB, else published data.json
     var av = $('aboutAvatar');
-    if (av && !av.querySelector('img')) {
-        var logoSrc = DataManager.getLogo();
-        if (logoSrc) {
-            av.innerHTML = '<img src="' + escAttr(logoSrc) + '" alt="' + escAttr(p.name || 'A.M') + '">';
-            av.classList.add('has-logo');
-        } else if (DataManager.hasLocalLogo()) {
-            FileStore.getURL('profile_logo').then(function (url) {
-                if (url && !av.querySelector('img')) {
-                    av.innerHTML = '<img src="' + escAttr(url) + '" alt="' + escAttr(p.name || 'A.M') + '">';
-                    av.classList.add('has-logo');
-                }
-            });
-        }
+    if (av) {
+        (function () {
+            function show(src) {
+                if (!src) return;
+                var cur = av.querySelector('img');
+                if (cur && cur.getAttribute('src') === src) return;
+                av.innerHTML = '<img src="' + escAttr(src) + '" alt="' + escAttr(p.name || 'A.M') + '">';
+                av.classList.add('has-logo');
+            }
+            var logoSrc = DataManager.getLogo();
+            if (logoSrc) { show(logoSrc); return; }
+            FileStore.getURL('profile_logo').then(show).catch(function () {});
+        })();
     }
 
     var socials = d.profile.socials || {};
@@ -1331,6 +1379,9 @@ function renderSite() {
    Navigation + Init
    ============================================ */
 document.addEventListener('DOMContentLoaded', function () {
+    // فضّي أي صورة كبيرة من localStorage (موجودة في IndexedDB أصلًا) عشان المساحة تكفي لباقي البيانات
+    try { DataManager.cleanupOversizedLogo(); } catch (e) {}
+
     // Init layout
     LayoutManager.init();
 
