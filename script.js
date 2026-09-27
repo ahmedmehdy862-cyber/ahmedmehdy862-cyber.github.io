@@ -293,6 +293,8 @@ var Publisher = (function () {
     var timer = null;
     var publishing = false;
     var queued = false;
+    var lastPublishAt = 0;
+    var MIN_PUBLISH_GAP = 20000;
 
     function getToken() { try { return (localStorage.getItem(TOKEN_KEY) || '').trim(); } catch (e) { return ''; } }
     function setToken(v) { try { if (v) localStorage.setItem(TOKEN_KEY, v.trim()); else localStorage.removeItem(TOKEN_KEY); } catch (e) {} }
@@ -460,6 +462,7 @@ var Publisher = (function () {
         if (!token) { setStatus('noToken'); return Promise.resolve(false); }
         if (publishing) { queued = true; return Promise.resolve(false); }
         publishing = true;
+        lastPublishAt = Date.now();
         setStatus('publishing');
         return new Promise(function (resolve) {
             ensureRemote(function () {
@@ -489,7 +492,13 @@ var Publisher = (function () {
     function schedule() {
         if (!isAuto() || !getToken()) return;
         clearTimeout(timer);
-        timer = setTimeout(publish, 1500);
+        var wait = 1500;
+        // مانعة تكرار: كحد أدنى 20 ثانية بين عملية نشر
+        if (lastPublishAt) {
+            var since = Date.now() - lastPublishAt;
+            if (since < MIN_PUBLISH_GAP) wait = Math.max(wait, MIN_PUBLISH_GAP - since);
+        }
+        timer = setTimeout(publish, wait);
     }
 
     function markPhoto() { /* الصورة جت مع أي نشر تلقائي */ }
