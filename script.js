@@ -494,10 +494,21 @@ var Publisher = (function () {
 
     function markPhoto() { /* الصورة جت مع أي نشر تلقائي */ }
 
+    /* لو الصورة موجودة في IndexedDB بس مش في localStorage — انشرها للجمهور أول ما اللوحة تتفتح */
+    function maybeAutoPublishPhoto() {
+        if (!getToken() || !isAuto()) return;
+        var rem = DataManager.getRemote();
+        if (rem && rem.photoUrl) return;
+        try {
+            if (localStorage.getItem('amahdy_logo')) { schedule(); return; }
+        } catch (e) {}
+        FileStore.get('profile_logo').then(function (blob) { if (blob) schedule(); }).catch(function () {});
+    }
+
     return {
         getToken: getToken, setToken: setToken, isAuto: isAuto, setAuto: setAuto,
         publish: publish, schedule: schedule, setStatus: setStatus, refreshStatus: refreshStatus,
-        markPhoto: markPhoto
+        markPhoto: markPhoto, maybeAutoPublishPhoto: maybeAutoPublishPhoto
     };
 })();
 
@@ -825,7 +836,10 @@ var CounterAnimation = (function () {
             loadLayoutForm();
             loadContentForm();
             loadCommentsAdmin();
-            if (typeof Publisher !== 'undefined') Publisher.refreshStatus();
+            if (typeof Publisher !== 'undefined') {
+                Publisher.refreshStatus();
+                Publisher.maybeAutoPublishPhoto();
+            }
         }
 
         /* --- Tabs --- */
@@ -1246,6 +1260,41 @@ var CounterAnimation = (function () {
 /* ============================================
    Render Site (من البيانات المحفوظة)
    ============================================ */
+
+/* لو الصورة محفوظة في IndexedDB بس مش في localStorage (المساحة كانت ممتلئة) — رجّعها محليًا */
+function hydratePhoto() {
+    if (DataManager.hasLocalLogo()) return Promise.resolve(false);
+    return FileStore.get('profile_logo').then(function (blob) {
+        if (!blob) return false;
+        return new Promise(function (resolve) {
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var dataUrl = ev.target.result;
+                var img = new Image();
+                function done(src) {
+                    DataManager.storeLogo(src);
+                    resolve(true);
+                }
+                img.onload = function () {
+                    try {
+                        var max = 1024;
+                        var scale = Math.min(1, max / Math.max(img.width, img.height));
+                        var c = document.createElement('canvas');
+                        c.width = Math.max(1, Math.round(img.width * scale));
+                        c.height = Math.max(1, Math.round(img.height * scale));
+                        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                        done(c.toDataURL('image/jpeg', 0.85));
+                    } catch (e) { done(dataUrl); }
+                };
+                img.onerror = function () { done(dataUrl); };
+                img.src = dataUrl;
+            };
+            reader.onerror = function () { resolve(false); };
+            reader.readAsDataURL(blob);
+        });
+    }).catch(function () { return false; });
+}
+
 function renderSite() {
     var d = DataManager.load();
     if (!d) return;
@@ -1393,6 +1442,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Render site
     renderSite();
+
+    // لو الصورة في IndexedDB بس — رجّعها للـ localStorage ثم ارسم الموقع تاني
+    hydratePhoto().then(function (changed) {
+        if (changed) renderSite();
+    });
 
     // Init scroll reveal & counters
     ScrollReveal.init();
