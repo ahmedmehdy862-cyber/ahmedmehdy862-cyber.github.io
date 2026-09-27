@@ -545,9 +545,9 @@ ul {
 
 .hero-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    max-width: 560px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 14px;
+    max-width: 660px;
 }
 
 .hero-stat {
@@ -2351,7 +2351,7 @@ ul {
     .hero-role { font-size: 36px; }
     .hero-desc { font-size: 18px; }
     .hero-frame { width: 420px; }
-    .hero-stats { max-width: 600px; gap: 20px; }
+    .hero-stats { max-width: 720px; gap: 20px; }
     .hero-stat { padding: 20px; }
     .hero-stat-num { font-size: 30px; }
     .hero-stat-label { font-size: 13px; }
