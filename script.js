@@ -262,15 +262,16 @@ var RemoteData = (function () {
         if (!window.fetch || window.location.protocol === 'file:') return Promise.resolve(null);
         return new Promise(function (resolve) {
             var done = false;
-            var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 5000);
+            // مهلة 20 ثانية — لأن data.json بقى فيها الصورة وممكن يبطأ على النت البطيء
+            var timer = setTimeout(function () { if (!done) { done = true; resolve(null); } }, 20000);
             fetch('data.json', { cache: 'no-cache' })
                 .then(function (r) { return r.ok ? r.json() : null; })
                 .then(function (d) {
                     clearTimeout(timer);
-                    if (done) return;
-                    done = true;
-                    if (d && d.profile) { DataManager.setRemote(d); resolve(d); }
-                    else resolve(null);
+                    if (!d || !d.profile) { if (!done) { done = true; resolve(null); } return; }
+                    DataManager.setRemote(d);
+                    if (!done) { done = true; resolve(d); }
+                    else { applyRemoteData(); } // وصلت بعد المهلة — طبّقها على أي حال
                 })
                 .catch(function () {
                     clearTimeout(timer);
@@ -1304,6 +1305,21 @@ function hydratePhoto() {
     }).catch(function () { return false; });
 }
 
+/* يطبّق البيانات المنشورة (data.json) على شكل الموقع — الثيم واللايوت والمحتوى والصورة */
+function applyRemoteData() {
+    if (!DataManager.getRemote()) return;
+    var root = document.documentElement;
+    var t = DataManager.getTheme() || 'neon';
+    root.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-theme') === t);
+    });
+    LayoutManager.apply(DataManager.getLayout());
+    renderSite();
+    ScrollReveal.init();
+    CounterAnimation.init();
+}
+
 function renderSite() {
     var d = DataManager.load();
     if (!d) return;
@@ -1462,19 +1478,7 @@ document.addEventListener('DOMContentLoaded', function () {
     CounterAnimation.init();
 
     // لو وصل data.json المنشور بعدها — طبّق الثيم واللايوت والبيانات وارسم من جديد
-    remoteReady.then(function () {
-        if (!DataManager.getRemote()) return;
-        var root = document.documentElement;
-        var t = DataManager.getTheme() || 'neon';
-        root.setAttribute('data-theme', t);
-        document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
-            el.classList.toggle('active', el.getAttribute('data-theme') === t);
-        });
-        LayoutManager.apply(DataManager.getLayout());
-        renderSite();
-        ScrollReveal.init();
-        CounterAnimation.init();
-    });
+    remoteReady.then(function (d) { if (d) applyRemoteData(); });
 
     var nav = document.getElementById('mainNav');
     var toggle = document.getElementById('navToggle');
