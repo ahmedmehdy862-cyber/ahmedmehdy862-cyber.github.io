@@ -1,6 +1,16 @@
 /* ============================================
    A.Mahdy Portfolio — 10 Themes
    ============================================ */
+:root {
+    --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-silk: cubic-bezier(0.34, 0.1, 0.2, 1);
+}
+html {
+    scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+}
 :root[data-theme="neon"] {
     --bg: #0a0a12;
     --bg-soft: #12121e;
@@ -189,7 +199,7 @@ ul {
     right: 0;
     z-index: 100;
     padding: 14px 0;
-    transition: background-color 0.4s ease, box-shadow 0.4s ease, padding 0.4s ease;
+    transition: background-color 0.45s var(--ease-silk), box-shadow 0.45s var(--ease-silk), padding 0.45s var(--ease-silk);
 }
 
 .nav.scrolled {
@@ -2196,7 +2206,7 @@ ul {
 .anim-strong .reveal {
     opacity: 0;
     transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
+    transition: opacity 0.7s ease, transform 0.7s var(--ease-silk);
 }
 
 .anim-subtle .reveal.revealed,
@@ -2250,7 +2260,7 @@ ul {
    ============================================ */
 .anim-subtle .project-card,
 .anim-strong .project-card {
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    transition: transform 0.4s var(--ease-silk), box-shadow 0.4s ease;
 }
 
 .anim-subtle .project-card:hover {
@@ -2261,12 +2271,12 @@ ul {
 .anim-strong .project-card:hover {
     transform: translateY(-12px) scale(1.02);
     box-shadow: 0 36px 70px var(--shadow);
-    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.45s ease;
+    transition: transform 0.55s var(--ease-smooth), box-shadow 0.55s ease;
 }
 
 .anim-subtle .service-card,
 .anim-strong .service-card {
-    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    transition: transform 0.4s var(--ease-silk), box-shadow 0.4s ease;
 }
 
 .anim-subtle .service-card:hover {
@@ -2277,12 +2287,12 @@ ul {
 .anim-strong .service-card:hover {
     transform: translateY(-10px) scale(1.015);
     box-shadow: 0 32px 60px var(--shadow);
-    transition: transform 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.45s ease;
+    transition: transform 0.55s var(--ease-smooth), box-shadow 0.55s ease;
 }
 
 .anim-subtle .contact-card,
 .anim-strong .contact-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.35s var(--ease-silk), box-shadow 0.35s ease;
 }
 
 .anim-subtle .contact-card:hover {
@@ -2293,10 +2303,11 @@ ul {
 .anim-strong .contact-card:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 28px 55px var(--shadow);
+    transition: transform 0.55s var(--ease-smooth), box-shadow 0.55s ease;
 }
 
 .skill-tag {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.25s var(--ease-silk), box-shadow 0.25s ease;
 }
 
 .skill-tag:hover {
@@ -2789,7 +2800,7 @@ select.admin-input {
     opacity: 0;
     transform: translateY(14px);
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.35s var(--ease-silk), transform 0.35s var(--ease-silk);
     box-shadow: 0 10px 30px var(--shadow);
     display: flex;
     align-items: center;
@@ -2808,7 +2819,8 @@ select.admin-input {
 .dynamic-card,
 .about-card {
     transform-style: preserve-3d;
-    transition: transform 0.25s ease, box-shadow 0.3s ease;
+    transition: transform 0.35s var(--ease-silk), box-shadow 0.35s ease;
+    will-change: transform;
 }
 .project-card::after,
 .service-card::after,
@@ -2874,7 +2886,7 @@ select.admin-input {
    ============================================ */
 /* أزرار: لمعة سريعة + تدرج متحرك + استجابة للضغط */
 .btn {
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.35s var(--ease-smooth), box-shadow 0.35s ease, background-color 0.35s ease, border-color 0.35s ease;
 }
 .btn::before {
     content: '';
@@ -2958,7 +2970,7 @@ select.admin-input {
     height: 2px;
     border-radius: 2px;
     background: var(--accent);
-    transition: width 0.3s ease;
+    transition: width 0.35s var(--ease-smooth);
 }
 .nav-link:hover::after,
 .nav-link.active::after {
@@ -2973,7 +2985,7 @@ select.admin-input {
 .anim-strong .reveal-stagger > * {
     transform: translateY(70px) scale(0.94);
     filter: blur(6px);
-    transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+    transition: opacity 0.7s ease, transform 1s var(--ease-smooth), filter 0.7s ease;
 }
 .anim-strong .reveal.revealed,
 .anim-strong .reveal-stagger.revealed > * {
