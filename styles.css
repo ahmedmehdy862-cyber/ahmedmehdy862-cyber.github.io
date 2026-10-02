@@ -2868,3 +2868,143 @@ select.admin-input {
     padding: 0;
     background: none;
 }
+
+/* ============================================
+   تفاعل قوي + عناصر متحركة
+   ============================================ */
+/* أزرار: لمعة سريعة + تدرج متحرك + استجابة للضغط */
+.btn {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(120deg, transparent 25%, rgba(255, 255, 255, 0.28) 50%, transparent 75%);
+    transform: translateX(-130%);
+    transition: transform 0.65s ease;
+    pointer-events: none;
+}
+.btn:hover::before {
+    transform: translateX(130%);
+}
+.btn-primary {
+    background-image: linear-gradient(120deg, var(--accent), var(--accent-2));
+    background-size: 200% 100%;
+}
+.btn-primary:hover {
+    animation: btnShift 1.6s linear infinite;
+    box-shadow: 0 18px 48px var(--shadow), 0 0 0 5px var(--accent-soft);
+}
+.btn:active {
+    transform: scale(0.94) !important;
+    box-shadow: none;
+}
+.btn:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+@keyframes btnShift {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+}
+#heroBtn1 {
+    animation: btnGlow 3s ease-in-out infinite;
+}
+@keyframes btnGlow {
+    0%, 100% { box-shadow: 0 10px 30px var(--shadow); }
+    50% { box-shadow: 0 14px 46px -8px var(--accent); }
+}
+
+/* توهج نبضي لشارة الخدمة الأكثر طلبًا */
+.service-badge {
+    animation: badgePulse 2.6s ease-in-out infinite;
+}
+@keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.5); }
+    50% { box-shadow: 0 0 0 9px rgba(139, 92, 246, 0); }
+}
+
+/* كرات الهيرو تطفو وإطار الشاشة يتنفس (translate خاصية منفصلة — مش بتتعارك مع البارالاكس) */
+.orb-a {
+    animation: orbFloat 9s ease-in-out infinite;
+}
+.orb-b {
+    animation: orbFloat 12s ease-in-out -4s infinite reverse;
+}
+@keyframes orbFloat {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -30px; }
+}
+.hero-frame {
+    animation: frameFloat 7s ease-in-out infinite;
+}
+@keyframes frameFloat {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -14px; }
+}
+
+/* خط سفلي متحرك لروابط الشريط */
+.nav-link {
+    position: relative;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    right: 0;
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 100%;
+}
+
+/* ظهور أقوى لعناصر الأقسام عند التمرير */
+.anim-subtle .reveal {
+    transform: translateY(40px);
+}
+.anim-strong .reveal,
+.anim-strong .reveal-stagger > * {
+    transform: translateY(70px) scale(0.94);
+    filter: blur(6px);
+    transition: opacity 0.7s ease, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1), filter 0.7s ease;
+}
+.anim-strong .reveal.revealed,
+.anim-strong .reveal-stagger.revealed > * {
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    transition-delay: 0s;
+}
+
+/* توقف كامل عند طلب تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+    .orb-a, .orb-b, .hero-frame, #heroBtn1, .service-badge, .btn-primary {
+        animation: none !important;
+    }
+    .reveal, .reveal-stagger > * {
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+        transition: none;
+    }
+}
+.anim-none .orb-a,
+.anim-none .orb-b,
+.anim-none .hero-frame,
+.anim-none #heroBtn1,
+.anim-none .service-badge,
+.anim-none .btn-primary {
+    animation: none !important;
+}
+.anim-none .btn::before {
+    display: none;
+}
+.anim-none .btn:hover::before {
+    transform: none;
+}

@@ -1837,11 +1837,33 @@ var MotionUI = (function () {
         if (btn) btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
     }
 
+    /* أزرار مغناطيسية — تتبع المؤشر بخفة */
+    function initMagnetic() {
+        if (!(window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
+        document.addEventListener('pointermove', function (e) {
+            var b = e.target && e.target.closest && e.target.closest('.btn');
+            if (!b || e.pointerType !== 'mouse') return;
+            var r = b.getBoundingClientRect();
+            var dx = (e.clientX - r.left - r.width / 2) / (r.width / 2);
+            var dy = (e.clientY - r.top - r.height / 2) / (r.height / 2);
+            var tx = (dx * 7).toFixed(1);
+            var ty = (dy * 4 - 3).toFixed(1);
+            b.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+        });
+        document.addEventListener('pointerout', function (e) {
+            var b = e.target && e.target.closest && e.target.closest('.btn');
+            if (!b || e.pointerType !== 'mouse') return;
+            var rt = e.relatedTarget;
+            if (!rt || !b.contains(rt)) b.style.transform = '';
+        });
+    }
+
     function init() {
         initBackground();
         initScrollChrome();
         if (reduced() || !enabled()) return;
         try { if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) initTilt(); } catch (e) {}
+        initMagnetic();
         initRipple();
         initParallax();
     }
