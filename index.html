@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=7">
+    <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 
@@ -35,10 +35,6 @@
                 <li><a href="#contact" class="nav-link" data-section="contact">تواصل</a></li>
             </ul>
             <div class="nav-right">
-                <button class="admin-nav-btn" id="adminNavBtn" title="لوحة التحكم">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span class="admin-btn-text">لوحة التحكم</span>
-                </button>
                 <button class="nav-toggle" id="navToggle" aria-label="القائمة">
                     <span></span><span></span><span></span>
                 </button>
@@ -175,6 +171,9 @@
         </div>
     </section>
 
+    <!-- Dynamic sections (added from the admin panel) -->
+    <div id="dynamicSections"></div>
+
     <!-- Footer -->
     <footer class="footer">
         <p><span id="footerText">صمم بمحبة</span> © <span id="footerYear">2026</span> — A.Mahdy</p>
@@ -212,6 +211,7 @@
                     <button class="admin-tab" data-tab="projects">المشاريع</button>
                     <button class="admin-tab" data-tab="services">الخدمات</button>
                     <button class="admin-tab" data-tab="appearance">المظهر</button>
+                    <button class="admin-tab" data-tab="sections">الأقسام</button>
                     <button class="admin-tab" data-tab="content">المحتوى</button>
                     <button class="admin-tab" data-tab="comments">التعليقات</button>
                 </div>
@@ -346,18 +346,6 @@
                         <h3>شكل الموقع</h3>
                         <p class="admin-hint">غيّر شكل وأسلوب الموقع من هنا</p>
                         <div class="admin-layout-group">
-                            <label>تصميم الكروت</label>
-                            <div class="admin-layout-choices" data-layout-key="cardStyle">
-                                <button class="admin-layout-btn active" data-value="rounded">مستديرة</button>
-                                <button class="admin-layout-btn" data-value="square">مربعة</button>
-                                <button class="admin-layout-btn" data-value="minimal">بسيطة</button>
-                                <button class="admin-layout-btn" data-value="glass">زجاجية</button>
-                                <button class="admin-layout-btn" data-value="gradient">تدرجية</button>
-                                <button class="admin-layout-btn" data-value="compact">مضغوطة</button>
-                                <button class="admin-layout-btn" data-value="outline">حدود فقط</button>
-                            </div>
-                        </div>
-                        <div class="admin-layout-group">
                             <label>الهيرو</label>
                             <div class="admin-layout-choices" data-layout-key="heroStyle">
                                 <button class="admin-layout-btn active" data-value="split">مقسوم</button>
@@ -419,6 +407,14 @@
                         <button class="admin-save-btn" id="downloadDataJS">تحميل data.js</button>
                         <button class="admin-save-btn admin-save-btn--secondary" id="resetAllData">إعادة تعيين البيانات</button>
                     </div>
+                </div>
+
+                <!-- Tab: الأقسام -->
+                <div class="admin-tab-panel" data-panel="sections">
+                    <p class="admin-hint">أضف أقسامًا جديدة كاملة للموقع — هتظهر في القائمة الرئيسية وفي نهاية الصفحة. كل قسم تقدر تضيف له أجزاء وتسميها بنفسك.</p>
+                    <div id="sectionsList"></div>
+                    <button class="admin-add-btn" id="addSection">+ إضافة قسم جديد</button>
+                    <button class="admin-save-btn" id="saveSections">حفظ الأقسام</button>
                 </div>
 
                 <!-- Tab: المحتوى -->
@@ -525,7 +521,7 @@
         </div>
     </div>
 
-    <script src="data.js?v=7"></script>
-    <script src="script.js?v=7"></script>
+    <script src="data.js?v=8"></script>
+    <script src="script.js?v=8"></script>
 </body>
 </html>

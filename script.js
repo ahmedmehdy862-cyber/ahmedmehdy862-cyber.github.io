@@ -387,6 +387,7 @@ var Publisher = (function () {
             skills: d.skills || [],
             projects: d.projects || [],
             services: d.services || [],
+            sections: d.sections || [],
             contactNote: d.contactNote || '',
             theme: DataManager.getTheme() || 'neon',
             layout: DataManager.getLayout(),
@@ -723,23 +724,17 @@ var CounterAnimation = (function () {
     var ADMIN_PASS_HASH = 'd6401d76d7b9e7c57e5e61d44608c498d8e8c3125a2dfebf0dfe5e6ead3c4b5c';
     var ADMIN_USER_PLAIN = 'A.Mahdy';
     var ADMIN_PASS_PLAIN = 'XZQ+wt=BM6QtCr';
-    var ADMIN_KEY = 'amahdy_admin_ok';
 
-    /* الجلسة تتحفظ في localStorage، ولو المساحة ممتلئة أو محظورة نرجع على sessionStorage و كوكي */
-    function setAdminFlag(on) {
-        try { on ? localStorage.setItem(ADMIN_KEY, '1') : localStorage.removeItem(ADMIN_KEY); } catch (e) {}
-        try { on ? sessionStorage.setItem(ADMIN_KEY, '1') : sessionStorage.removeItem(ADMIN_KEY); } catch (e) {}
-        try {
-            document.cookie = on ? (ADMIN_KEY + '=1; path=/; max-age=31536000; SameSite=Lax')
-                                 : (ADMIN_KEY + '=; path=/; max-age=0; SameSite=Lax');
-        } catch (e) {}
-    }
+    /* ا ل دخول مطلوب في كل مرة — مفيش حفظ ولا كوكيز، مجرد ذكرى مؤقتة في الصفحة نفسها */
+    var sessionAuthed = false;
+    function setAuthed(on) { sessionAuthed = !!on; }
+    function isAuthed() { return sessionAuthed; }
 
-    function hasAdminFlag() {
-        try { if (localStorage.getItem(ADMIN_KEY) === '1') return true; } catch (e) {}
-        try { if (sessionStorage.getItem(ADMIN_KEY) === '1') return true; } catch (e) {}
-        try { if (document.cookie.indexOf(ADMIN_KEY + '=1') !== -1) return true; } catch (e) {}
-        return false;
+    /* ننضّف أي أثر قديم للحفظ */
+    function clearLegacyAuth() {
+        try { localStorage.removeItem('amahdy_admin_ok'); } catch (e) {}
+        try { sessionStorage.removeItem('amahdy_admin_ok'); } catch (e) {}
+        try { document.cookie = 'amahdy_admin_ok=; path=/; max-age=0; SameSite=Lax'; } catch (e) {}
     }
 
     function sha256(str) {
@@ -752,23 +747,57 @@ var CounterAnimation = (function () {
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        clearLegacyAuth();
         var overlay = document.getElementById('adminOverlay');
-        var navBtn = document.getElementById('adminNavBtn');
         var closeBtn = document.getElementById('adminClose');
         var loginSection = document.getElementById('adminLoginSection');
         var dashboard = document.getElementById('adminDashboard');
         var form = document.getElementById('adminForm');
         var errorEl = document.getElementById('adminError');
         var logoutBtn = document.getElementById('adminLogout');
-        if (!overlay || !navBtn) return;
+        if (!overlay || !form) return;
 
-        navBtn.addEventListener('click', function () {
+        function showLogin() {
+            loginSection.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+        }
+
+        function openPanel() {
             overlay.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            if (hasAdminFlag()) showDashboard();
+            if (isAuthed()) showDashboard();
+            else showLogin();
+        }
+
+        /* السر الأول: اكتب "amahdy" في أي مكان بالصفحة (مش جوه خانة كتابة) */
+        var typed = '';
+        document.addEventListener('keydown', function (e) {
+            var t = e.target;
+            if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+            var k = (e.key || '').toLowerCase();
+            if (k.length === 1) {
+                typed = (typed + k).slice(-6);
+                if (typed === 'amahdy') { typed = ''; openPanel(); }
+            }
         });
 
-        function closePanel() { overlay.classList.add('hidden'); document.body.style.overflow = ''; }
+        /* السر التاني: 5 لمسات سريعة على اللوجو (في الشريط أو في الهيرو) */
+        var taps = [];
+        document.addEventListener('click', function (e) {
+            var logo = e.target.closest('.nav-logo, .hero-logo');
+            if (!logo) return;
+            var now = Date.now();
+            taps.push(now);
+            while (taps.length && now - taps[0] > 3000) taps.shift();
+            if (taps.length >= 5) { taps = []; openPanel(); }
+        });
+
+        function closePanel() {
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+            setAuthed(false); // تسجيل دخول من جديد في كل مرة
+            clearLegacyAuth();
+        }
         closeBtn.addEventListener('click', closePanel);
         overlay.addEventListener('click', function (e) { if (e.target === overlay) closePanel(); });
 
@@ -782,7 +811,7 @@ var CounterAnimation = (function () {
             // Direct comparison first (always works)
             if (userInput === ADMIN_USER_PLAIN && passInput === ADMIN_PASS_PLAIN) {
                 errorEl.classList.remove('show');
-                setAdminFlag(true);
+                setAuthed(true);
                 showDashboard();
                 btn.disabled = false;
                 return;
@@ -792,7 +821,7 @@ var CounterAnimation = (function () {
             Promise.all([sha256(userInput), sha256(passInput)]).then(function (hashes) {
                 if (hashes[0] === ADMIN_USER_HASH && hashes[1] === ADMIN_PASS_HASH) {
                     errorEl.classList.remove('show');
-                    setAdminFlag(true);
+                    setAuthed(true);
                     showDashboard();
                 } else {
                     errorEl.classList.add('show');
@@ -806,9 +835,9 @@ var CounterAnimation = (function () {
         });
 
         if (logoutBtn) logoutBtn.addEventListener('click', function () {
-            setAdminFlag(false);
-            loginSection.classList.remove('hidden');
-            dashboard.classList.add('hidden');
+            setAuthed(false);
+            clearLegacyAuth();
+            showLogin();
         });
 
         /* --- Auto publish (GitHub) --- */
@@ -845,12 +874,125 @@ var CounterAnimation = (function () {
             loadPhoto();
             loadLayoutForm();
             loadContentForm();
+            loadSectionsForm();
             loadCommentsAdmin();
             if (typeof Publisher !== 'undefined') {
                 Publisher.refreshStatus();
                 Publisher.maybeAutoPublishPhoto();
             }
         }
+
+        /* --- Sections (أقسام ديناميكية) --- */
+        function newSectionId() { return 'sec-' + Date.now().toString(36); }
+
+        function loadSectionsForm() {
+            var d = DataManager.load();
+            var list = document.getElementById('sectionsList');
+            if (!list) return;
+            list.innerHTML = '';
+            (d.sections || []).forEach(function (sec, i) {
+                if (!sec) return;
+                var itemsHtml = (sec.items || []).map(function (it, ii) {
+                    return '<div class="admin-dynamic-item admin-sec-item">' +
+                        '<input class="admin-input admin-input-sm" data-sec="' + i + '" data-item="' + ii + '" data-field="t" value="' + esc(it.t) + '" placeholder="اسم الجزء">' +
+                        '<input class="admin-input admin-input-sm" data-sec="' + i + '" data-item="' + ii + '" data-field="d" value="' + esc(it.d || '') + '" placeholder="وصف الجزء">' +
+                        '<button class="admin-remove-btn admin-remove-item" data-sec="' + i + '" data-item="' + ii + '" title="حذف الجزء">✕</button>' +
+                    '</div>';
+                }).join('');
+                var kindGrid = sec.kind !== 'text' ? ' selected' : '';
+                var kindText = sec.kind === 'text' ? ' selected' : '';
+                list.innerHTML += '<div class="admin-section-card" data-sec="' + i + '" data-secid="' + esc(sec.id || '') + '">' +
+                    '<div class="admin-section-title-row"><strong>قسم رقم ' + (i + 1) + '</strong><button class="admin-remove-btn admin-remove-section" data-sec="' + i + '">✕ حذف القسم</button></div>' +
+                    '<input class="admin-input" data-sec="' + i + '" data-field="title" value="' + esc(sec.title) + '" placeholder="اسم القسم">' +
+                    '<input class="admin-input" data-sec="' + i + '" data-field="desc" value="' + esc(sec.desc || '') + '" placeholder="وصف القسم">' +
+                    '<select class="admin-input" data-sec="' + i + '" data-field="kind">' +
+                    '<option value="grid"' + kindGrid + '>كروت (شبكة)</option>' +
+                    '<option value="text"' + kindText + '>نصوص متتالية</option>' +
+                    '</select>' +
+                    '<div class="admin-sec-items">' + itemsHtml + '</div>' +
+                    '<button class="admin-add-btn admin-add-item" data-sec="' + i + '" style="align-self:flex-start;">+ إضافة جزء</button>' +
+                '</div>';
+            });
+        }
+
+        document.getElementById('addSection').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.sections = d.sections || [];
+            d.sections.push({ id: newSectionId(), title: 'قسم جديد', desc: 'اكتب وصف مختصر لهذا القسم', kind: 'grid', items: [{ t: 'اسم الجزء', d: 'وصف الجزء' }] });
+            DataManager.save(d);
+            loadSectionsForm();
+        });
+
+        /* تفويض الأحداث داخل قائمة الأقسام */
+        var sectionsListEl = document.getElementById('sectionsList');
+        if (sectionsListEl) {
+            sectionsListEl.addEventListener('click', function (e) {
+                var d, idx, iid;
+
+                var addItem = e.target.closest('.admin-add-item');
+                if (addItem) {
+                    idx = parseInt(addItem.getAttribute('data-sec'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    if (!d.sections[idx]) return;
+                    d.sections[idx].items = d.sections[idx].items || [];
+                    d.sections[idx].items.push({ t: '', d: '' });
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    return;
+                }
+
+                var rmItem = e.target.closest('.admin-remove-item');
+                if (rmItem) {
+                    idx = parseInt(rmItem.getAttribute('data-sec'), 10);
+                    iid = parseInt(rmItem.getAttribute('data-item'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    if (d.sections[idx] && d.sections[idx].items) d.sections[idx].items.splice(iid, 1);
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    return;
+                }
+
+                var rmSection = e.target.closest('.admin-remove-section');
+                if (rmSection) {
+                    idx = parseInt(rmSection.getAttribute('data-sec'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    d.sections.splice(idx, 1);
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    return;
+                }
+            });
+        }
+
+        document.getElementById('saveSections').addEventListener('click', function () {
+            var list = document.getElementById('sectionsList');
+            var d = DataManager.load();
+            d.sections = [];
+            list.querySelectorAll('.admin-section-card').forEach(function (card) {
+                var sid = card.getAttribute('data-secid') || newSectionId();
+                var sec = { id: sid, title: '', desc: '', kind: 'grid', items: [] };
+                var titleEl = card.querySelector('[data-field="title"]');
+                var descEl = card.querySelector('[data-field="desc"]');
+                var kindEl = card.querySelector('[data-field="kind"]');
+                if (titleEl) sec.title = titleEl.value.trim();
+                if (descEl) sec.desc = descEl.value.trim();
+                if (kindEl) sec.kind = kindEl.value;
+                card.querySelectorAll('.admin-sec-item').forEach(function (item) {
+                    var tEl = item.querySelector('[data-field="t"]');
+                    var dEl = item.querySelector('[data-field="d"]');
+                    var t = tEl ? tEl.value.trim() : '';
+                    if (t) sec.items.push({ t: t, d: dEl ? dEl.value.trim() : '' });
+                });
+                if (sec.title) d.sections.push(sec);
+            });
+            DataManager.save(d);
+            renderSite();
+            ScrollReveal.init();
+            showSaved(this);
+        });
 
         /* --- Tabs --- */
         function initTabs() {
@@ -1453,6 +1595,67 @@ function renderSite() {
     document.querySelectorAll('.section').forEach(function (sec) {
         if (!sec.classList.contains('reveal')) sec.classList.add('reveal');
     });
+
+    // Dynamic sections + their nav links
+    renderDynamicSections();
+    renderNavLinks();
+}
+
+/* ============================================
+   Dynamic Sections (من لوحة التحكم — تبويب الأقسام)
+   ============================================ */
+function renderDynamicSections() {
+    var wrap = document.getElementById('dynamicSections');
+    if (!wrap) return;
+    var d = DataManager.load();
+    var secs = (d && d.sections) || [];
+    wrap.innerHTML = '';
+    var num = 6;
+    secs.forEach(function (sec) {
+        if (!sec || !sec.title) return;
+        var n = String(num++).padStart(2, '0');
+        var bg = '<div class="hero-bg"><div class="hero-pattern"></div></div>';
+        var html = '<section class="section" id="' + escAttr(sec.id || '') + '">' + bg +
+            '<div class="container">' +
+            '<div class="section-header"><span class="section-number">' + n + '</span>' +
+            '<h2 class="section-title">' + escHtml(sec.title) + '</h2>' +
+            (sec.desc ? '<p class="section-desc">' + escHtml(sec.desc) + '</p>' : '') +
+            '</div>';
+        var items = sec.items || [];
+        if (sec.kind === 'text') {
+            html += '<div class="dynamic-text-blocks">' + (items.map(function (it) {
+                return '<div class="dynamic-text-block reveal"><h3 class="dynamic-text-title">' + escHtml(it.t) + '</h3>' + (it.d ? '<p class="dynamic-text-desc">' + escHtml(it.d) + '</p>' : '') + '</div>';
+            }).join('') || '<p class="admin-hint">لا توجد أجزاء بعد — أضف أجزاء من لوحة التحكم.</p>') + '</div>';
+        } else {
+            html += '<div class="dynamic-card-grid">' + (items.map(function (it) {
+                return '<div class="dynamic-card reveal"><h3 class="dynamic-card-title">' + escHtml(it.t) + '</h3>' + (it.d ? '<p class="dynamic-card-desc">' + escHtml(it.d) + '</p>' : '') + '</div>';
+            }).join('') || '<p class="admin-hint">لا توجد أجزاء بعد — أضف أجزاء من لوحة التحكم.</p>') + '</div>';
+        }
+        html += '</div></section>';
+        wrap.innerHTML += html;
+    });
+}
+
+function renderNavLinks() {
+    var links = document.getElementById('navLinks');
+    if (!links) return;
+    var d = DataManager.load();
+    var secs = (d && d.sections) || [];
+    links.querySelectorAll('li.nav-custom').forEach(function (li) {
+        if (li.parentNode) li.parentNode.removeChild(li);
+    });
+    secs.forEach(function (sec) {
+        if (!sec || !sec.title) return;
+        var li = document.createElement('li');
+        li.className = 'nav-custom';
+        var a = document.createElement('a');
+        a.href = '#' + escAttr(sec.id || '');
+        a.className = 'nav-link';
+        a.setAttribute('data-section', sec.id || '');
+        a.textContent = sec.title;
+        li.appendChild(a);
+        links.appendChild(li);
+    });
 }
 
 /* ============================================
@@ -1486,8 +1689,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (toggle && links) {
         toggle.addEventListener('click', function () { links.classList.toggle('open'); });
-        links.querySelectorAll('a').forEach(function (link) {
-            link.addEventListener('click', function () { links.classList.remove('open'); });
+        links.addEventListener('click', function (e) {
+            if (e.target.closest('a')) links.classList.remove('open');
         });
     }
 
