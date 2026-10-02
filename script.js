@@ -699,18 +699,19 @@ var CounterAnimation = (function () {
         var observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    var nums = entry.target.querySelectorAll('.hero-stat-num');
+var nums = entry.target.querySelectorAll('.hero-stat-num');
+                    if (!nums.length) { observer.unobserve(entry.target); return; }
                     nums.forEach(function (el) {
                         var val = el.getAttribute('data-value') || el.textContent;
                         animate(el, val);
                     });
                     observer.unobserve(entry.target);
                 }
-            });
-        }, { threshold: 0.3 });
+            }, { threshold: 0.3 });
 
-        var heroStats = document.getElementById('heroStats');
+var heroStats = document.getElementById('heroStats');
         if (heroStats) observer.observe(heroStats);
+    });
     }
 
     return { init: init };
@@ -762,9 +763,25 @@ var CounterAnimation = (function () {
             dashboard.classList.add('hidden');
         }
 
+        var lockY = 0;
+        function lockScroll() {
+            lockY = window.scrollY || 0;
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.top = '-' + lockY + 'px';
+            document.body.style.width = '100%';
+        }
+        function unlockScroll() {
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            window.scrollTo(0, lockY);
+        }
+
         function openPanel() {
             overlay.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
+            lockScroll();
             if (isAuthed()) showDashboard();
             else showLogin();
         }
@@ -794,7 +811,7 @@ var CounterAnimation = (function () {
 
         function closePanel() {
             overlay.classList.add('hidden');
-            document.body.style.overflow = '';
+            unlockScroll();
             setAuthed(false); // تسجيل دخول من جديد في كل مرة
             clearLegacyAuth();
         }
@@ -1501,7 +1518,17 @@ function renderSite() {
                 if (!src) return;
                 var cur = av.querySelector('img');
                 if (cur && cur.getAttribute('src') === src) return;
-                av.innerHTML = '<img src="' + escAttr(src) + '" alt="' + escAttr(p.name || 'A.M') + '">';
+                var img = document.createElement('img');
+                img.src = src;
+                img.alt = p.name || 'A.M';
+                img.onload = function () {
+                    var ratio = (img.naturalWidth && img.naturalHeight) ? (img.naturalWidth / img.naturalHeight) : 1;
+                    av.style.aspectRatio = ratio.toFixed(4);
+                    av.style.width = ratio < 1 ? 'min(300px, 82vw)' : 'min(440px, 90vw)';
+                    av.classList.add('has-photo');
+                };
+                av.innerHTML = '';
+                av.appendChild(img);
                 av.classList.add('has-logo');
             }
             var logoSrc = DataManager.getLogo();
@@ -1533,14 +1560,6 @@ function renderSite() {
     var cl = $('contactLocation');
     if (cl && p.location) {
         cl.innerHTML = '<a href="https://maps.google.com/?q=' + encodeURIComponent(p.location) + '" target="_blank" rel="noopener noreferrer" class="contact-link">' + escHtml(p.location) + '</a>';
-    }
-
-    // Stats
-    var hs = $('heroStats');
-    if (hs && d.stats) {
-        hs.innerHTML = d.stats.map(function (s) {
-            return '<div class="hero-stat"><div class="hero-stat-num" data-value="' + s.value + '">' + s.value + '</div><div class="hero-stat-label">' + s.label + '</div></div>';
-        }).join('');
     }
 
     // Skills
@@ -1659,6 +1678,178 @@ function renderNavLinks() {
 }
 
 /* ============================================
+   Motion UI — خلفية موشن + تفاعلات
+   ============================================ */
+var MotionUI = (function () {
+    function reduced() { try { return window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+    function enabled() { try { var l = DataManager.getLayout(); return !(l && l.animations === 'none'); } catch (e) { return true; } }
+
+    function hexA(hex, al) {
+        if (!hex) return 'rgba(0,0,0,0)';
+        var h = String(hex).replace('#', '');
+        if (h.length === 3) h = h.split('').map(function (ch) { return ch + ch; }).join('');
+        var n = parseInt(h, 16);
+        return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + al + ')';
+    }
+
+    /* خلفية كانفس متحركة مستمرة ورا كل الأقسام */
+    function initBackground() {
+        var c = document.getElementById('bgCanvas');
+        if (!c || !c.getContext) return;
+        if (reduced() || !enabled()) { c.style.display = 'none'; return; }
+        var ctx = c.getContext('2d');
+        var W = 0, H = 0, DPR = 1, pts = [], orbs = [], raf = null, running = true;
+
+        function colors() {
+            var cs = getComputedStyle(document.documentElement);
+            return [cs.getPropertyValue('--accent').trim() || '#8b5cf6', cs.getPropertyValue('--accent-2').trim() || '#06b6d4'];
+        }
+
+        function resize() {
+            DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+            W = window.innerWidth; H = window.innerHeight;
+            c.width = Math.round(W * DPR); c.height = Math.round(H * DPR);
+            c.style.width = W + 'px'; c.style.height = H + 'px';
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            var count = Math.min(64, Math.floor(W * H / 28000));
+            pts = [];
+            for (var i = 0; i < count; i++) {
+                pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35, r: Math.random() * 1.6 + 0.6 });
+            }
+            var m = Math.max(W, H);
+            orbs = [
+                { x: W * 0.22, y: H * 0.22, r: m * 0.34, vx: 0.16, vy: 0.12, a: 0.13, col: 0 },
+                { x: W * 0.8, y: H * 0.68, r: m * 0.4, vx: -0.13, vy: -0.1, a: 0.1, col: 1 },
+                { x: W * 0.52, y: H * 0.95, r: m * 0.28, vx: 0.1, vy: -0.15, a: 0.09, col: 0 }
+            ];
+        }
+
+        function step() {
+            if (!running) return;
+            raf = requestAnimationFrame(step);
+            ctx.clearRect(0, 0, W, H);
+            var cols = colors();
+            var i, j, o, p;
+            for (i = 0; i < orbs.length; i++) {
+                o = orbs[i];
+                o.x += o.vx; o.y += o.vy;
+                if (o.x < -o.r) o.x = W + o.r; if (o.x > W + o.r) o.x = -o.r;
+                if (o.y < -o.r) o.y = H + o.r; if (o.y > H + o.r) o.y = -o.r;
+                var g = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
+                g.addColorStop(0, hexA(cols[o.col], o.a));
+                g.addColorStop(1, hexA(cols[o.col], 0));
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, 6.2832); ctx.fill();
+            }
+            for (i = 0; i < pts.length; i++) {
+                p = pts[i];
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+                if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            }
+            // خطوط وصل الجزيئات = الأقسام متصلة ببعضها
+            ctx.lineWidth = 1;
+            for (i = 0; i < pts.length; i++) {
+                for (j = i + 1; j < pts.length; j++) {
+                    var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+                    var d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 130) {
+                        ctx.strokeStyle = hexA(cols[0], (1 - d / 130) * 0.16);
+                        ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
+                    }
+                }
+            }
+            ctx.fillStyle = hexA(cols[1], 0.55);
+            for (i = 0; i < pts.length; i++) { p = pts[i]; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill(); }
+        }
+
+        window.addEventListener('resize', resize, { passive: true });
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) { running = false; }
+            else { running = true; resize(); requestAnimationFrame(step); }
+        });
+        resize();
+        step();
+    }
+
+    /* ميلان 3D + توهج على الكروت (بالماوس فقط) */
+    function initTilt() {
+        var sel = '.project-card, .service-card, .contact-card, .dynamic-card, .about-card';
+        document.addEventListener('pointermove', function (e) {
+            var el = e.target.closest(sel);
+            if (!el || e.pointerType !== 'mouse') { if (el) el.style.transform = ''; return; }
+            var r = el.getBoundingClientRect();
+            var px = (e.clientX - r.left) / r.width - 0.5;
+            var py = (e.clientY - r.top) / r.height - 0.5;
+            el.style.transform = 'perspective(900px) rotateY(' + (px * 8).toFixed(2) + 'deg) rotateX(' + (-py * 8).toFixed(2) + 'deg) translateY(-3px)';
+            el.style.setProperty('--mx', ((px + 0.5) * 100).toFixed(1) + '%');
+            el.style.setProperty('--my', ((py + 0.5) * 100).toFixed(1) + '%');
+        });
+        document.addEventListener('pointerout', function (e) {
+            var el = e.target.closest(sel);
+            if (el) { el.style.transform = ''; }
+        });
+    }
+
+    /* تموجة على الأزرار عند الضغط */
+    function initRipple() {
+        var sel = '.btn, .filter-btn, .nav-toggle';
+        document.addEventListener('click', function (e) {
+            var btn = e.target.closest(sel);
+            if (!btn) return;
+            var r = btn.getBoundingClientRect();
+            var s = document.createElement('span');
+            s.className = 'btn-ripple';
+            var d = Math.max(r.width, r.height);
+            s.style.width = s.style.height = d + 'px';
+            s.style.left = (e.clientX - r.left - d / 2) + 'px';
+            s.style.top = (e.clientY - r.top - d / 2) + 'px';
+            btn.appendChild(s);
+            setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 620);
+        });
+    }
+
+    /* بارالاكس بسيط على كرات الهيرو */
+    function initParallax() {
+        var a = document.querySelector('.orb-a'), b = document.querySelector('.orb-b');
+        if (!a && !b) return;
+        var on = function () {
+            var y = window.scrollY || 0;
+            if (a) a.style.transform = 'translate3d(0,' + (-y * 0.06).toFixed(1) + 'px,0)';
+            if (b) b.style.transform = 'translate3d(0,' + (y * 0.05).toFixed(1) + 'px,0)';
+        };
+        window.addEventListener('scroll', on, { passive: true });
+        on();
+    }
+
+    /* شريط التقدم + زر الرجوع لأعلى */
+    function initScrollChrome() {
+        var bar = document.getElementById('scrollProgress');
+        var btn = document.getElementById('backToTop');
+        var on = function () {
+            var h = document.documentElement.scrollHeight - window.innerHeight;
+            var y = window.scrollY || document.documentElement.scrollTop || 0;
+            if (bar) bar.style.width = (h > 0 ? Math.min(100, (y / h) * 100) : 0) + '%';
+            if (btn) btn.classList.toggle('show', y > 420);
+        };
+        window.addEventListener('scroll', on, { passive: true });
+        on();
+        if (btn) btn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    }
+
+    function init() {
+        initBackground();
+        initScrollChrome();
+        if (reduced() || !enabled()) return;
+        try { if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) initTilt(); } catch (e) {}
+        initRipple();
+        initParallax();
+    }
+
+    return { init: init };
+})();
+
+/* ============================================
    Navigation + Init
    ============================================ */
 document.addEventListener('DOMContentLoaded', function () {
@@ -1679,6 +1870,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Init scroll reveal & counters
     ScrollReveal.init();
     CounterAnimation.init();
+
+    // Motion background + interactive elements
+    MotionUI.init();
 
     // لو وصل data.json المنشور بعدها — طبّق الثيم واللايوت والبيانات وارسم من جديد
     remoteReady.then(function (d) { if (d) applyRemoteData(); });

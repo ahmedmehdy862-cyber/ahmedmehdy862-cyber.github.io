@@ -16,9 +16,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
+
+    <!-- Live animated background (continuous across all sections) -->
+    <canvas id="bgCanvas" aria-hidden="true"></canvas>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
     <!-- Navigation -->
     <nav class="nav" id="mainNav">
@@ -62,7 +66,6 @@
                     <a href="#projects" class="btn btn-primary" id="heroBtn1">شاهد أعمالي</a>
                     <a href="#contact" class="btn btn-ghost" id="heroBtn2">تواصل معي</a>
                 </div>
-                <div class="hero-stats" id="heroStats"></div>
             </div>
             <div class="hero-visual">
                 <div class="hero-frame">
@@ -521,7 +524,9 @@
         </div>
     </div>
 
-    <script src="data.js?v=8"></script>
-    <script src="script.js?v=8"></script>
+    <button class="back-to-top" id="backToTop" aria-label="العودة لأعلى">↑</button>
+
+    <script src="data.js?v=9"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
