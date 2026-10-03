@@ -2820,7 +2820,15 @@ select.admin-input {
 .about-card {
     transform-style: preserve-3d;
     transition: transform 0.35s var(--ease-silk), box-shadow 0.35s ease;
-    will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+    .project-card,
+    .service-card,
+    .contact-card,
+    .dynamic-card,
+    .about-card {
+        will-change: transform;
+    }
 }
 .project-card::after,
 .service-card::after,
@@ -3020,3 +3028,144 @@ select.admin-input {
 .anim-none .btn:hover::before {
     transform: none;
 }
+
+/* ============================================
+   خفة + تفاعلية + مبادئ التصميم
+   ============================================ */
+/* أوُرَب الهيرو — تدرّج شعاعي بدون filter:blur (أخف على الأداء) */
+.hero-orb {
+    filter: none;
+    background: radial-gradient(circle, var(--accent-soft) 0%, transparent 72%);
+}
+.hero-orb {
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 72%, transparent) 0%, color-mix(in srgb, var(--accent) 10%, transparent) 45%, transparent 72%);
+}
+.orb-b {
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent-2) 65%, transparent) 0%, color-mix(in srgb, var(--accent-2) 8%, transparent) 45%, transparent 72%);
+}
+
+/* كيرسور مخصص — بصمة المصمم */
+.cur-dot,
+.cur-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 20000;
+    transform: translate(-50%, -50%);
+}
+.cur-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+.cur-ring {
+    width: 38px;
+    height: 38px;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    transition: width 0.25s var(--ease-silk), height 0.25s var(--ease-silk), border-color 0.25s ease, background 0.25s ease;
+}
+html.cur-hover .cur-ring {
+    width: 60px;
+    height: 60px;
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+html.cur-on,
+html.cur-on a,
+html.cur-on button,
+html.cur-on .btn,
+html.cur-on .nav-link,
+html.cur-on .filter-btn,
+html.cur-on input[type='submit'] {
+    cursor: none !important;
+}
+html.cur-on input,
+html.cur-on textarea {
+    cursor: text !important;
+}
+
+/* ماركيه متحرك — طاقة المصمم */
+.ticker {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    padding: 15px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-soft);
+}
+.ticker-track {
+    display: flex;
+    direction: ltr;
+    width: max-content;
+    animation: tickerMove 28s linear infinite;
+}
+.ticker:hover .ticker-track {
+    animation-play-state: paused;
+}
+.ticker-track span,
+.ticker-track i {
+    padding: 0 28px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+    color: var(--text-dim);
+}
+.ticker-track i {
+    font-style: normal;
+    color: var(--accent);
+}
+@keyframes tickerMove {
+    to { transform: translateX(-50%); }
+}
+
+/* تباين + محاذاة: تحديد النص وخاتم الفوكس */
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* ترقيم الأقسام — شارة مصمّم بدل نص عادي */
+.section-number {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    letter-spacing: 1.5px;
+}
+.section-number::before {
+    content: '';
+    width: 18px;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--accent);
+}
+.section-title {
+    letter-spacing: -0.02em;
+}
+
+/* شبكات البطاقات — محاذاة الفجوات منتظمة عبر الأقسام */
+.projects-grid,
+.services-grid,
+.contact-grid {
+    gap: var(--grid-gap, 22px);
+}
+@media (prefers-reduced-motion: reduce) {
+    .ticker-track { animation: none; }
+    .cur-dot, .cur-ring { display: none; }
+}
+.anim-none .ticker-track { animation: none; }
+.anim-none .cur-dot,
+.anim-none .cur-ring { display: none; }

@@ -1521,6 +1521,8 @@ function renderSite() {
                 var img = document.createElement('img');
                 img.src = src;
                 img.alt = p.name || 'A.M';
+                img.decoding = 'async';
+                img.loading = 'lazy';
                 img.onload = function () {
                     var ratio = (img.naturalWidth && img.naturalHeight) ? (img.naturalWidth / img.naturalHeight) : 1;
                     av.style.aspectRatio = ratio.toFixed(4);
@@ -1706,12 +1708,12 @@ var MotionUI = (function () {
         }
 
         function resize() {
-            DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+            DPR = Math.min(window.devicePixelRatio || 1, 1.25);
             W = window.innerWidth; H = window.innerHeight;
             c.width = Math.round(W * DPR); c.height = Math.round(H * DPR);
             c.style.width = W + 'px'; c.style.height = H + 'px';
             ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-            var count = Math.min(64, Math.floor(W * H / 28000));
+            var count = Math.min(40, Math.floor(W * H / 38000));
             pts = [];
             for (var i = 0; i < count; i++) {
                 pts.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35, r: Math.random() * 1.6 + 0.6 });
@@ -1719,8 +1721,7 @@ var MotionUI = (function () {
             var m = Math.max(W, H);
             orbs = [
                 { x: W * 0.22, y: H * 0.22, r: m * 0.34, vx: 0.16, vy: 0.12, a: 0.13, col: 0 },
-                { x: W * 0.8, y: H * 0.68, r: m * 0.4, vx: -0.13, vy: -0.1, a: 0.1, col: 1 },
-                { x: W * 0.52, y: H * 0.95, r: m * 0.28, vx: 0.1, vy: -0.15, a: 0.09, col: 0 }
+                { x: W * 0.8, y: H * 0.68, r: m * 0.4, vx: -0.13, vy: -0.1, a: 0.1, col: 1 }
             ];
         }
 
@@ -1749,12 +1750,13 @@ var MotionUI = (function () {
             }
             // خطوط وصل الجزيئات = الأقسام متصلة ببعضها
             ctx.lineWidth = 1;
+            var max2 = 120 * 120;
             for (i = 0; i < pts.length; i++) {
                 for (j = i + 1; j < pts.length; j++) {
                     var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-                    var d = Math.sqrt(dx * dx + dy * dy);
-                    if (d < 130) {
-                        ctx.strokeStyle = hexA(cols[0], (1 - d / 130) * 0.16);
+                    var d2 = dx * dx + dy * dy;
+                    if (d2 < max2) {
+                        ctx.strokeStyle = hexA(cols[0], (1 - d2 / max2) * 0.14);
                         ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
                     }
                 }
@@ -1858,9 +1860,34 @@ var MotionUI = (function () {
         });
     }
 
+    /* كيرسور مخصص: نقطة فورية + حلقة بتتابع بنعومة، تكبر فوق العناصر التفاعلية */
+    function initCursor() {
+        if (reduced()) return;
+        if (!(window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
+        var dot = document.getElementById('curDot'), ring = document.getElementById('curRing');
+        if (!dot || !ring) return;
+        var x = window.innerWidth / 2, y = window.innerHeight / 2, rx = x, ry = y;
+        document.documentElement.classList.add('cur-on');
+        window.addEventListener('pointermove', function (e) {
+            if (e.pointerType && e.pointerType !== 'mouse') return;
+            x = e.clientX; y = e.clientY;
+            dot.style.transform = 'translate(-50%,-50%) translate(' + x + 'px,' + y + 'px)';
+            var hover = e.target && e.target.closest && e.target.closest('a, button, .btn, .nav-link, .filter-btn, .project-card, .service-card, .contact-card, .dynamic-card, .about-card, .back-to-top');
+            if (hover) document.documentElement.classList.add('cur-hover');
+            else document.documentElement.classList.remove('cur-hover');
+        }, { passive: true });
+        (function loop() {
+            rx += (x - rx) * 0.16;
+            ry += (y - ry) * 0.16;
+            ring.style.transform = 'translate(-50%,-50%) translate(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px)';
+            requestAnimationFrame(loop);
+        })();
+    }
+
     function init() {
         initBackground();
         initScrollChrome();
+        initCursor();
         if (reduced() || !enabled()) return;
         try { if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) initTilt(); } catch (e) {}
         initMagnetic();

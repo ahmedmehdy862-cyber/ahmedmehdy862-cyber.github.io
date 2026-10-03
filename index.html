@@ -16,13 +16,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=11">
+    <link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 
     <!-- Live animated background (continuous across all sections) -->
     <canvas id="bgCanvas" aria-hidden="true"></canvas>
     <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+    <div class="cur-dot" id="curDot" aria-hidden="true"></div>
+    <div class="cur-ring" id="curRing" aria-hidden="true"></div>
 
     <!-- Navigation -->
     <nav class="nav" id="mainNav">
@@ -75,6 +77,14 @@
             </div>
         </div>
     </section>
+
+    <!-- Marquee ticker — بصمة مصمم -->
+    <div class="ticker" id="siteTicker" aria-hidden="true">
+        <div class="ticker-track">
+            <span>هوية بصرية</span><span>جرافيك ديزاين</span><span>إعلانات مطبوعة</span><span>مونتاج</span><span>سوشيال ميديا</span><span>لوجوهات</span><span>كتب ومجلات</span><span>بوسترات</span><i>✦</i>
+            <span>هوية بصرية</span><span>جرافيك ديزاين</span><span>إعلانات مطبوعة</span><span>مونتاج</span><span>سوشيال ميديا</span><span>لوجوهات</span><span>كتب ومجلات</span><span>بوسترات</span><i>✦</i>
+        </div>
+    </div>
 
     <!-- About -->
     <section class="section" id="about">
