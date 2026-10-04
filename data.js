@@ -38,7 +38,7 @@ const SITE_DATA = {
         "footerText": "صمم بمحبة"
     },
     "seo": {
-        "title": "A.Mahdy — معرض أعمالي",
+        "title": "A.Mahdy — أحمد مهدي | جرافيك ديزاينر ومصمم محتوى",
         "description": "جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات. شوف أعمالي المختارة وابدأ مشروعك.",
         "keywords": "جرافيك ديزاينر, تصميم, هوية بصرية, سوشيال ميديا, موشن جرافيك, A.Mahdy",
         "ogImage": ""
@@ -50,6 +50,14 @@ const SITE_DATA = {
         "backToTop": true,
         "scrollProgress": true,
         "lightbox": true
+    },
+    "theme": "forest",
+    "layout": {
+        "cardStyle": "gradient",
+        "heroStyle": "center",
+        "sectionGap": "sm",
+        "animations": "strong",
+        "font": "noto"
     },
     "stats": [
         {

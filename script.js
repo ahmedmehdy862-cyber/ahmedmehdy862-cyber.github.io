@@ -152,8 +152,10 @@ var DataManager = (function () {
         if (typeof Publisher !== 'undefined' && Publisher && Publisher.schedule) Publisher.schedule();
     }
 
+    var SITE_BASE = (typeof SITE_DATA !== 'undefined' && SITE_DATA) || {};
+
     function withDefaults(d) {
-        var base = (typeof SITE_DATA !== 'undefined' && SITE_DATA) || {};
+        var base = SITE_BASE;
         if (!d || typeof d !== 'object') d = {};
         if (!d.seo || typeof d.seo !== 'object') {
             d.seo = JSON.parse(JSON.stringify(base.seo || { title: '', description: '', keywords: '', ogImage: '' }));
@@ -234,7 +236,10 @@ var DataManager = (function () {
             var v = localStorage.getItem(THEME_KEY);
             if (v) return v;
         } catch (e) {}
-        return (remote && remote.theme) || null;
+        if (remote && remote.theme) return remote.theme;
+        /* الـfallback لازم يطابق المنشور في data.json، وإلا أول رسم بيختلف
+           عن الرسم النهائي = قفزة في الشكل (CLS) لكل زائر جديد */
+        return SITE_BASE.theme || null;
     }
 
     function setTheme(theme) {
@@ -247,6 +252,7 @@ var DataManager = (function () {
             if (raw) return JSON.parse(raw);
         } catch (e) {}
         if (remote && remote.layout) return JSON.parse(JSON.stringify(remote.layout));
+        if (SITE_BASE.layout) return JSON.parse(JSON.stringify(SITE_BASE.layout));
         return { cardStyle: 'rounded', heroStyle: 'split', sectionGap: 'md', animations: 'subtle' };
     }
 
@@ -2023,10 +2029,11 @@ function renderSite() {
     (d.projects || []).forEach(function (p) { cats[p.category] = p.categoryLabel; });
     var tb = $('projectsToolbar');
     if (tb) {
-        tb.innerHTML = '<button class="filter-btn active" data-filter="all">الكل</button>';
+        var fb = '<button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">الكل</button>';
         Object.keys(cats).forEach(function (k) {
-            tb.innerHTML += '<button class="filter-btn" data-filter="' + k + '">' + cats[k] + '</button>';
+            fb += '<button type="button" class="filter-btn" data-filter="' + escAttr(k) + '" aria-pressed="false">' + escHtml(cats[k]) + '</button>';
         });
+        tb.innerHTML = fb;
         tb.querySelectorAll('.filter-btn').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 tb.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
@@ -2035,6 +2042,7 @@ function renderSite() {
                 document.querySelectorAll('.project-card').forEach(function (card) {
                     card.classList.toggle('hide', filter !== 'all' && card.getAttribute('data-filter') !== filter);
                 });
+                syncFilters();
             });
         });
     }
@@ -2047,7 +2055,7 @@ function renderSite() {
             var img = p.image && isValidURL(p.image)
                 ? '<div class="project-cover" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
                 : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(p.categoryLabel || p.category) + '</span></div>';
-            var attrs = ' data-idx="' + i + '"';
+            var attrs = ' id="project-' + i + '" data-idx="' + i + '"';
             if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr('عرض مشروع: ' + (p.title || '')) + '"';
             return '<article class="project-card reveal"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + escHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span></div><h3 class="project-title">' + escHtml(p.title) + '</h3><p class="project-desc">' + escHtml(p.description) + '</p></div></article>';
         }).join('');
@@ -2069,10 +2077,21 @@ function renderSite() {
     // Dynamic sections + their nav links
     renderDynamicSections();
     renderNavLinks();
-    // تحكم(features + SEO) — instant apply
+    // تحكم(features + SEO + Structured Data) — instant apply
     SiteControls.applyFeatures(d);
     SiteControls.applySeo(d);
+    SiteControls.applyStructuredData(d);
+    syncFilters();
     if (document.documentElement.getAttribute('data-reveal-ready')) ScrollReveal.rescan();
+}
+
+/* يحدّث aria-pressed على أزرار الفلترة عشان قارئات الشاشة تعرف الفلتر الحالي */
+function syncFilters() {
+    var btns = document.querySelectorAll('#projectsToolbar .filter-btn');
+    if (!btns.length) return;
+    btns.forEach(function (b) {
+        b.setAttribute('aria-pressed', b.classList.contains('active') ? 'true' : 'false');
+    });
 }
 
 /* ============================================
@@ -2081,11 +2100,33 @@ function renderSite() {
 var SiteControls = (function () {
     var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true };
     var root = document.documentElement;
+    var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG : {
+        siteUrl: 'https://ahmedmehdy862-cyber.github.io/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
+        locale: 'ar_AR', ogImage: 'assets/Asset-1.png', ogImageAlt: 'شعار A.Mahdy', twitterCard: 'summary_large_image'
+    };
     var SOCIAL_LABELS = {
         behance: 'Behance', github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram',
         facebook: 'Facebook', whatsapp: 'WhatsApp', twitter: 'X', x: 'X', tiktok: 'TikTok',
         dribbble: 'Dribbble', youtube: 'YouTube', telegram: 'Telegram', pinterest: 'Pinterest'
     };
+
+    /* رابط كامل (absolute) لأي مسار داخلي أو رابط خارجي */
+    function absoluteUrl(v) {
+        var s = String(v || '').trim();
+        if (!s) return '';
+        if (/^https?:\/\//i.test(s)) return s;
+        if (/^\/\//.test(s)) return window.location.protocol + s;
+        return String(CFG.siteUrl || '').replace(/\/$/, '') + '/' + s.replace(/^\//, '');
+    }
+
+    /* يقبل رابط http(s) أو مسار داخلي بال/assets — ويرفض أي نص تاني */
+    function usableImage(v) {
+        var s = String(v || '').trim();
+        if (!s) return '';
+        if (/^https?:\/\//i.test(s)) return s;
+        if (/^[\w./-]+\.(png|jpe?g|webp|avif|gif|svg)$/i.test(s)) return s;
+        return '';
+    }
 
     function features(d) {
         var f = (d && d.features) || {};
@@ -2112,21 +2153,30 @@ var SiteControls = (function () {
         if (el && value) el.setAttribute('content', value);
     }
 
+    function setAttr(sel, name, value) {
+        var el = document.querySelector(sel);
+        if (el && value) el.setAttribute(name, value);
+    }
+
     function applySeo(d) {
         var s = (d && d.seo) || {};
         var title = String(s.title || '').trim();
         var desc = String(s.description || '').trim();
         var keys = String(s.keywords || '').trim();
-        var img = String(s.ogImage || '').trim();
+        var img = absoluteUrl(usableImage(s.ogImage) || CFG.ogImage);
         if (title) document.title = title;
         meta('metaDescription', desc);
         meta('metaKeywords', keys);
         meta('ogTitle', title || document.title);
         meta('ogDesc', desc);
-        meta('ogImage', img || 'assets/Asset-1.png');
+        meta('ogImage', img);
+        setAttr('meta[property="og:image:secure_url"]', 'content', /^https:/.test(img) ? img : '');
         meta('twTitle', title || document.title);
         meta('twDesc', desc);
-        meta('twImage', img || 'assets/Asset-1.png');
+        meta('twImage', img);
+        /* canonical + og:url دايمًا على الدومين الحقيقي */
+        setAttr('link[rel="canonical"]', 'href', CFG.siteUrl);
+        setAttr('meta[property="og:url"]', 'content', CFG.siteUrl);
     }
 
     function socialLabel(key) { return SOCIAL_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1); }
@@ -2136,7 +2186,111 @@ var SiteControls = (function () {
         Object.keys(map).forEach(function (k) { if (map[k]) SOCIAL_LABELS[k] = map[k]; });
     }
 
-    return { features: features, applyFeatures: applyFeatures, applySeo: applySeo, socialLabel: socialLabel, setSocialLabel: setSocialLabel, applySocialLabels: applySocialLabels, DEFAULTS: FEATURE_DEFAULTS };
+    function imageMeta(url) {
+        if (!url) return undefined;
+        return { '@type': 'ImageObject', url: url, caption: CFG.ogImageAlt, width: 279, height: 214 };
+    }
+
+    /* روابط التواصل موجودة كـobject map (المفتاح = اسم الشبكة) */
+    function socialUrls(profile) {
+        var out = [];
+        var s = profile && profile.socials;
+        if (!s) return out;
+        if (Array.isArray(s)) {
+            s.forEach(function (o) { if (o && o.url && /^https?:\/\//i.test(String(o.url))) out.push(String(o.url)); });
+            return out;
+        }
+        if (typeof s === 'object') {
+            Object.keys(s).forEach(function (k) {
+                var v = s[k];
+                var url = (v && typeof v === 'object') ? v.url : v;
+                if (url && /^https?:\/\//i.test(String(url))) out.push(String(url));
+            });
+        }
+        return out;
+    }
+
+    /* يبني Structured Data (JSON-LD) من بيانات الموقع الحقيقية */
+    function buildStructuredData(d) {
+        var p = (d && d.profile) || {};
+        var s = (d && d.seo) || {};
+        var base = String(CFG.siteUrl || '').replace(/\/$/, '');
+        var url = CFG.siteUrl;
+        var name = String(p.name || CFG.author || '').trim();
+        var desc = String(s.description || CFG.defaultDescription || '').trim();
+        var title = String(s.title || document.title || '').trim();
+        var img = absoluteUrl(usableImage(s.ogImage) || CFG.ogImage);
+
+        var sameAs = socialUrls(p);
+        var skills = Array.isArray(d && d.skills) && d.skills.length ? d.skills
+            : (Array.isArray(p.skills) ? p.skills : []);
+
+        var person = {
+            '@type': 'Person', '@id': base + '/#person',
+            name: name, url: url,
+            jobTitle: String(p.role || '').trim() || undefined,
+            image: img, description: desc,
+            knowsAbout: skills.length ? skills.slice(0, 12) : undefined,
+            sameAs: sameAs.length ? sameAs : undefined
+        };
+        if (p.email) person.email = 'mailto:' + String(p.email).replace(/^mailto:/, '');
+        if (p.location) person.address = { '@type': 'Place', name: String(p.location) };
+
+        var website = {
+            '@type': 'WebSite', '@id': base + '/#website',
+            url: url, name: CFG.siteName, inLanguage: CFG.lang || 'ar',
+            publisher: { '@id': base + '/#person' }
+        };
+
+        var page = {
+            '@type': 'ProfilePage', '@id': base + '/#webpage',
+            url: url, name: title, description: desc, inLanguage: CFG.lang || 'ar',
+            isPartOf: { '@id': base + '/#website' }, about: { '@id': base + '/#person' },
+            primaryImageOfPage: img ? { '@id': base + '/#logo' } : undefined
+        };
+        if (img) page.image = img;
+
+        var graph = [person, website, page];
+
+        /* قائمة المشاريع كـItemList من CreativeWork — بتتولّد من الداتا الحقيقية */
+        var projects = (d && d.projects) || [];
+        if (projects.length) {
+            var items = projects.map(function (pr, i) {
+                return {
+                    '@type': 'CreativeWork',
+                    position: i + 1,
+                    name: String(pr.title || ''),
+                    description: String(pr.desc || pr.description || ''),
+                    url: url + '#project-' + (pr.id != null ? pr.id : i),
+                    creator: { '@id': base + '/#person' },
+                    dateCreated: pr.year ? String(pr.year) : undefined,
+                    keywords: Array.isArray(pr.tags) && pr.tags.length ? pr.tags.join(', ') : undefined
+                };
+            });
+            graph.push({
+                '@type': 'ItemList', '@id': base + '/#projects',
+                name: 'أعمالي', numberOfItems: items.length, itemListElement: items
+            });
+            page.hasPart = { '@id': base + '/#projects' };
+        }
+
+        return { '@context': 'https://schema.org', '@graph': graph };
+    }
+
+    function applyStructuredData(d) {
+        var el = document.getElementById('ldSeo');
+        if (!el) return;
+        try {
+            el.textContent = JSON.stringify(buildStructuredData(d), null, 2);
+        } catch (e) { /* Structured data مايلعبش دور في باقي الصفحة */ }
+    }
+
+    return {
+        features: features, applyFeatures: applyFeatures, applySeo: applySeo,
+        buildStructuredData: buildStructuredData, applyStructuredData: applyStructuredData,
+        socialLabel: socialLabel, setSocialLabel: setSocialLabel, applySocialLabels: applySocialLabels,
+        DEFAULTS: FEATURE_DEFAULTS
+    };
 })();
 
 /* ============================================
@@ -2625,16 +2779,40 @@ document.addEventListener('DOMContentLoaded', function () {
     ProjectLightbox.bind();
 
     // لو وصل data.json المنشور بعدها — طبّق الثيم واللايوت والبيانات وارسم من جديد
-    remoteReady.then(function (d) { if (d) applyRemoteData(); });
+    // نطبّق الثيم/اللايوت في أبكر وقت ممكن (وقت ما الـfetch يخلص) عشان
+    // ما يحصلش قفزة في الشكل (CLS) قدام المستخدم.
+    remoteReady.then(function (d) {
+        if (!d) return;
+        if (document.body) {
+            document.documentElement.setAttribute('data-theme', DataManager.getTheme() || 'neon');
+            LayoutManager.apply(DataManager.getLayout());
+        }
+        applyRemoteData();
+    });
 
     var nav = document.getElementById('mainNav');
     var toggle = document.getElementById('navToggle');
     var links = document.getElementById('navLinks');
 
     if (toggle && links) {
-        toggle.addEventListener('click', function () { links.classList.toggle('open'); });
+        toggle.addEventListener('click', function () {
+            var open = links.classList.toggle('open');
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل');
+        });
         links.addEventListener('click', function (e) {
-            if (e.target.closest('a')) links.classList.remove('open');
+            if (e.target.closest('a')) {
+                links.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape' || !links.classList.contains('open')) return;
+            links.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
+            toggle.focus();
         });
     }
 

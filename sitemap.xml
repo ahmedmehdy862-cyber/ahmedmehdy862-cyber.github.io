@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!--
+    الموقع صفحة واحدة (single page) — الأقسام كلها روابط داخلية (#anchor)
+    جوّه الصفحة نفسها، فمفيش URLs تانية قابلة للفهرسة.
+    كل الروابط الداخلية بـ hash intentionally مش مستقلة في الـsitemap.
+  -->
+  <url>
+    <loc>https://ahmedmehdy862-cyber.github.io/</loc>
+    <lastmod>2026-10-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://ahmedmehdy862-cyber.github.io/"/>
+  </url>
+
+</urlset>

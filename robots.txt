@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# صفحات لوحة التحكم مش صفحات منفصلة (بتشتغل جوه الصفحة نفسها)
+# فمفيش مسار خاص نمنعه — كل الصفحة العامة مسموح بفهرستها.
+
+Sitemap: https://ahmedmehdy862-cyber.github.io/sitemap.xml
