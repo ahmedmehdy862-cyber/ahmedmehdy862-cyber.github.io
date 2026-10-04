@@ -649,23 +649,41 @@ var LayoutManager = (function () {
    Scroll Reveal
    ============================================ */
 var ScrollReveal = (function () {
+    var obs = null;
+    function bind() {
+        if (!obs) return;
+        document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) {
+            if (el.getAttribute('data-reveal-bound')) return;
+            el.setAttribute('data-reveal-bound', '1');
+            obs.observe(el);
+        });
+    }
     function init() {
-        if (!('IntersectionObserver' in window)) return;
-        var observer = new IntersectionObserver(function (entries) {
+        if (!('IntersectionObserver' in window)) {
+            document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) { el.classList.add('revealed'); });
+            return;
+        }
+        obs = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('revealed');
-                    observer.unobserve(entry.target);
+                    obs.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
-
+        bind();
+    }
+    /* إعادة رصد بعد أي إعادة رسم للموقع (مثل صورة جديدة) */
+    function rescan() { bind(); }
+    /* كشف فوري لأي عنصر مرّ بالفعل فوق الشاشة (important عند القفز بالروابط) */
+    function forceVisibleUpTo(limitY) {
         document.querySelectorAll('.reveal, .reveal-stagger').forEach(function (el) {
-            observer.observe(el);
+            var r = el.getBoundingClientRect();
+            if (r.top < limitY) el.classList.add('revealed');
         });
     }
 
-    return { init: init };
+    return { init: init, rescan: rescan, forceVisibleUpTo: forceVisibleUpTo };
 })();
 
 /* ============================================
@@ -1620,6 +1638,7 @@ function renderSite() {
     // Dynamic sections + their nav links
     renderDynamicSections();
     renderNavLinks();
+    if (document.documentElement.getAttribute('data-reveal-ready')) ScrollReveal.rescan();
 }
 
 /* ============================================
@@ -1638,7 +1657,7 @@ function renderDynamicSections() {
         var bg = '<div class="hero-bg"><div class="hero-pattern"></div></div>';
         var html = '<section class="section" id="' + escAttr(sec.id || '') + '">' + bg +
             '<div class="container">' +
-            '<div class="section-header"><span class="section-number">' + n + '</span>' +
+            '<div class="section-header reveal"><span class="section-number">' + n + '</span>' +
             '<h2 class="section-title">' + escHtml(sec.title) + '</h2>' +
             (sec.desc ? '<p class="section-desc">' + escHtml(sec.desc) + '</p>' : '') +
             '</div>';
@@ -1678,6 +1697,37 @@ function renderNavLinks() {
         links.appendChild(li);
     });
 }
+
+/* ============================================
+   Preloader — opening shot of the site
+   ============================================ */
+(function () {
+    var pre = document.getElementById('preloader');
+    if (!pre) return;
+    var bar = document.getElementById('preBar');
+    var pct = document.getElementById('prePct');
+    var v = 0, done = false;
+    function finish() {
+        if (done) return;
+        done = true;
+        clearInterval(iv);
+        if (bar) bar.style.width = '100%';
+        if (pct) pct.textContent = '100';
+        setTimeout(function () {
+            pre.classList.add('hide');
+            setTimeout(function () { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 700);
+        }, 300);
+    }
+    var iv = setInterval(function () {
+        v += Math.random() * 13 + 4;
+        if (v > 96) v = 96;
+        if (bar) bar.style.width = v + '%';
+        if (pct) pct.textContent = String(Math.round(v));
+    }, 120);
+    if (document.readyState === 'complete') setTimeout(finish, 350);
+    else window.addEventListener('load', function () { setTimeout(finish, 250); });
+    setTimeout(function () { clearInterval(iv); finish(); }, 2600); // أمان لو الـ load اتأخر
+})();
 
 /* ============================================
    Motion UI — خلفية موشن + تفاعلات
@@ -1884,10 +1934,23 @@ var MotionUI = (function () {
         })();
     }
 
+    /* أمان: أي عنصر عدّى فوق الشاشة يتكشف فورًا (خصوصًا بعد القفز بالروابط) */
+    function initRevealSafety() {
+        var t = null;
+        function run() {
+            t = null;
+            try { ScrollReveal.forceVisibleUpTo(window.innerHeight * 0.98); } catch (e) {}
+        }
+        window.addEventListener('scroll', function () { if (!t) t = setTimeout(run, 180); }, { passive: true });
+        window.addEventListener('hashchange', function () { setTimeout(run, 80); });
+        setTimeout(run, 500);
+    }
+
     function init() {
         initBackground();
         initScrollChrome();
         initCursor();
+        initRevealSafety();
         if (reduced() || !enabled()) return;
         try { if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) initTilt(); } catch (e) {}
         initMagnetic();
@@ -1918,6 +1981,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Init scroll reveal & counters
     ScrollReveal.init();
+    document.documentElement.setAttribute('data-reveal-ready', '1');
     CounterAnimation.init();
 
     // Motion background + interactive elements

@@ -3032,6 +3032,106 @@ select.admin-input {
 /* ============================================
    خفة + تفاعلية + مبادئ التصميم
    ============================================ */
+/* بريلودر — أول نظرة على الموقع */
+.preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 30000;
+    background: var(--bg, #0a0a12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s var(--ease-silk), visibility 0.5s ease;
+    animation: preAutoHide 0.5s ease 3s forwards;
+}
+.preloader.hide {
+    opacity: 0;
+    visibility: hidden;
+}
+.pre-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+.pre-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    animation: prePulse 1.5s ease-in-out infinite;
+}
+.pre-line {
+    width: min(230px, 58vw);
+    height: 2px;
+    border-radius: 2px;
+    background: var(--bg-soft, #12121e);
+    overflow: hidden;
+}
+.pre-line span {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width 0.25s var(--ease-silk);
+}
+.pre-pct {
+    font-family: 'Almarai', monospace;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--text-dim, #a6a6c6);
+}
+@keyframes prePulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.09); opacity: 1; }
+}
+@keyframes preAutoHide {
+    to { opacity: 0; visibility: hidden; }
+}
+
+/* العناوين: من باهتة إلى واضحة مع التمرير + خط يتّسع */
+.section-title {
+    color: var(--text-dim);
+    transition: color 0.6s var(--ease-smooth);
+}
+.section-title::after {
+    transition: width 0.7s var(--ease-smooth);
+}
+.reveal.revealed .section-title {
+    color: var(--text);
+}
+.reveal.revealed .section-title::after {
+    width: 84px;
+}
+.section-number {
+    color: var(--accent);
+}
+
+/* كروت الأعمال: زووم للغلاف + سهم يظهر */
+.project-cover {
+    transition: transform 0.6s var(--ease-smooth);
+}
+.project-card:hover .project-cover {
+    transform: scale(1.07);
+}
+.project-title {
+    transition: color 0.3s ease;
+}
+.project-title::after {
+    content: '↗';
+    display: inline-block;
+    margin-inline-start: 8px;
+    font-size: 0.75em;
+    color: var(--accent);
+    opacity: 0;
+    transform: translate(-6px, 6px);
+    transition: opacity 0.3s var(--ease-silk), transform 0.35s var(--ease-smooth);
+}
+.project-card:hover .project-title::after {
+    opacity: 1;
+    transform: none;
+}
 /* أوُرَب الهيرو — تدرّج شعاعي بدون filter:blur (أخف على الأداء) */
 .hero-orb {
     filter: none;
