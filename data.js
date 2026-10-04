@@ -35,6 +35,20 @@ const SITE_DATA = {
         "contactCard3": "الموقع",
         "footerText": "صمم بمحبة"
     },
+    "seo": {
+        "title": "A.Mahdy — معرض أعمالي",
+        "description": "جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات. شوف أعمالي المختارة وابدأ مشروعك.",
+        "keywords": "جرافيك ديزاينر, تصميم, هوية بصرية, سوشيال ميديا, موشن جرافيك, A.Mahdy",
+        "ogImage": ""
+    },
+    "features": {
+        "ticker": true,
+        "cursor": true,
+        "comments": true,
+        "backToTop": true,
+        "scrollProgress": true,
+        "lightbox": true
+    },
     "stats": [
         {
             "value": "5+",

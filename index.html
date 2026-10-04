@@ -6,7 +6,18 @@
     <meta name="theme-color" content="#0a0a12">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="A.Mahdy — معرض أعمالي | جرافيك ديزاينر ومصمم محتوى">
+    <meta name="description" id="metaDescription" content="A.Mahdy — معرض أعمالي | جرافيك ديزاينر ومصمم محتوى">
+    <meta name="keywords" id="metaKeywords" content="جرافيك ديزاينر, تصميم, هوية بصرية, سوشيال ميديا, A.Mahdy">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="A.Mahdy">
+    <meta property="og:title" id="ogTitle" content="A.Mahdy — معرض أعمالي">
+    <meta property="og:description" id="ogDesc" content="جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات.">
+    <meta property="og:image" id="ogImage" content="assets/Asset-1.png">
+    <meta property="og:url" content="https://ahmedmehdy862-cyber.github.io/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twTitle" content="A.Mahdy — معرض أعمالي">
+    <meta name="twitter:description" id="twDesc" content="جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات.">
+    <meta name="twitter:image" id="twImage" content="assets/Asset-1.png">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -201,6 +212,26 @@
         <p><span id="footerText">صمم بمحبة</span> © <span id="footerYear">2026</span> — A.Mahdy</p>
     </footer>
 
+    <!-- Project lightbox — عرض المشروع بالتفصيل -->
+    <div class="lightbox hidden" id="projectLightbox" role="dialog" aria-modal="true" aria-label="تفاصيل المشروع">
+        <button class="lb-close" id="lbClose" aria-label="إغلاق">✕</button>
+        <button class="lb-nav lb-prev" id="lbPrev" aria-label="السابق">›</button>
+        <button class="lb-nav lb-next" id="lbNext" aria-label="التالي">‹</button>
+        <figure class="lb-figure">
+            <div class="lb-media" id="lbMedia"></div>
+            <figcaption class="lb-caption">
+                <div class="lb-meta">
+                    <span class="project-tag" id="lbCategory"></span>
+                    <span class="project-year" id="lbYear"></span>
+                </div>
+                <h3 class="lb-title" id="lbTitle"></h3>
+                <p class="lb-desc" id="lbDesc"></p>
+                <div class="lb-tags" id="lbTags"></div>
+                <a class="btn btn-primary lb-link hidden" id="lbLink" target="_blank" rel="noopener">زيارة المشروع ↗</a>
+            </figcaption>
+        </figure>
+    </div>
+
     <!-- ============================================
          Admin Panel (لوحة تحكم صاحب الحساب)
          ============================================ -->
@@ -224,6 +255,13 @@
 
             <!-- Dashboard -->
             <div class="admin-dashboard hidden" id="adminDashboard">
+                <div class="admin-stats" id="adminStats"></div>
+                <div class="admin-quick">
+                    <button class="admin-save-btn" id="quickPublish">انشر الآن</button>
+                    <button class="admin-save-btn admin-save-btn--secondary" id="quickExport">نسخة احتياطية</button>
+                    <button class="admin-save-btn admin-save-btn--secondary" id="quickImport">استيراد ملف</button>
+                    <input type="file" id="importDataInput" accept="application/json,.json" hidden>
+                </div>
 
                 <!-- Tabs -->
                 <div class="admin-tabs" id="adminTabs">
@@ -233,6 +271,8 @@
                     <button class="admin-tab" data-tab="projects">المشاريع</button>
                     <button class="admin-tab" data-tab="services">الخدمات</button>
                     <button class="admin-tab" data-tab="appearance">المظهر</button>
+                    <button class="admin-tab" data-tab="features">مزايا الموقع</button>
+                    <button class="admin-tab" data-tab="seo">SEO ومشاركة</button>
                     <button class="admin-tab" data-tab="sections">الأقسام</button>
                     <button class="admin-tab" data-tab="content">المحتوى</button>
                     <button class="admin-tab" data-tab="comments">التعليقات</button>
@@ -431,6 +471,55 @@
                     </div>
                 </div>
 
+                <!-- Tab: مزايا الموقع -->
+                <div class="admin-tab-panel" data-panel="features">
+                    <p class="admin-hint">تحكم في أجزاء الموقع — أي ميزة تقدر تقفلها أو تفتحها لكل الزوار</p>
+                    <div class="admin-section-block">
+                        <h3>مزايا العرض</h3>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="lightbox"> لايت بوكس المشاريع (كليك على الكارت يفتحه)</label>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="ticker"> شريط المهارات المتحرك (ماركيه)</label>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="cursor"> الكيرسور المخصص</label>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="scrollProgress"> شريط تقدم التمرير</label>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="backToTop"> زر العودة لأعلى</label>
+                        <label class="admin-check-label"><input type="checkbox" data-feature="comments"> قسم تعليقات الزوار</label>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>إعادة الضبط</h3>
+                        <p class="admin-hint">رجّع كل المزايا لحالتها الافتراضية (مفعّلة)</p>
+                        <button class="admin-save-btn admin-save-btn--secondary" id="resetFeatures">إعادة ضبط المزايا</button>
+                    </div>
+                    <button class="admin-save-btn" id="saveFeatures">حفظ المزايا</button>
+                </div>
+
+                <!-- Tab: SEO ومشاركة -->
+                <div class="admin-tab-panel" data-panel="seo">
+                    <p class="admin-hint">البيانات اللي بتظهر لما حد يشارك الموقع على واتساب أو سوشيال ميديا أو في جوجل</p>
+                    <div class="admin-section-block">
+                        <h3>العنوان والوصف</h3>
+                        <div class="admin-field">
+                            <label>عنوان الصفحة (Title)</label>
+                            <input type="text" id="seoTitle" class="admin-input" placeholder="A.Mahdy — معرض أعمالي">
+                        </div>
+                        <div class="admin-field">
+                            <label>وصف الصفحة (Description)</label>
+                            <textarea id="seoDescription" class="admin-input" rows="3" placeholder="وصف مختصر يظهر في نتائج البحث والمشاركة"></textarea>
+                        </div>
+                        <div class="admin-field">
+                            <label>الكلمات المفتاحية (Keywords) — افصلها بفاصلة</label>
+                            <input type="text" id="seoKeywords" class="admin-input" placeholder="تصميم, هوية بصرية, سوشيال ميديا">
+                        </div>
+                        <div class="admin-field">
+                            <label>صورة المشاركة (OG Image) — رابط صورة</label>
+                            <input type="text" id="seoOgImage" class="admin-input" dir="ltr" placeholder="https://... أو assets/Asset-1.png">
+                        </div>
+                    </div>
+                    <div class="admin-section-block">
+                        <h3>معاينة النتيجة</h3>
+                        <div class="admin-seo-preview" id="seoPreview"></div>
+                    </div>
+                    <button class="admin-save-btn" id="saveSeo">حفظ SEO</button>
+                </div>
+
                 <!-- Tab: الأقسام -->
                 <div class="admin-tab-panel" data-panel="sections">
                     <p class="admin-hint">أضف أقسامًا جديدة كاملة للموقع — هتظهر في القائمة الرئيسية وفي نهاية الصفحة. كل قسم تقدر تضيف له أجزاء وتسميها بنفسك.</p>
@@ -545,7 +634,7 @@
 
     <button class="back-to-top" id="backToTop" aria-label="العودة لأعلى">↑</button>
 
-    <script src="data.js?v=10"></script>
-    <script src="script.js?v=10"></script>
+    <script src="data.js?v=14"></script>
+    <script src="script.js?v=14"></script>
 </body>
 </html>

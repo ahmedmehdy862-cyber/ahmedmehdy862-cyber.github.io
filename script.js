@@ -152,15 +152,27 @@ var DataManager = (function () {
         if (typeof Publisher !== 'undefined' && Publisher && Publisher.schedule) Publisher.schedule();
     }
 
+    function withDefaults(d) {
+        var base = (typeof SITE_DATA !== 'undefined' && SITE_DATA) || {};
+        if (!d || typeof d !== 'object') d = {};
+        if (!d.seo || typeof d.seo !== 'object') {
+            d.seo = JSON.parse(JSON.stringify(base.seo || { title: '', description: '', keywords: '', ogImage: '' }));
+        }
+        var fb = base.features || {};
+        if (!d.features || typeof d.features !== 'object') d.features = JSON.parse(JSON.stringify(fb));
+        else Object.keys(fb).forEach(function (k) { if (typeof d.features[k] !== 'boolean') d.features[k] = fb[k]; });
+        return d;
+    }
+
     function getDefault() {
-        if (remote && remote.profile) return JSON.parse(JSON.stringify(remote));
-        return typeof SITE_DATA !== 'undefined' ? JSON.parse(JSON.stringify(SITE_DATA)) : null;
+        if (remote && remote.profile) return withDefaults(JSON.parse(JSON.stringify(remote)));
+        return typeof SITE_DATA !== 'undefined' ? withDefaults(JSON.parse(JSON.stringify(SITE_DATA))) : null;
     }
 
     function load() {
         try {
             var raw = localStorage.getItem(DATA_KEY);
-            if (raw) return JSON.parse(raw);
+            if (raw) return withDefaults(JSON.parse(raw));
         } catch (e) {}
         return getDefault();
     }
@@ -388,6 +400,8 @@ var Publisher = (function () {
             projects: d.projects || [],
             services: d.services || [],
             sections: d.sections || [],
+            seo: d.seo || {},
+            features: d.features || {},
             contactNote: d.contactNote || '',
             theme: DataManager.getTheme() || 'neon',
             layout: DataManager.getLayout(),
@@ -908,9 +922,12 @@ var heroStats = document.getElementById('heroStats');
             loadServicesForm();
             loadPhoto();
             loadLayoutForm();
+            loadFeaturesForm();
+            loadSeoForm();
             loadContentForm();
             loadSectionsForm();
             loadCommentsAdmin();
+            renderAdminStats();
             if (typeof Publisher !== 'undefined') {
                 Publisher.refreshStatus();
                 Publisher.maybeAutoPublishPhoto();
@@ -1153,7 +1170,7 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('projectsList');
             list.innerHTML = '';
             (d.projects || []).forEach(function (p, i) {
-                list.innerHTML += '<div class="admin-dynamic-item admin-project-item"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item admin-project-item"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><input class="admin-input admin-input-sm" value="' + esc(p.tools) + '" data-field="tools" placeholder="الأدوات (مفصولة بفاصلة: فوتوشوب، إيليستريتور)"><input class="admin-input admin-input-sm" value="' + esc(p.link) + '" data-field="link" dir="ltr" placeholder="رابط المشروع (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div>';
             });
             list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
                 btn.addEventListener('click', function () {
@@ -1167,9 +1184,10 @@ var heroStats = document.getElementById('heroStats');
 
         document.getElementById('addProject').addEventListener('click', function () {
             var d = DataManager.load();
-            d.projects.push({ title: 'مشروع جديد', category: 'social', categoryLabel: 'سوشيال ميديا', description: 'وصف المشروع', image: '', tags: [], year: '2026' });
+            d.projects.push({ title: 'مشروع جديد', category: 'social', categoryLabel: 'سوشيال ميديا', description: 'وصف المشروع', image: '', tools: '', link: '', tags: [], year: '2026' });
             DataManager.save(d);
             loadProjectsForm();
+            renderAdminStats();
         });
 
         document.getElementById('saveProjects').addEventListener('click', function () {
@@ -1177,12 +1195,16 @@ var heroStats = document.getElementById('heroStats');
             var items = document.querySelectorAll('#projectsList .admin-project-item');
             d.projects = [];
             items.forEach(function (item) {
+                var toolsInput = item.querySelector('[data-field="tools"]');
+                var linkInput = item.querySelector('[data-field="link"]');
                 d.projects.push({
                     title: item.querySelector('[data-field="title"]').value,
                     category: item.querySelector('[data-field="category"]').value,
                     categoryLabel: item.querySelector('[data-field="categoryLabel"]').value,
                     description: item.querySelector('[data-field="description"]').value,
                     image: item.querySelector('[data-field="image"]').value,
+                    tools: toolsInput ? toolsInput.value : '',
+                    link: linkInput ? linkInput.value : '',
                     tags: [item.querySelector('[data-field="categoryLabel"]').value],
                     year: item.querySelector('[data-field="year"]').value
                 });
@@ -1190,7 +1212,152 @@ var heroStats = document.getElementById('heroStats');
             DataManager.save(d);
             renderSite();
             ScrollReveal.init();
+            renderAdminStats();
             showSaved(this);
+        });
+
+        /* --- المزايا (تحكم أدق في أجزاء الموقع) --- */
+        function loadFeaturesForm() {
+            var f = SiteControls.features(DataManager.load());
+            document.querySelectorAll('[data-feature]').forEach(function (chk) {
+                chk.checked = !!f[chk.getAttribute('data-feature')];
+            });
+        }
+
+        document.getElementById('saveFeatures').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.features = {};
+            document.querySelectorAll('[data-feature]').forEach(function (chk) {
+                d.features[chk.getAttribute('data-feature')] = chk.checked;
+            });
+            DataManager.save(d);
+            SiteControls.applyFeatures(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        document.getElementById('resetFeatures').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.features = JSON.parse(JSON.stringify(SiteControls.DEFAULTS));
+            DataManager.save(d);
+            loadFeaturesForm();
+            SiteControls.applyFeatures(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- SEO ومشاركة --- */
+        function renderSeoPreview() {
+            var box = document.getElementById('seoPreview');
+            if (!box) return;
+            var t = getVal('seoTitle') || 'عنوان الصفحة';
+            var desc = getVal('seoDescription') || 'وصف الصفحة سيظهر هنا — اكتب وصفًا واضحًا ١٥٠ حرفًا';
+            var img = getVal('seoOgImage');
+            box.innerHTML =
+                '<div class="seo-prev-head">' + escHtml('ahmedmehdy862-cyber.github.io') + '</div>' +
+                '<div class="seo-prev-title">' + escHtml(t) + '</div>' +
+                '<div class="seo-prev-desc">' + escHtml(desc) + '</div>' +
+                (img ? '<div class="seo-prev-img">' + escHtml(img) + '</div>' : '');
+        }
+
+        function loadSeoForm() {
+            var s = (DataManager.load() || {}).seo || {};
+            setVal('seoTitle', s.title);
+            setVal('seoDescription', s.description);
+            setVal('seoKeywords', s.keywords);
+            setVal('seoOgImage', s.ogImage);
+            renderSeoPreview();
+        }
+
+        ['seoTitle', 'seoDescription', 'seoKeywords', 'seoOgImage'].forEach(function (id) {
+            var node = document.getElementById(id);
+            if (node) node.addEventListener('input', renderSeoPreview);
+        });
+
+        document.getElementById('saveSeo').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.seo = {
+                title: getVal('seoTitle'),
+                description: getVal('seoDescription'),
+                keywords: getVal('seoKeywords'),
+                ogImage: getVal('seoOgImage')
+            };
+            DataManager.save(d);
+            SiteControls.applySeo(d);
+            renderSite();
+            showSaved(this);
+        });
+
+        /* --- عدّادات اللوحة --- */
+        function renderAdminStats() {
+            var box = document.getElementById('adminStats');
+            if (!box) return;
+            var d = DataManager.load() || {};
+            var rem = DataManager.getRemote() || {};
+            var updated = rem.updatedAt ? new Date(rem.updatedAt) : null;
+            var cells = [
+                { n: (d.projects || []).length, l: 'مشروع' },
+                { n: (d.services || []).length, l: 'خدمة' },
+                { n: (d.skills || []).length, l: 'مهارة' },
+                { n: (d.sections || []).length, l: 'قسم مضاف' },
+                { n: (d.projects || []).filter(function (p) { return !!p.image; }).length, l: 'صورة مرفوعة' },
+                { n: updated && !isNaN(updated) ? updated.toLocaleDateString('ar-EG', { day: 'numeric', month: 'short' }) : '—', l: 'آخر نشر' }
+            ];
+            box.innerHTML = cells.map(function (c) {
+                return '<div class="admin-stat"><b>' + escHtml(String(c.n)) + '</b><span>' + escHtml(c.l) + '</span></div>';
+            }).join('');
+            CommentStore.getAll().then(function (list) {
+                if (!list) return;
+                var extra = document.createElement('div');
+                extra.className = 'admin-stat';
+                extra.innerHTML = '<b>' + list.length + '</b><span>تعليق</span>';
+                box.appendChild(extra);
+            }).catch(function () {});
+        }
+
+        /* --- إجراءات سريعة --- */
+        var quickPublish = document.getElementById('quickPublish');
+        var quickExport = document.getElementById('quickExport');
+        var quickImport = document.getElementById('quickImport');
+        var importInput = document.getElementById('importDataInput');
+
+        if (quickPublish) quickPublish.addEventListener('click', function () {
+            if (typeof Publisher !== 'undefined') Publisher.publish();
+            else showSaved(this);
+        });
+
+        if (quickExport) quickExport.addEventListener('click', function () {
+            var d = DataManager.load() || {};
+            var blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'portfolio-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+        });
+
+        if (quickImport) quickImport.addEventListener('click', function () { importInput.click(); });
+
+        if (importInput) importInput.addEventListener('change', function () {
+            var file = importInput.files && importInput.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var incoming;
+                try { incoming = JSON.parse(ev.target.result); } catch (e) { alert('الملف مش صالح'); return; }
+                if (!incoming || !incoming.profile) { alert('الملف ده مش نسخة احتياطية للموقع'); return; }
+                if (!confirm('استيراد البيانات دي هيستبدل المحتوى الحالي — متأكد؟')) return;
+                DataManager.save(incoming);
+                renderSite();
+                ScrollReveal.init();
+                CounterAnimation.init();
+                showDashboard();
+                renderAdminStats();
+                alert('تم الاستيراد بنجاح');
+            };
+            reader.readAsText(file);
+            importInput.value = '';
         });
 
         /* --- Services --- */
@@ -1611,14 +1778,17 @@ function renderSite() {
         });
     }
 
-    // Projects
+    // Projects — كارت قابل للفتح (لايت بوكس) لو الميزة مفعّلة
     var grid = $('projectsGrid');
     if (grid && d.projects) {
+        var lb = SiteControls.features(d).lightbox;
         grid.innerHTML = d.projects.map(function (p, i) {
             var img = p.image && isValidURL(p.image)
                 ? '<div class="project-cover" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
                 : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(p.categoryLabel || p.category) + '</span></div>';
-            return '<article class="project-card reveal" data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + escHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span></div><h3 class="project-title">' + escHtml(p.title) + '</h3><p class="project-desc">' + escHtml(p.description) + '</p></div></article>';
+            var attrs = ' data-idx="' + i + '"';
+            if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr('عرض مشروع: ' + (p.title || '')) + '"';
+            return '<article class="project-card reveal"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + escHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span></div><h3 class="project-title">' + escHtml(p.title) + '</h3><p class="project-desc">' + escHtml(p.description) + '</p></div></article>';
         }).join('');
     }
 
@@ -1638,8 +1808,192 @@ function renderSite() {
     // Dynamic sections + their nav links
     renderDynamicSections();
     renderNavLinks();
+    // تحكم(features + SEO) — instant apply
+    SiteControls.applyFeatures(d);
+    SiteControls.applySeo(d);
     if (document.documentElement.getAttribute('data-reveal-ready')) ScrollReveal.rescan();
 }
+
+/* ============================================
+   SiteControls — تحكم أدق في الموقع: SEO + المزايا
+   ============================================ */
+var SiteControls = (function () {
+    var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true };
+    var root = document.documentElement;
+
+    function features(d) {
+        var f = (d && d.features) || {};
+        var out = {};
+        Object.keys(FEATURE_DEFAULTS).forEach(function (k) {
+            out[k] = typeof f[k] === 'boolean' ? f[k] : FEATURE_DEFAULTS[k];
+        });
+        return out;
+    }
+
+    function applyFeatures(d) {
+        var f = features(d);
+        root.setAttribute('data-f-ticker', f.ticker ? 'on' : 'off');
+        root.setAttribute('data-f-cursor', f.cursor ? 'on' : 'off');
+        root.setAttribute('data-f-comments', f.comments ? 'on' : 'off');
+        root.setAttribute('data-f-backtotop', f.backToTop ? 'on' : 'off');
+        root.setAttribute('data-f-progress', f.scrollProgress ? 'on' : 'off');
+        root.setAttribute('data-f-lightbox', f.lightbox ? 'on' : 'off');
+        return f;
+    }
+
+    function meta(id, value) {
+        var el = document.getElementById(id);
+        if (el && value) el.setAttribute('content', value);
+    }
+
+    function applySeo(d) {
+        var s = (d && d.seo) || {};
+        var title = String(s.title || '').trim();
+        var desc = String(s.description || '').trim();
+        var keys = String(s.keywords || '').trim();
+        var img = String(s.ogImage || '').trim();
+        if (title) document.title = title;
+        meta('metaDescription', desc);
+        meta('metaKeywords', keys);
+        meta('ogTitle', title || document.title);
+        meta('ogDesc', desc);
+        meta('ogImage', img || 'assets/Asset-1.png');
+        meta('twTitle', title || document.title);
+        meta('twDesc', desc);
+        meta('twImage', img || 'assets/Asset-1.png');
+    }
+
+    return { features: features, applyFeatures: applyFeatures, applySeo: applySeo, DEFAULTS: FEATURE_DEFAULTS };
+})();
+
+/* ============================================
+   ProjectLightbox — عرض أي مشروع بالتفصيل
+   ============================================ */
+var ProjectLightbox = (function () {
+    var items = [], idx = 0, lastFocus = null, prevOverflow = '';
+    var el = {};
+
+    function cache() {
+        el.overlay = document.getElementById('projectLightbox');
+        el.media = document.getElementById('lbMedia');
+        el.title = document.getElementById('lbTitle');
+        el.desc = document.getElementById('lbDesc');
+        el.cat = document.getElementById('lbCategory');
+        el.year = document.getElementById('lbYear');
+        el.tags = document.getElementById('lbTags');
+        el.link = document.getElementById('lbLink');
+    }
+
+    function enabled() {
+        try {
+            var d = DataManager.load();
+            var f = SiteControls.features(d);
+            return !!f.lightbox;
+        } catch (e) { return true; }
+    }
+
+    function collect() {
+        items = ((DataManager.load() || {}).projects || []).slice();
+    }
+
+    function render() {
+        var p = items[idx];
+        if (!p || !el.overlay) return;
+        var img = p.image && isValidURL(p.image);
+        el.media.innerHTML = img
+            ? '<div class="lb-img" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
+            : '<div class="lb-art"><span>' + escHtml(p.categoryLabel || p.category || 'مشروع') + '</span></div>';
+        el.title.textContent = p.title || '';
+        el.desc.textContent = p.description || '';
+        el.cat.textContent = p.categoryLabel || p.category || '';
+        el.year.textContent = p.year || '';
+        var chips = [];
+        (p.tags || []).forEach(function (t) { if (t) chips.push('<span class="lb-chip">' + escHtml(t) + '</span>'); });
+        String(p.tools || '').split(/[,،]/).forEach(function (tool) {
+            tool = tool.trim();
+            if (tool) chips.push('<span class="lb-chip lb-chip--tool">' + escHtml(tool) + '</span>');
+        });
+        el.tags.innerHTML = chips.join('');
+        if (p.link && isValidURL(p.link)) {
+            el.link.href = p.link;
+            el.link.classList.remove('hidden');
+        } else {
+            el.link.classList.add('hidden');
+            el.link.removeAttribute('href');
+        }
+        var multi = items.length > 1;
+        el.overlay.querySelector('.lb-counter').textContent = multi ? (idx + 1) + ' / ' + items.length : '';
+    }
+
+    function open(i) {
+        if (!enabled()) return;
+        collect();
+        if (!items.length) return;
+        idx = (i + items.length) % items.length;
+        if (!el.overlay) cache();
+        if (!el.overlay) return;
+        lastFocus = document.activeElement;
+        render();
+        el.overlay.classList.remove('hidden');
+        prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        try { document.getElementById('lbClose').focus(); } catch (e) {}
+    }
+
+    function close() {
+        if (!el.overlay) return;
+        el.overlay.classList.add('hidden');
+        document.body.style.overflow = prevOverflow;
+        if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
+    }
+
+    function step(dir) {
+        if (!items.length) return;
+        idx = (idx + dir + items.length) % items.length;
+        render();
+    }
+
+    function cardIndex(node) {
+        var cards = document.querySelectorAll('#projectsGrid .project-card');
+        for (var i = 0; i < cards.length; i++) if (cards[i] === node) return i;
+        return -1;
+    }
+
+    function bind() {
+        if (!document.getElementById('projectLightbox')) return;
+        cache();
+        var counter = document.createElement('span');
+        counter.className = 'lb-counter';
+        el.overlay.appendChild(counter);
+        document.getElementById('lbClose').addEventListener('click', close);
+        document.getElementById('lbPrev').addEventListener('click', function () { step(-1); });
+        document.getElementById('lbNext').addEventListener('click', function () { step(1); });
+        el.overlay.addEventListener('click', function (e) { if (e.target === el.overlay) close(); });
+        document.addEventListener('keydown', function (e) {
+            if (el.overlay.classList.contains('hidden')) return;
+            if (e.key === 'Escape') close();
+            else if (e.key === 'ArrowLeft') step(1);
+            else if (e.key === 'ArrowRight') step(-1);
+        });
+        document.addEventListener('click', function (e) {
+            if (!enabled()) return;
+            var card = e.target.closest && e.target.closest('#projectsGrid .project-card');
+            if (!card) return;
+            var i = cardIndex(card);
+            if (i > -1) { e.preventDefault(); open(i); }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (!enabled()) return;
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var card = document.activeElement;
+            if (!card || !card.classList || !card.classList.contains('project-card')) return;
+            e.preventDefault();
+            open(cardIndex(card));
+        });
+    }
+
+    return { bind: bind, open: open, close: close, enabled: enabled };
+})();
 
 /* ============================================
    Dynamic Sections (من لوحة التحكم — تبويب الأقسام)
@@ -1875,9 +2229,15 @@ var MotionUI = (function () {
     }
 
     /* شريط التقدم + زر الرجوع لأعلى */
+    function featureOn(key) {
+        try { return SiteControls.features(DataManager.load())[key]; } catch (e) { return true; }
+    }
+
     function initScrollChrome() {
         var bar = document.getElementById('scrollProgress');
         var btn = document.getElementById('backToTop');
+        if (bar && !featureOn('scrollProgress')) bar = null;
+        if (btn && !featureOn('backToTop')) btn = null;
         var on = function () {
             var h = document.documentElement.scrollHeight - window.innerHeight;
             var y = window.scrollY || document.documentElement.scrollTop || 0;
@@ -1913,6 +2273,7 @@ var MotionUI = (function () {
     /* كيرسور مخصص: نقطة فورية + حلقة بتتابع بنعومة، تكبر فوق العناصر التفاعلية */
     function initCursor() {
         if (reduced()) return;
+        if (!featureOn('cursor')) return;
         if (!(window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches)) return;
         var dot = document.getElementById('curDot'), ring = document.getElementById('curRing');
         if (!dot || !ring) return;
@@ -1986,6 +2347,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Motion background + interactive elements
     MotionUI.init();
+
+    // لايت بوكس المشاريع
+    ProjectLightbox.bind();
 
     // لو وصل data.json المنشور بعدها — طبّق الثيم واللايوت والبيانات وارسم من جديد
     remoteReady.then(function (d) { if (d) applyRemoteData(); });
