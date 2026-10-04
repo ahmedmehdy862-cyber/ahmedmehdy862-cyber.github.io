@@ -3434,6 +3434,13 @@ html[data-f-lightbox="on"] .project-card:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
 }
+/* شاشات صغيرة جدًا — اللايت بوكس يملأ الشاشة تقريبًا */
+@media (max-width: 420px) {
+    .lb-title { font-size: 19px; }
+    .lb-desc { font-size: 13.5px; line-height: 1.7; }
+    .lb-media { aspect-ratio: 3 / 2; min-height: 150px; }
+    .lb-close { width: 38px; height: 38px; top: 12px; inset-inline-start: 12px; }
+}
 @media (max-width: 860px) {
     .lightbox { padding: 14px; }
     .lb-figure {
