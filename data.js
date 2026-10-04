@@ -15,7 +15,9 @@ const SITE_DATA = {
             "github": "https://github.com/ahmedmehdy862-cyber",
             "behance": "https://www.behance.net/ahmed2mahdi",
             "linkedin": "",
-            "instagram": ""
+            "instagram": "",
+            "facebook": "",
+            "whatsapp": ""
         }
     },
     "site": {

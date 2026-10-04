@@ -316,7 +316,26 @@ var Publisher = (function () {
 
     function statusEl() { return document.getElementById('publishStatus'); }
 
+    /* شارة حالة النشر في أعلى اللوحة (ظاهرة دايمًا) */
+    function badgeEl() { return document.getElementById('adminPublishBadge'); }
+    function setBadge(text, cls) {
+        var b = badgeEl();
+        if (!b) return;
+        b.textContent = text;
+        b.className = 'admin-publish-badge ' + (cls || '');
+    }
+
     function setStatus(state, extra) {
+        var badge = {
+            noToken: ['النشر التلقائي: مفعّل', 'badge-idle'],
+            autoOff: ['النشر التلقائي: متوقف', 'badge-off'],
+            publishing: ['جاري النشر…', 'badge-work'],
+            ok: ['تم النشر ✓', 'badge-ok'],
+            idleReady: ['النشر التلقائي مفعّل', 'badge-ok'],
+            photoPending: ['الصورة لم تُنشر بعد', 'badge-warn'],
+            error: ['فشل النشر', 'badge-err']
+        }[state];
+        if (badge) setBadge(badge[0], badge[1]);
         var el = statusEl();
         if (!el) return;
         var map = {
@@ -473,6 +492,24 @@ var Publisher = (function () {
             .then(done, done);
     }
 
+    /* محاولة مع إعادة محاولة تلقائية (أخطاء الشبكة / 5xx بتتكرر) */
+    function attempt(content, tries) {
+        tries = tries || 0;
+        return getSha().then(function (sha) {
+            return put(content, sha, false);
+        }).catch(function (err) {
+            var msg = (err && err.message) || '';
+            var retryable = /network|failed to fetch|HTTP 5|timeout/i.test(msg);
+            if (tries < 2 && retryable) {
+                setBadge('إعادة محاولة النشر…', 'badge-work');
+                return new Promise(function (r) { setTimeout(r, 2500 * (tries + 1)); }).then(function () {
+                    return attempt(content, tries + 1);
+                });
+            }
+            throw err;
+        });
+    }
+
     function publish() {
         var token = getToken();
         if (!token) { setStatus('noToken'); return Promise.resolve(false); }
@@ -485,9 +522,7 @@ var Publisher = (function () {
                 buildPayload(function (payload) {
                     var json = JSON.stringify(payload, null, 2);
                     var content = b64encode(json);
-                    getSha().then(function (sha) {
-                        return put(content, sha, false);
-                    }).then(function () {
+                    attempt(content, 0).then(function () {
                         publishing = false;
                         DataManager.setRemote(payload);
                         setStatus('ok');
@@ -506,8 +541,8 @@ var Publisher = (function () {
     }
 
     function schedule() {
-        if (!isAuto() || !getToken()) return;
         clearTimeout(timer);
+        if (!isAuto() || !getToken()) return;
         var wait = 1500;
         // مانعة تكرار: كحد أدنى 20 ثانية بين عملية نشر
         if (lastPublishAt) {
@@ -515,6 +550,31 @@ var Publisher = (function () {
             if (since < MIN_PUBLISH_GAP) wait = Math.max(wait, MIN_PUBLISH_GAP - since);
         }
         timer = setTimeout(publish, wait);
+    }
+
+    /* آخر تعديل اتحفظ — بيقارن بالداتا المنشورة ويقرر يتنشر لو فيه فرق */
+    function hasPendingChanges() {
+        try {
+            var local = DataManager.load();
+            var rem = DataManager.getRemote();
+            if (!rem) return true;
+            var a = JSON.stringify({ p: local.profile, s: local.site, pr: local.projects, sv: local.services, sk: local.skills, st: local.stats, se: local.seo, f: local.features, sec: local.sections });
+            var b = JSON.stringify({ p: rem.profile, s: rem.site, pr: rem.projects, sv: rem.services, sk: rem.skills, st: rem.stats, se: rem.seo, f: rem.features, sec: rem.sections });
+            return a !== b;
+        } catch (e) { return false; }
+    }
+
+    /* أي تعديل = حفظ واحد بنفسي + نشر تلقائي بعده */
+    function saveAndPublish(data) {
+        DataManager.save(data);
+        try {
+            if (hasPendingChanges()) {
+                setBadge('التعديلات جاهزة للنشر…', 'badge-work');
+                schedule();
+            } else if (!publishing) {
+                setBadge('محفوظ — لا حاجة للنشر', 'badge-ok');
+            }
+        } catch (e) {}
     }
 
     function markPhoto() { /* الصورة جت مع أي نشر تلقائي */ }
@@ -533,7 +593,8 @@ var Publisher = (function () {
     return {
         getToken: getToken, setToken: setToken, isAuto: isAuto, setAuto: setAuto,
         publish: publish, schedule: schedule, setStatus: setStatus, refreshStatus: refreshStatus,
-        markPhoto: markPhoto, maybeAutoPublishPhoto: maybeAutoPublishPhoto
+        markPhoto: markPhoto, maybeAutoPublishPhoto: maybeAutoPublishPhoto,
+        saveAndPublish: saveAndPublish, hasPendingChanges: hasPendingChanges, setBadge: setBadge
     };
 })();
 
@@ -830,7 +891,7 @@ var heroStats = document.getElementById('heroStats');
             }
         });
 
-        /* السر التاني: 5 لمسات سريعة على اللوجو (في الشريط أو في الهيرو) */
+        /* السر التاني: 3 لمسات سريعة على اللوجو (في الشريط أو في الهيرو) */
         var taps = [];
         document.addEventListener('click', function (e) {
             var logo = e.target.closest('.nav-logo, .hero-logo');
@@ -838,7 +899,20 @@ var heroStats = document.getElementById('heroStats');
             var now = Date.now();
             taps.push(now);
             while (taps.length && now - taps[0] > 3000) taps.shift();
-            if (taps.length >= 5) { taps = []; openPanel(); }
+            if (taps.length >= 3) {
+                taps = [];
+                openPanel();
+                setTimeout(function () {
+                    var u = document.getElementById('adminUser');
+                    if (u && !u.value) u.focus();
+                }, 120);
+            } else if (taps.length === 2) {
+                var hint = document.getElementById('adminTapHint');
+                if (hint) {
+                    hint.classList.add('show');
+                    setTimeout(function () { hint.classList.remove('show'); }, 1400);
+                }
+            }
         });
 
         function closePanel() {
@@ -948,13 +1022,18 @@ var heroStats = document.getElementById('heroStats');
                     return '<div class="admin-dynamic-item admin-sec-item">' +
                         '<input class="admin-input admin-input-sm" data-sec="' + i + '" data-item="' + ii + '" data-field="t" value="' + esc(it.t) + '" placeholder="اسم الجزء">' +
                         '<input class="admin-input admin-input-sm" data-sec="' + i + '" data-item="' + ii + '" data-field="d" value="' + esc(it.d || '') + '" placeholder="وصف الجزء">' +
-                        '<button class="admin-remove-btn admin-remove-item" data-sec="' + i + '" data-item="' + ii + '" title="حذف الجزء">✕</button>' +
+                        '<span class="admin-row-actions"><button class="admin-mini-btn admin-dup-item" data-sec="' + i + '" data-item="' + ii + '" title="تكرار الجزء">⧉</button>' +
+                        '<button class="admin-remove-btn admin-remove-item" data-sec="' + i + '" data-item="' + ii + '" title="حذف الجزء">✕</button></span>' +
                     '</div>';
                 }).join('');
                 var kindGrid = sec.kind !== 'text' ? ' selected' : '';
                 var kindText = sec.kind === 'text' ? ' selected' : '';
                 list.innerHTML += '<div class="admin-section-card" data-sec="' + i + '" data-secid="' + esc(sec.id || '') + '">' +
-                    '<div class="admin-section-title-row"><strong>قسم رقم ' + (i + 1) + '</strong><button class="admin-remove-btn admin-remove-section" data-sec="' + i + '">✕ حذف القسم</button></div>' +
+                    '<div class="admin-section-title-row"><strong>قسم رقم ' + (i + 1) + '</strong>' +
+                    '<span class="admin-row-actions"><button class="admin-mini-btn admin-dup-section" data-sec="' + i + '" title="تكرار القسم">⧉ تكرار</button>' +
+                    '<button class="admin-mini-btn admin-move-section" data-sec="' + i + '" data-dir="-1" title="تحريك لأعلى">↑</button>' +
+                    '<button class="admin-mini-btn admin-move-section" data-sec="' + i + '" data-dir="1" title="تحريك لأسفل">↓</button>' +
+                    '<button class="admin-remove-btn admin-remove-section" data-sec="' + i + '">✕ حذف القسم</button></span></div>' +
                     '<input class="admin-input" data-sec="' + i + '" data-field="title" value="' + esc(sec.title) + '" placeholder="اسم القسم">' +
                     '<input class="admin-input" data-sec="' + i + '" data-field="desc" value="' + esc(sec.desc || '') + '" placeholder="وصف القسم">' +
                     '<select class="admin-input" data-sec="' + i + '" data-field="kind">' +
@@ -989,6 +1068,54 @@ var heroStats = document.getElementById('heroStats');
                     if (!d.sections[idx]) return;
                     d.sections[idx].items = d.sections[idx].items || [];
                     d.sections[idx].items.push({ t: '', d: '' });
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    return;
+                }
+
+                /* تكرار قسم كامل (مع كل أجزائه) */
+                var dupSection = e.target.closest('.admin-dup-section');
+                if (dupSection) {
+                    idx = parseInt(dupSection.getAttribute('data-sec'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    if (!d.sections[idx]) return;
+                    var src = JSON.parse(JSON.stringify(d.sections[idx]));
+                    src.id = newSectionId();
+                    src.title = (src.title || 'قسم') + ' (نسخة)';
+                    d.sections.splice(idx + 1, 0, src);
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    renderAdminStats();
+                    return;
+                }
+
+                /* تكرار جزء جوا قسم */
+                var dupItem = e.target.closest('.admin-dup-item');
+                if (dupItem) {
+                    idx = parseInt(dupItem.getAttribute('data-sec'), 10);
+                    iid = parseInt(dupItem.getAttribute('data-item'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    if (!d.sections[idx] || !d.sections[idx].items[iid]) return;
+                    var it = JSON.parse(JSON.stringify(d.sections[idx].items[iid]));
+                    d.sections[idx].items.splice(iid + 1, 0, it);
+                    DataManager.save(d);
+                    loadSectionsForm();
+                    return;
+                }
+
+                /* تحريك قسم فوق/تحت */
+                var moveSection = e.target.closest('.admin-move-section');
+                if (moveSection) {
+                    idx = parseInt(moveSection.getAttribute('data-sec'), 10);
+                    var dir = parseInt(moveSection.getAttribute('data-dir'), 10);
+                    d = DataManager.load();
+                    d.sections = d.sections || [];
+                    var to = idx + dir;
+                    if (to < 0 || to >= d.sections.length) return;
+                    var moved = d.sections.splice(idx, 1)[0];
+                    d.sections.splice(to, 0, moved);
                     DataManager.save(d);
                     loadSectionsForm();
                     return;
@@ -1040,7 +1167,7 @@ var heroStats = document.getElementById('heroStats');
                 });
                 if (sec.title) d.sections.push(sec);
             });
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             showSaved(this);
@@ -1049,15 +1176,29 @@ var heroStats = document.getElementById('heroStats');
         /* --- Tabs --- */
         function initTabs() {
             document.querySelectorAll('.admin-tab').forEach(function (tab) {
+                if (tab.dataset.tabBound) return;
+                tab.dataset.tabBound = '1';
                 tab.addEventListener('click', function () {
                     document.querySelectorAll('.admin-tab').forEach(function (t) { t.classList.remove('active'); });
                     document.querySelectorAll('.admin-tab-panel').forEach(function (p) { p.classList.remove('active'); });
                     tab.classList.add('active');
-                    var panel = document.querySelector('[data-panel="' + tab.getAttribute('data-tab') + '"]');
+                    var key = tab.getAttribute('data-tab');
+                    var panel = document.querySelector('[data-panel="' + key + '"]');
                     if (panel) panel.classList.add('active');
+                    if (typeof TAB_RELOAD[key] === 'function') { try { TAB_RELOAD[key](); } catch (e) {} }
+                    var main = document.querySelector('.admin-main');
+                    if (main) main.scrollTop = 0;
                 });
             });
         }
+
+        /* إعادة رسم الليستة قبل ما التاب ينعرض (عشان_changes الجديدة تبان فورًا) */
+        var TAB_RELOAD = {
+            profile: loadProfileForm, stats: loadStatsForm, skills: loadSkillsForm,
+            projects: loadProjectsForm, services: loadServicesForm, sections: loadSectionsForm,
+            appearance: loadLayoutForm, content: loadContentForm, features: loadFeaturesForm,
+            seo: loadSeoForm, comments: loadCommentsAdmin
+        };
 
         /* --- Profile --- */
         function loadProfileForm() {
@@ -1073,7 +1214,30 @@ var heroStats = document.getElementById('heroStats');
             setVal('editBehance', d.profile.socials.behance);
             setVal('editInstagram', d.profile.socials.instagram);
             setVal('editLinkedin', d.profile.socials.linkedin);
+            setVal('editFacebook', d.profile.socials.facebook);
+            setVal('editWhatsapp', d.profile.socials.whatsapp);
+            loadSocialList();
         }
+
+        /* روابط التواصل الإضافية — اسم + رابط، وبتظهر في الموقع لو فيها رابط */
+        var EXTRA_SOCIALS = ['tiktok', 'telegram', 'youtube', 'twitter', 'dribbble', 'pinterest', 'threads', 'snapchat'];
+
+        function loadSocialList() {
+            var box = document.getElementById('adminSocialList');
+            if (!box) return;
+            var prof = (DataManager.load() || {}).profile || {};
+            var s = prof.socials || {};
+            var labels = prof.socialLabels || {};
+            box.innerHTML = EXTRA_SOCIALS.map(function (key) {
+                var name = labels[key] || SOCIAL_NAMES[key] || '';
+                return '<div class="admin-social-row"><input class="admin-input admin-input-sm" data-social-name="' + key + '" placeholder="الاسم الظاهر" value="' + esc(name) + '" style="max-width:130px"><input type="url" class="admin-input admin-input-sm" data-social="' + key + '" dir="ltr" placeholder="https://..." value="' + esc(s[key] || '') + '"></div>';
+            }).join('');
+        }
+
+        var SOCIAL_NAMES = {
+            tiktok: 'تيك توك', telegram: 'تيليجرام', youtube: 'يوتيوب', twitter: 'X',
+            dribbble: 'دريف ببل', pinterest: 'بنترست', threads: 'ثريدز', snapchat: 'سناب شات'
+        };
 
         document.getElementById('saveProfile').addEventListener('click', function () {
             var d = DataManager.load();
@@ -1088,12 +1252,106 @@ var heroStats = document.getElementById('heroStats');
             d.profile.socials.behance = getVal('editBehance');
             d.profile.socials.instagram = getVal('editInstagram');
             d.profile.socials.linkedin = getVal('editLinkedin');
-            DataManager.save(d);
+            d.profile.socials.facebook = getVal('editFacebook');
+            d.profile.socials.whatsapp = getVal('editWhatsapp');
+            // روابط إضافية: الاسم المخصص + الرابط (الفاضي بيتشال)
+            document.querySelectorAll('[data-social]').forEach(function (urlEl) {
+                var key = urlEl.getAttribute('data-social');
+                var url = urlEl.value.trim();
+                var nameEl = document.querySelector('[data-social-name="' + key + '"]');
+                var custom = nameEl ? nameEl.value.trim() : '';
+                if (url) {
+                    d.profile.socials[key] = url;
+                    if (custom) { d.profile.socialLabels = d.profile.socialLabels || {}; d.profile.socialLabels[key] = custom; }
+                    SiteControls.setSocialLabel(key, custom);
+                } else {
+                    delete d.profile.socials[key];
+                    if (d.profile.socialLabels) delete d.profile.socialLabels[key];
+                }
+            });
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             CounterAnimation.init();
             showSaved(this);
         });
+
+        /* ===== أدوات تكرار/إعادة تسمية لكل القوائم =====
+           dupKey: الحقل اللي بيتكرر • nameKey: الحقل اللي بيتغيّر */
+        function uniqueName(base, taken) {
+            var name = String(base || 'بدون اسم');
+            if (taken.indexOf(name) === -1) return name;
+            var n = 2;
+            while (taken.indexOf(name + ' ' + n) !== -1) n++;
+            return name + ' ' + n;
+        }
+
+        function dupItem(listName, i, dupKey, nameKey) {
+            var d = DataManager.load();
+            var arr = d[listName] || [];
+            if (!arr[i]) return;
+            var copy = JSON.parse(JSON.stringify(arr[i]));
+            var base = String(arr[i][nameKey] || 'بدون اسم').replace(/\s+\d+$/, '');
+            copy[nameKey] = ensureUniqueName(arr.map(function (x) { return x[nameKey]; }), base);
+            arr.splice(i + 1, 0, copy);
+            DataManager.save(d);
+        }
+
+        /* ضمان اسم فريد: لو الاسم موجود بنضيف رقم (٢، ٣…) */
+        function ensureUniqueName(takenNames, next) {
+            var taken = takenNames.slice();
+            return uniqueName(next, taken);
+        }
+
+        /* ملاحظة: الربط بيتم مرة واحدة بس على الحاوية (تفويض الأحداث) —
+           عشان إعادة رسم الليستة ما duplicatش المستمعات */
+        function bindOnce(container, key, handler) {
+            if (!container || container.dataset[key]) return;
+            container.dataset[key] = '1';
+            container.addEventListener('click', handler);
+        }
+
+        /* ✎ =ظهور/تعديل الاسم، ⧉ = تكرار فوري */
+        function rowIndexOf(btn) {
+            var card = btn.closest('[data-idx]');
+            return card ? parseInt(card.getAttribute('data-idx'), 10) : -1;
+        }
+
+        function focusNameField(btn, nameKey) {
+            var card = btn.closest('[data-idx]');
+            /* الزر نفسه عليه data-idx، فالمطلوب الحاوية اللي فيها الحقول */
+            while (card && !card.querySelector('[data-field="' + nameKey + '"]')) {
+                card = card.parentElement ? card.parentElement.closest('[data-idx]') : null;
+            }
+            if (!card) return;
+            var field = card.querySelector('[data-field="' + nameKey + '"]');
+            if (field) { field.focus(); field.select(); field.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+        }
+
+        function bindRowTools(container, listName, dupKey, nameKey, reload, after) {
+            if (!container) return;
+            bindOnce(container, 'rowTools', function (e) {
+                var ren = e.target.closest('[data-rename]');
+                if (ren) { focusNameField(ren, nameKey); return; }
+                var dup = e.target.closest('[data-dup]');
+                if (dup) {
+                    var j = rowIndexOf(dup);
+                    if (j > -1) { dupItem(listName, j, dupKey, nameKey); reload(); if (after) after(); }
+                    return;
+                }
+                var del = e.target.closest('.admin-remove-btn');
+                if (del && !del.hasAttribute('data-sec')) {
+                    var k = rowIndexOf(del);
+                    if (k > -1) {
+                        var dd = DataManager.load();
+                        dd[listName].splice(k, 1);
+                        DataManager.save(dd);
+                        reload();
+                        if (after) after();
+                    }
+                }
+            });
+        }
 
         /* --- Stats --- */
         function loadStatsForm() {
@@ -1101,16 +1359,9 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('statsList');
             list.innerHTML = '';
             (d.stats || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item"><input class="admin-input admin-input-sm" value="' + esc(s.value) + '" data-field="value" placeholder="الرقم"><input class="admin-input admin-input-sm" value="' + esc(s.label) + '" data-field="label" placeholder="التسمية"><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(s.value) + '" data-field="value" placeholder="الرقم"><input class="admin-input admin-input-sm" value="' + esc(s.label) + '" data-field="label" placeholder="التسمية"><button class="admin-mini-btn" data-rename="stats" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="stats" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
             });
-            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var d2 = DataManager.load();
-                    d2.stats.splice(parseInt(btn.getAttribute('data-idx')), 1);
-                    DataManager.save(d2);
-                    loadStatsForm();
-                });
-            });
+            bindRowTools(list, 'stats', 'value', 'label', loadStatsForm, renderAdminStats);
         }
 
         document.getElementById('addStat').addEventListener('click', function () {
@@ -1123,7 +1374,7 @@ var heroStats = document.getElementById('heroStats');
         document.getElementById('saveStats').addEventListener('click', function () {
             var d = DataManager.load();
             d.stats = readDynamicList('statsList', ['value', 'label']);
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             CounterAnimation.init();
@@ -1136,15 +1387,38 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('skillsList');
             list.innerHTML = '';
             (d.skills || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item"><input class="admin-input admin-input-sm" value="' + esc(s) + '" placeholder="اسم المهارة"><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(s) + '" placeholder="اسم المهارة"><button class="admin-mini-btn" data-rename="skills" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="skills" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
             });
-            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var d2 = DataManager.load();
-                    d2.skills.splice(parseInt(btn.getAttribute('data-idx')), 1);
-                    DataManager.save(d2);
-                    loadSkillsForm();
-                });
+            bindStringListTools(list, 'skills', loadSkillsForm);
+        }
+
+        /* قوائم نصوص (المهارات) — تكرار + تحديد الحقل + حذف */
+        function bindStringListTools(container, listName, reload) {
+            if (!container) return;
+            bindOnce(container, 'rowTools', function (e) {
+                var ren = e.target.closest('[data-rename]');
+                var dup = e.target.closest('[data-dup]');
+                var del = e.target.closest('.admin-remove-btn');
+                if (!ren && !dup && !del) return;
+                var card = e.target.closest('[data-idx]');
+                var i = card ? parseInt(card.getAttribute('data-idx'), 10) : -1;
+                if (i < 0) return;
+                if (ren) {
+                    var input = card.querySelector('input');
+                    if (input) { input.focus(); input.select(); input.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+                    return;
+                }
+                var d = DataManager.load();
+                var arr = d[listName] || [];
+                if (dup) {
+                    var base = String(arr[i] || '').replace(/\s+\d+$/, '');
+                    arr.splice(i + 1, 0, ensureUniqueName(arr, base));
+                } else {
+                    arr.splice(i, 1);
+                }
+                DataManager.save(d);
+                reload();
+                renderAdminStats();
             });
         }
 
@@ -1158,7 +1432,7 @@ var heroStats = document.getElementById('heroStats');
         document.getElementById('saveSkills').addEventListener('click', function () {
             var d = DataManager.load();
             d.skills = readSimpleList('skillsList');
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             showSaved(this);
@@ -1170,16 +1444,9 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('projectsList');
             list.innerHTML = '';
             (d.projects || []).forEach(function (p, i) {
-                list.innerHTML += '<div class="admin-dynamic-item admin-project-item"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><input class="admin-input admin-input-sm" value="' + esc(p.tools) + '" data-field="tools" placeholder="الأدوات (مفصولة بفاصلة: فوتوشوب، إيليستريتور)"><input class="admin-input admin-input-sm" value="' + esc(p.link) + '" data-field="link" dir="ltr" placeholder="رابط المشروع (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item admin-project-item" data-idx="' + i + '"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><input class="admin-input admin-input-sm" value="' + esc(p.tools) + '" data-field="tools" placeholder="الأدوات (مفصولة بفاصلة: فوتوشوب، إيليستريتور)"><input class="admin-input admin-input-sm" value="' + esc(p.link) + '" data-field="link" dir="ltr" placeholder="رابط المشروع (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><div class="admin-item-footer"><button class="admin-mini-btn" data-rename="projects" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button><button class="admin-mini-btn" data-dup="projects" data-idx="' + i + '" title="تكرار">⧉ تكرار</button><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div></div>';
             });
-            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var d2 = DataManager.load();
-                    d2.projects.splice(parseInt(btn.getAttribute('data-idx')), 1);
-                    DataManager.save(d2);
-                    loadProjectsForm();
-                });
-            });
+            bindRowTools(list, 'projects', 'title', 'title', loadProjectsForm, renderAdminStats);
         }
 
         document.getElementById('addProject').addEventListener('click', function () {
@@ -1209,7 +1476,7 @@ var heroStats = document.getElementById('heroStats');
                     year: item.querySelector('[data-field="year"]').value
                 });
             });
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             renderAdminStats();
@@ -1230,7 +1497,7 @@ var heroStats = document.getElementById('heroStats');
             document.querySelectorAll('[data-feature]').forEach(function (chk) {
                 d.features[chk.getAttribute('data-feature')] = chk.checked;
             });
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             SiteControls.applyFeatures(d);
             renderSite();
             showSaved(this);
@@ -1239,7 +1506,7 @@ var heroStats = document.getElementById('heroStats');
         document.getElementById('resetFeatures').addEventListener('click', function () {
             var d = DataManager.load();
             d.features = JSON.parse(JSON.stringify(SiteControls.DEFAULTS));
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             loadFeaturesForm();
             SiteControls.applyFeatures(d);
             renderSite();
@@ -1282,7 +1549,7 @@ var heroStats = document.getElementById('heroStats');
                 keywords: getVal('seoKeywords'),
                 ogImage: getVal('seoOgImage')
             };
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             SiteControls.applySeo(d);
             renderSite();
             showSaved(this);
@@ -1366,16 +1633,9 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('servicesList');
             list.innerHTML = '';
             (d.services || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item admin-service-item"><div class="admin-project-header"><strong>' + esc(s.name) + '</strong><span class="project-tag">' + esc(s.price) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(s.name) + '" data-field="name" placeholder="اسم الخدمة"><input class="admin-input admin-input-sm" value="' + esc(s.price) + '" data-field="price" placeholder="السعر"><textarea class="admin-input admin-input-sm" data-field="features" rows="3" placeholder="المميزات (كل سطر ميزة)">' + (s.features || []).join('\n') + '</textarea><input class="admin-input admin-input-sm" value="' + esc(s.delivery) + '" data-field="delivery" placeholder="مدة التسليم"></div><label class="admin-check-label"><input type="checkbox" data-field="featured"' + (s.featured ? ' checked' : '') + '> الأكثر طلباً</label><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف الخدمة</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item admin-service-item" data-idx="' + i + '"><div class="admin-project-header"><strong>' + esc(s.name) + '</strong><span class="project-tag">' + esc(s.price) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(s.name) + '" data-field="name" placeholder="اسم الخدمة"><input class="admin-input admin-input-sm" value="' + esc(s.price) + '" data-field="price" placeholder="السعر"><textarea class="admin-input admin-input-sm" data-field="features" rows="3" placeholder="المميزات (كل سطر ميزة)">' + (s.features || []).join('\n') + '</textarea><input class="admin-input admin-input-sm" value="' + esc(s.delivery) + '" data-field="delivery" placeholder="مدة التسليم"></div><label class="admin-check-label"><input type="checkbox" data-field="featured"' + (s.featured ? ' checked' : '') + '> الأكثر طلباً</label><div class="admin-item-footer"><button class="admin-mini-btn" data-rename="services" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button><button class="admin-mini-btn" data-dup="services" data-idx="' + i + '" title="تكرار">⧉ تكرار</button><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف الخدمة</button></div></div>';
             });
-            list.querySelectorAll('.admin-remove-btn').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    var d2 = DataManager.load();
-                    d2.services.splice(parseInt(btn.getAttribute('data-idx')), 1);
-                    DataManager.save(d2);
-                    loadServicesForm();
-                });
-            });
+            bindRowTools(list, 'services', 'name', 'name', loadServicesForm, renderAdminStats);
         }
 
         document.getElementById('addService').addEventListener('click', function () {
@@ -1398,7 +1658,7 @@ var heroStats = document.getElementById('heroStats');
                     featured: item.querySelector('[data-field="featured"]').checked
                 });
             });
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             showSaved(this);
@@ -1514,7 +1774,7 @@ var heroStats = document.getElementById('heroStats');
             d.site.contactCard2 = getVal('editContactCard2');
             d.site.contactCard3 = getVal('editContactCard3');
             d.site.footerText = getVal('editFooterText');
-            DataManager.save(d);
+            if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             CounterAnimation.init();
@@ -1673,6 +1933,7 @@ function renderSite() {
 
     var p = d.profile;
     var s = d.site || {};
+    if (p.socialLabels) SiteControls.applySocialLabels(p.socialLabels);
 
     fill('heroName', p.name);
     fill('heroRole', p.role);
@@ -1732,14 +1993,14 @@ function renderSite() {
         ce.innerHTML = '<a href="mailto:' + escAttr(p.email) + '" class="contact-link">' + escHtml(p.email) + '</a>';
     }
 
-    // Make socials clickable
+    // Make socials clickable — أي رابط مكتوب في اللوحة بيظهر تلقائيًا
     var cs = $('contactSocials');
     if (cs) {
-        var links = [];
-        if (socials.behance) links.push('<a href="' + escAttr(socials.behance) + '" target="_blank" rel="noopener noreferrer" class="contact-link">Behance</a>');
-        if (socials.github) links.push('<a href="' + escAttr(socials.github) + '" target="_blank" rel="noopener noreferrer" class="contact-link">GitHub</a>');
-        if (socials.linkedin) links.push('<a href="' + escAttr(socials.linkedin) + '" target="_blank" rel="noopener noreferrer" class="contact-link">LinkedIn</a>');
-        if (socials.instagram) links.push('<a href="' + escAttr(socials.instagram) + '" target="_blank" rel="noopener noreferrer" class="contact-link">Instagram</a>');
+        var links = Object.keys(socials).map(function (key) {
+            var url = String(socials[key] || '').trim();
+            if (!url || !isValidURL(url)) return '';
+            return '<a href="' + escAttr(url) + '" target="_blank" rel="noopener noreferrer" class="contact-link">' + escHtml(SiteControls.socialLabel(key)) + '</a>';
+        }).filter(Boolean);
         cs.innerHTML = links.join(' · ') || '—';
     }
 
@@ -1820,6 +2081,11 @@ function renderSite() {
 var SiteControls = (function () {
     var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true };
     var root = document.documentElement;
+    var SOCIAL_LABELS = {
+        behance: 'Behance', github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram',
+        facebook: 'Facebook', whatsapp: 'WhatsApp', twitter: 'X', x: 'X', tiktok: 'TikTok',
+        dribbble: 'Dribbble', youtube: 'YouTube', telegram: 'Telegram', pinterest: 'Pinterest'
+    };
 
     function features(d) {
         var f = (d && d.features) || {};
@@ -1863,7 +2129,14 @@ var SiteControls = (function () {
         meta('twImage', img || 'assets/Asset-1.png');
     }
 
-    return { features: features, applyFeatures: applyFeatures, applySeo: applySeo, DEFAULTS: FEATURE_DEFAULTS };
+    function socialLabel(key) { return SOCIAL_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1); }
+    function setSocialLabel(key, label) { if (label) SOCIAL_LABELS[key] = label; }
+    function applySocialLabels(map) {
+        if (!map) return;
+        Object.keys(map).forEach(function (k) { if (map[k]) SOCIAL_LABELS[k] = map[k]; });
+    }
+
+    return { features: features, applyFeatures: applyFeatures, applySeo: applySeo, socialLabel: socialLabel, setSocialLabel: setSocialLabel, applySocialLabels: applySocialLabels, DEFAULTS: FEATURE_DEFAULTS };
 })();
 
 /* ============================================
