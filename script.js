@@ -1,4 +1,4 @@
-/* ============================================
+﻿/* ============================================
    CommentStore — IndexedDB التعليقات
    ============================================ */
 var CommentStore = (function () {
@@ -143,10 +143,17 @@ var DataManager = (function () {
     var LOGO_KEY = 'amahdy_logo';
     var THEME_KEY = 'amahdy_theme';
     var LAYOUT_KEY = 'amahdy_layout';
+    var DIRTY_KEY = 'amahdy_edited_at';
     var remote = null;
 
     function setRemote(d) { remote = d || null; }
     function getRemote() { return remote; }
+
+    function stampTime(k) {
+        try { var v = parseInt(localStorage.getItem(k), 10); return isNaN(v) ? 0 : v; } catch (e) { return 0; }
+    }
+    function stampSet(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+    function stampClear(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
     function notifyChange() {
         if (typeof Publisher !== 'undefined' && Publisher && Publisher.schedule) Publisher.schedule();
@@ -184,7 +191,44 @@ var DataManager = (function () {
             alert('خطأ في الحفظ — المساحة المحلية ممتلئة');
             return;
         }
+        stampSet(DIRTY_KEY, Date.now());
         notifyChange();
+    }
+
+    function markPublished() { stampClear(DIRTY_KEY); }
+
+    /* تعديل محلي لازم يبقى محفوظ—even لو اتنشر من جهاز تاني.
+       بنقارن تاريخ آخر تعديل محلي بالتاريخ المنشور على السيرفر:
+       لو المنشور أحدث ⇒ النسخة المحلية مجرد snapshot قديم وبنتبنّى المنشور.
+       لو في تعديل محلي غير منشور ⇒ نحترمه ونسيبه زي ما هو. */
+    function reconcile() {
+        if (!remote) return false;
+        var edited = stampTime(DIRTY_KEY);
+        if (edited) return false;
+        var pub = remote.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+        if (isNaN(pub)) pub = 0;
+        var local = null;
+        try {
+            var raw = localStorage.getItem(DATA_KEY);
+            if (raw) local = JSON.parse(raw);
+        } catch (e) {}
+        var localPub = local && local.updatedAt ? new Date(local.updatedAt).getTime() : 0;
+        if (isNaN(localPub)) localPub = 0;
+        if (!pub || localPub >= pub) return false;
+
+        /* المنشور أحدث ⇒ نحدّث النسخة المحلية ونمسح الصور/الثيم المخزّنة محليًا */
+        try { lsSet(DATA_KEY, JSON.stringify(remote)); } catch (e) {}
+        stampClear(THEME_KEY);
+        stampClear(LAYOUT_KEY);
+        if (remote.photoUrl) {
+            stampClear(LOGO_KEY);
+            try {
+                if (typeof FileStore !== 'undefined' && FileStore.del) {
+                    FileStore.del('profile_logo').catch(function () {});
+                }
+            } catch (e) {}
+        }
+        return true;
     }
 
     /* كتابة آمنة — لو المساحة ممتلئة بتحاول تفضي مكان الصورة الكبيرة */
@@ -269,7 +313,7 @@ var DataManager = (function () {
         } catch (e) {}
     }
 
-    return { load: load, save: save, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, storeLogo: storeLogo, cleanupOversizedLogo: cleanupOversizedLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
+    return { load: load, save: save, reconcile: reconcile, markPublished: markPublished, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, storeLogo: storeLogo, cleanupOversizedLogo: cleanupOversizedLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
 })();
 
 /* ============================================
@@ -288,7 +332,8 @@ var RemoteData = (function () {
                     clearTimeout(timer);
                     if (!d || !d.profile) { if (!done) { done = true; resolve(null); } return; }
                     DataManager.setRemote(d);
-                    if (!done) { done = true; resolve(d); }
+                    var changed = DataManager.reconcile();
+                    if (!done) { done = true; resolve(d); if (changed) applyRemoteData(); }
                     else { applyRemoteData(); } // وصلت بعد المهلة — طبّقها على أي حال
                 })
                 .catch(function () {
@@ -531,6 +576,7 @@ var Publisher = (function () {
                     attempt(content, 0).then(function () {
                         publishing = false;
                         DataManager.setRemote(payload);
+                        DataManager.markPublished();
                         setStatus('ok');
                         setTimeout(refreshStatus, 6000);
                         resolve(true);

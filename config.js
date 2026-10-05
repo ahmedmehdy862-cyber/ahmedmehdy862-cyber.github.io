@@ -26,8 +26,9 @@ var SITE_CONFIG = {
     ogImageAlt: 'شعار A.Mahdy',
     twitterCard: 'summary_large_image',
 
-    /* Google Search Console — سيب الكود فاضي لحد ما تاخده من جوجل */
-    googleVerification: '',
+    /* Google Search Console — تم التحقق بملف HTML على root:
+       https://ahmedmehdy862-cyber.github.io/google81932fd24b44f03c.html */
+    googleVerification: 'google81932fd24b44f03c',
 
     /* ألوان وأبعاد المتصفح */
     themeColor: '#0a0a12',
