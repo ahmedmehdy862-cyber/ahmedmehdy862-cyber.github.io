@@ -347,6 +347,22 @@ var RemoteData = (function () {
 
 /* يبدأ جلب data.json المنشور فور تحميل السكربت */
 var remoteReady = RemoteData.load();
+
+/* إشارة "اللايوت اتطبق فعلاً" — الـpreloader بيستناها عشان ما يرسمش
+   بقسم غلط الأول ويفتكر بعدين يغيّره (ده كان سبب layout shift كبير). */
+var layoutReady = { done: false, cbs: [] };
+function markLayoutReady() {
+    layoutReady.done = true;
+    var c = layoutReady.cbs; layoutReady.cbs = [];
+    for (var i = 0; i < c.length; i++) { try { c[i](); } catch (e) {} }
+}
+function whenLayoutReady() {
+    return new Promise(function (resolve) {
+        if (layoutReady.done) resolve();
+        else layoutReady.cbs.push(resolve);
+    });
+}
+
 var Publisher = (function () {
     var TOKEN_KEY = 'amahdy_gh_token';
     var AUTO_KEY = 'amahdy_auto_publish';
@@ -2148,7 +2164,8 @@ var SiteControls = (function () {
     var root = document.documentElement;
     var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG : {
         siteUrl: 'https://ahmedmehdy862-cyber.github.io/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
-        locale: 'ar_AR', ogImage: 'assets/Asset-1.png', ogImageAlt: 'شعار A.Mahdy', twitterCard: 'summary_large_image'
+        locale: 'ar_AR', ogImage: 'assets/og-image.png', ogImageAlt: 'شعار A.Mahdy',
+        ogImageWidth: 1200, ogImageHeight: 630, ogImageType: 'image/png', twitterCard: 'summary_large_image'
     };
     var SOCIAL_LABELS = {
         behance: 'Behance', github: 'GitHub', linkedin: 'LinkedIn', instagram: 'Instagram',
@@ -2202,7 +2219,16 @@ var SiteControls = (function () {
     function setAttr(sel, name, value) {
         var el = document.querySelector(sel);
         if (el && value) el.setAttribute(name, value);
-    }
+        }
+
+    /* زي setAttr بس بيمسح القيمة لو فاضية (عشان متقولش رقم غلط) */
+    function metaOrClear(id, value) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        if (value) el.setAttribute('content', value);
+        else el.removeAttribute('content');
+        }
+
 
     function applySeo(d) {
         var s = (d && d.seo) || {};
@@ -2210,6 +2236,7 @@ var SiteControls = (function () {
         var desc = String(s.description || '').trim();
         var keys = String(s.keywords || '').trim();
         var img = absoluteUrl(usableImage(s.ogImage) || CFG.ogImage);
+        var isDefault = !usableImage(s.ogImage);
         if (title) document.title = title;
         meta('metaDescription', desc);
         meta('metaKeywords', keys);
@@ -2217,6 +2244,11 @@ var SiteControls = (function () {
         meta('ogDesc', desc);
         meta('ogImage', img);
         setAttr('meta[property="og:image:secure_url"]', 'content', /^https:/.test(img) ? img : '');
+        /* الأبعاد دي بتاعة الصورة الافتراضية بس — لو اللوحة حطت صورة تانية
+           مش عارفين مقاسها، فبنشيل الأبعاد بدل ما نقول رقم غلط. */
+        metaOrClear('ogImageType', isDefault ? (CFG.ogImageType || 'image/png') : '');
+        metaOrClear('ogImageW', isDefault ? String(CFG.ogImageWidth || '') : '');
+        metaOrClear('ogImageH', isDefault ? String(CFG.ogImageHeight || '') : '');
         meta('twTitle', title || document.title);
         meta('twDesc', desc);
         meta('twImage', img);
@@ -2234,7 +2266,7 @@ var SiteControls = (function () {
 
     function imageMeta(url) {
         if (!url) return undefined;
-        return { '@type': 'ImageObject', url: url, caption: CFG.ogImageAlt, width: 279, height: 214 };
+        return { '@type': 'ImageObject', url: url, caption: CFG.ogImageAlt, width: Number(CFG.ogImageWidth) || 1200, height: Number(CFG.ogImageHeight) || 630 };
     }
 
     /* روابط التواصل موجودة كـobject map (المفتاح = اسم الشبكة) */
@@ -2534,6 +2566,7 @@ function renderNavLinks() {
     var bar = document.getElementById('preBar');
     var pct = document.getElementById('prePct');
     var v = 0, done = false;
+    var winReady = false, dataReady = false;
     function finish() {
         if (done) return;
         done = true;
@@ -2545,15 +2578,27 @@ function renderNavLinks() {
             setTimeout(function () { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 700);
         }, 300);
     }
+    /* ماينفعش الستار ينزل قبل ما اللايوت المنشور يتطبق — غير كده الهيرو
+       بيرسم بنسخة غلط وبعدين بيتحوّل للقسم كله وبيعمل layout shift كبير.
+       بنستنى الـload واللايوت، بس مع سقف زمني قصير حفاظًا على سرعة الفتح. */
+    function settle() { if (winReady && dataReady) finish(); }
     var iv = setInterval(function () {
         v += Math.random() * 13 + 4;
         if (v > 96) v = 96;
         if (bar) bar.style.width = v + '%';
         if (pct) pct.textContent = String(Math.round(v));
     }, 120);
-    if (document.readyState === 'complete') setTimeout(finish, 350);
-    else window.addEventListener('load', function () { setTimeout(finish, 250); });
-    setTimeout(function () { clearInterval(iv); finish(); }, 2600); // أمان لو الـ load اتأخر
+
+    function markWin() { winReady = true; setTimeout(settle, 250); }
+    if (document.readyState === 'complete') markWin();
+    else window.addEventListener('load', markWin);
+
+    if (typeof whenLayoutReady === 'function') {
+        whenLayoutReady().then(function () { dataReady = true; settle(); }, function () { dataReady = true; settle(); });
+    } else dataReady = true;
+    settle();
+
+    setTimeout(function () { clearInterval(iv); finish(); }, 2600); // أمان: سقف أقصى عشان ما نفضلش مستنيين
 })();
 
 /* ============================================
@@ -2828,13 +2873,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // نطبّق الثيم/اللايوت في أبكر وقت ممكن (وقت ما الـfetch يخلص) عشان
     // ما يحصلش قفزة في الشكل (CLS) قدام المستخدم.
     remoteReady.then(function (d) {
-        if (!d) return;
+        if (!d) { markLayoutReady(); return; }
         if (document.body) {
             document.documentElement.setAttribute('data-theme', DataManager.getTheme() || 'neon');
             LayoutManager.apply(DataManager.getLayout());
         }
         applyRemoteData();
-    });
+        markLayoutReady();
+    }, function () { markLayoutReady(); });
 
     var nav = document.getElementById('mainNav');
     var toggle = document.getElementById('navToggle');

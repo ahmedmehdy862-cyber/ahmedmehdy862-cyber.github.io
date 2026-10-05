@@ -21,9 +21,12 @@ var SITE_CONFIG = {
     defaultTitle: 'A.Mahdy — أحمد مهدي | جرافيك ديزاينر ومصمم محتوى',
     defaultDescription: 'جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات. شوف أعمالي المختارة وابدأ مشروعك.',
 
-    /* صورة المشاركة — نفس لوجو الموقع الحالي (absolute URL) */
-    ogImage: 'assets/Asset-1.png',
+    /* صورة المشاركة — 1200x630 (المقاس المعياري لـ OG) */
+    ogImage: 'assets/og-image.png',
     ogImageAlt: 'شعار A.Mahdy',
+    ogImageWidth: 1200,
+    ogImageHeight: 630,
+    ogImageType: 'image/png',
     twitterCard: 'summary_large_image',
 
     /* Google Search Console — تم التحقق بملف HTML على root:
