@@ -368,8 +368,10 @@ var Publisher = (function () {
     var AUTO_KEY = 'amahdy_auto_publish';
     var REPO = 'ahmedmehdy862-cyber/ahmedmehdy862-cyber.github.io';
     var FILE_PATH = 'data.json';
+    var HTML_PATH = 'index.html';
     var BRANCH = 'main';
     var API = 'https://api.github.com/repos/' + REPO + '/contents/' + FILE_PATH;
+    var HTML_API = 'https://api.github.com/repos/' + REPO + '/contents/' + HTML_PATH;
     var timer = null;
     var publishing = false;
     var queued = false;
@@ -559,6 +561,106 @@ var Publisher = (function () {
             .then(done, done);
     }
 
+    /* ============================================
+       مزامنة وسوم الـSEO مع وسوم index.html
+       ------------------------------------------------------------
+       واتساب/فيسبوك/تويتر **مش بيشغلوا JavaScript** — بيقرا
+       الـHTML الستاتيك بس. يعني لو الـtitle متغيّرش في index.html
+       الـpreview هيبان بالعنوان القديم.
+
+       الحل: مع كل نشر بنكتب وسوم الـSEO الإضافية جوه index.html
+       كمان، عشان اللي بيقرا الملف يلقا نفس الكلام.
+       ============================================ */
+    function escHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+
+    /* بيلاقي التاج بالـmarker (زي property="og:title") ويغيّر الـcontent بتاعه */
+    function setTag(html, marker, value) {
+        var low = html.toLowerCase();
+        var i = low.indexOf(marker.toLowerCase());
+        if (i < 0) return html;
+        var start = html.lastIndexOf('<', i);
+        var end = html.indexOf('>', i);
+        if (start < 0 || end < 0) return html;
+        var tag = html.slice(start, end + 1);
+        var next;
+        if (/\scontent\s*=\s*["'][^"']*["']/i.test(tag)) {
+            next = tag.replace(/\scontent\s*=\s*["'][^"']*["']/i, ' content="' + escHtml(value) + '"');
+        } else {
+            next = tag.replace(/>$/, ' content="' + escHtml(value) + '">');
+        }
+        return html.slice(0, start) + next + html.slice(end + 1);
+    }
+
+    function setTitleTag(html, title) {
+        return html.replace(/<title>[\s\S]*?<\/title>/i, '<title>' + escHtml(title) + '</title>');
+    }
+
+    function buildHtmlSeo(payload, current) {
+        var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) || {};
+        var base = CFG.siteUrl || '';
+        function abs(v) {
+            var s = String(v || '').trim();
+            if (!s) return '';
+            if (/^https?:\/\//i.test(s)) return s;
+            if (/^[\w./-]+\.(png|jpe?g|webp|avif|gif|svg)$/i.test(s)) return base.replace(/\/$/, '') + '/' + s.replace(/^\//, '');
+            return '';
+        }
+        var seo = payload.seo || {};
+        var title = String(seo.title || '').trim() || String(CFG.defaultTitle || current.title || '').trim();
+        var desc = String(seo.description || '').trim();
+        var img = abs(seo.ogImage) || abs(CFG.ogImage);
+        var alt = String(seo.ogImageAlt || CFG.ogImageAlt || '').trim();
+        var out = current.html;
+        out = setTitleTag(out, title);
+        out = setTag(out, 'name="description"', desc);
+        out = setTag(out, 'property="og:title"', title);
+        out = setTag(out, 'property="og:description"', desc);
+        if (img) {
+            out = setTag(out, 'property="og:image"', img);
+            out = setTag(out, 'property="og:image:secure_url"', img);
+            out = setTag(out, 'name="twitter:image"', img);
+        }
+        if (alt) {
+            out = setTag(out, 'property="og:image:alt"', alt);
+            out = setTag(out, 'name="twitter:image:alt"', alt);
+        }
+        return out;
+    }
+
+    function fetchIndexHtml() {
+        return api(HTML_API + '?ref=' + BRANCH, 'GET').then(function (r) {
+            if (!r.ok) throw new Error('index.html HTTP ' + r.status);
+            return r.json();
+        }).then(function (j) {
+            var bin = String(j.content || '').replace(/\s/g, '');
+            var bytes = Uint8Array.from(atob(bin), function (c) { return c.charCodeAt(0); });
+            return { html: new TextDecoder('utf-8').decode(bytes), sha: j.sha || null };
+        });
+    }
+
+    /* لو مش قادر يعدّل الـHTML هنكمل نشر الداتا عادي من غير ما هنشرعتمد */
+    function putIndexHtml(html, sha) {
+        var body = {
+            message: 'publish: تحديث وسوم SEO في index.html ' + new Date().toISOString(),
+            content: b64encode(html),
+            branch: BRANCH
+        };
+        if (sha) body.sha = sha;
+        return api(HTML_API, 'PUT', body).then(function (r) { return r.ok; });
+    }
+
+    function syncStaticSeo(payload) {
+        return fetchIndexHtml().then(function (cur) {
+            var next = buildHtmlSeo(payload, cur);
+            if (next === cur.html) return true;
+            return putIndexHtml(next, cur.sha);
+        }).catch(function () { return false; });
+    }
+
     /* محاولة مع إعادة محاولة تلقائية (أخطاء الشبكة / 5xx بتتكرر) */
     function attempt(content, tries) {
         tries = tries || 0;
@@ -596,6 +698,8 @@ var Publisher = (function () {
                         setStatus('ok');
                         setTimeout(refreshStatus, 6000);
                         resolve(true);
+                        /* وسوم الـSEO الستاتيك — بعد ما الداتا تتنشر عشان الـcrawlers */
+                        syncStaticSeo(payload);
                         if (queued) { queued = false; setTimeout(publish, 800); }
                     }).catch(function (err) {
                         publishing = false;
