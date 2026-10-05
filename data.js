@@ -54,7 +54,7 @@ const SITE_DATA = {
     "theme": "forest",
     "layout": {
         "cardStyle": "gradient",
-        "heroStyle": "center",
+        "heroStyle": "minimal",
         "sectionGap": "sm",
         "animations": "strong",
         "font": "noto"
