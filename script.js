@@ -1063,8 +1063,17 @@ var heroStats = document.getElementById('heroStats');
             }
         });
 
-        /* السر التاني: 3 لمسات سريعة على اللوجو (في الشريط أو في الهيرو) */
+        /* السر التاني: 3 لمسات سريعة على اللوجو (في الشريط أو في الهيرو).
+           مفيش زر ظاهر، فبنعرض التلميح من أول لمسة عشان الواحد يعرف إن في لوحة تحكم. */
         var taps = [];
+        var hintTimer = null;
+        function showAdminHint() {
+            var hint = document.getElementById('adminTapHint');
+            if (!hint) return;
+            hint.classList.add('show');
+            clearTimeout(hintTimer);
+            hintTimer = setTimeout(function () { hint.classList.remove('show'); }, 2600);
+        }
         document.addEventListener('click', function (e) {
             var logo = e.target.closest('.nav-logo, .hero-logo');
             if (!logo) return;
@@ -1078,12 +1087,8 @@ var heroStats = document.getElementById('heroStats');
                     var u = document.getElementById('adminUser');
                     if (u && !u.value) u.focus();
                 }, 120);
-            } else if (taps.length === 2) {
-                var hint = document.getElementById('adminTapHint');
-                if (hint) {
-                    hint.classList.add('show');
-                    setTimeout(function () { hint.classList.remove('show'); }, 1400);
-                }
+            } else if (taps.length === 1) {
+                showAdminHint();
             }
         });
 

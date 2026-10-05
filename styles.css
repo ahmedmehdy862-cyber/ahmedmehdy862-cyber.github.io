@@ -2496,16 +2496,66 @@ ul {
     .hero-bg { display: none; }
 }
 
-/* Hover capability detection */
+/* Hover capability detection
+   الماوس بيhover فبيبان تأثير الرفع، بس الموبايل مافيش hover خالص.
+   فبنعطي كل عنصر :active (لحظة الضغط) استجابة بصرية زي الhover،
+   وبنلغي الhover نفسه عشان مابقاش فيه تأثير معلّق بعد ما تسيب الإصبع. */
 @media (hover: none) {
+    /* نلغي الhover عشان مابقاش فيه highlight معلّق بعد الضغط */
     .project-card:hover,
     .service-card:hover,
-    .contact-card:hover {
+    .contact-card:hover,
+    .about-card:hover,
+    .dynamic-card:hover {
         transform: none;
         box-shadow: none;
     }
-    .skill-tag:hover { transform: none; box-shadow: none; }
-    .filter-btn:hover { transform: none; }
+    .skill-tag:hover,
+    .filter-btn:hover,
+    .theme-dot:hover {
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* استجابة الضغطة على الموبايل: تنفيص بسيط + ظل = إحساس إنك ضغطت حاجة حقيقية */
+    .project-card:active,
+    .service-card:active,
+    .contact-card:active,
+    .about-card:active,
+    .dynamic-card:active {
+        transform: scale(0.985);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    }
+    .skill-tag:active,
+    .filter-btn:active,
+    .theme-dot:active,
+    .nav-toggle:active,
+    .contact-link:active,
+    .ticker-item:active {
+        transform: scale(0.94);
+    }
+    .nav-link:active {
+        transform: scale(0.96);
+        opacity: 0.75;
+    }
+    .admin-nav-btn:active,
+    .admin-tab:active,
+    .admin-mini-btn:active,
+    .admin-edit-btn:active,
+    .admin-add-btn:active,
+    .admin-remove-btn:active,
+    .admin-upload-btn:active,
+    .admin-save-btn:active,
+    .admin-save-btn--secondary:active,
+    .admin-logout-btn:active,
+    .admin-layout-btn:active,
+    .admin-theme-btn:active,
+    .admin-close:active,
+    .comment-delete-btn:active,
+    .lb-close:active,
+    .lb-nav:active {
+        transform: scale(0.96);
+    }
 }
 
 /* Reduced motion preference */
