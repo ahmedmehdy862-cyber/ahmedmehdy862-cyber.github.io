@@ -32,8 +32,8 @@ const SITE_DATA = {
             "behance": "https://www.behance.net/ahmed2mahdi",
             "linkedin": "",
             "instagram": "",
-            "facebook": "",
-            "whatsapp": ""
+            "facebook": "https://www.facebook.com/share/1LiEkr2pNC/",
+            "whatsapp": "01110200193"
         }
     },
     "site": {
