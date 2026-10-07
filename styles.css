@@ -4,6 +4,9 @@
 :root {
     --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-silk: cubic-bezier(0.34, 0.1, 0.2, 1);
+    --grid-gap: 24px;
+    --container-max: 1160px;
+    --container-pad: 24px;
 }
 html {
     scroll-behavior: smooth;
@@ -180,9 +183,27 @@ ul {
 }
 
 .container {
-    max-width: 1160px;
+    max-width: var(--container-max);
     margin: 0 auto;
-    padding: 0 24px;
+    padding: 0 var(--container-pad);
+}
+
+/* الإنجليزي بيخد خط لاتيني أصلي (مجاني، بدون تحميل إضافي) — العربي بيرجع لخط الموقع */
+html[lang="en"] body,
+html[lang="en"] button,
+html[lang="en"] input,
+html[lang="en"] textarea,
+html[lang="en"] select {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Cairo', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+html[lang="en"] h1,
+html[lang="en"] h2,
+html[lang="en"] h3,
+html[lang="en"] .hero-title,
+html[lang="en"] .section-title {
+    letter-spacing: -0.03em;
 }
 
 .hidden {
@@ -664,6 +685,24 @@ ul {
     position: relative;
 }
 
+/* الأقسام المعلوماتية بتتعلّم على حافة البداية (start) بدل التوسيط الجماعي */
+.section-header--start {
+    text-align: start;
+}
+
+.section-header--start .section-desc {
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    max-width: 560px;
+}
+
+.section-header--start .section-title::after {
+    inset-inline-start: 0;
+    left: auto;
+    transform: none;
+    width: 64px;
+}
+
 .section-number {
     font-size: 13px;
     font-weight: 700;
@@ -702,6 +741,7 @@ ul {
     margin-left: auto;
     margin-right: auto;
     line-height: 1.7;
+    text-wrap: pretty;
 }
 
 /* Decorative section shapes */
@@ -758,7 +798,7 @@ ul {
     display: grid;
     grid-template-columns: 0.8fr 1.2fr;
     gap: 40px;
-    align-items: center;
+    align-items: stretch;
 }
 
 .about-card {
@@ -768,6 +808,8 @@ ul {
     padding: 32px;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .about-card::before {
@@ -861,6 +903,182 @@ ul {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+}
+
+/* ---- الهوية في كارت "عني" ---- */
+.about-story {
+    grid-column: 1 / -1;
+    padding: 32px;
+}
+
+.about-bio {
+    color: var(--text-dim);
+    font-size: 15.5px;
+    line-height: 1.85;
+    margin: 0 0 22px;
+    text-wrap: pretty;
+}
+
+.about-bio p {
+    margin: 0 0 14px;
+}
+
+.about-bio p:last-child {
+    margin-bottom: 0;
+}
+
+.about-identity {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4px;
+    padding: 40px 32px;
+}
+
+.about-identity .about-avatar {
+    margin-bottom: 22px;
+}
+
+.about-identity-name {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0;
+    color: var(--text);
+}
+
+.about-identity-role {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin: 6px 0 0;
+    line-height: 1.6;
+}
+
+/* ---- منهجية العمل: فكر ← مفهوم ← تصميم ← صقل ---- */
+.about-lead {
+    font-size: 17px;
+    line-height: 1.8;
+    color: var(--text);
+    font-weight: 600;
+    margin: 0 0 22px;
+    text-wrap: pretty;
+}
+
+.about-steps {
+    list-style: none;
+    counter-reset: step;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0 0 24px;
+    padding: 0;
+}
+
+.about-step {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    position: relative;
+}
+
+.about-step::before {
+    content: attr(data-step);
+    position: absolute;
+    top: 14px;
+    inset-inline-end: 16px;
+    font-family: 'Almarai', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--accent);
+    opacity: 0.65;
+}
+
+.about-step-key {
+    display: block;
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 6px;
+    padding-inline-end: 34px;
+}
+
+.about-step p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: var(--text-dim);
+    text-wrap: pretty;
+}
+
+/* ---- مبدّل اللغة EN / عربي ---- */
+.lang-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
+    margin-inline-end: 8px;
+}
+
+.lang-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.lang-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 6px 16px var(--shadow);
+}
+
+/* ---- الباقات والتسعير ---- */
+.pricing-wrap {
+    margin-top: 56px;
+    padding-top: 44px;
+    border-top: 1px solid var(--border);
+}
+
+.pricing-head {
+    margin-bottom: 24px;
+    max-width: 640px;
+}
+
+.pricing-title {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 900;
+    margin: 0 0 8px;
+}
+
+.pricing-note {
+    color: var(--text-dim);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+    text-wrap: pretty;
+}
+
+/* ---- نجمة "مميّز" على كروت المشاريع ---- */
+.project-featured-flag {
+    color: var(--accent);
+    font-size: 14px;
+    line-height: 1;
+}
+
+.project-card.is-featured {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
 }
 
 .skill-tag {
@@ -1075,7 +1293,20 @@ ul {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
-    align-items: start;
+    align-items: stretch;
+}
+
+/* الخدمات الأساسية — 4 كروت متساوية العرض على الديسكتوب، 2 على التابلت، 1 على الموبايل */
+#servicesGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 1199px) {
+    #servicesGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 768px) {
+    #servicesGrid { grid-template-columns: minmax(0, 1fr); }
 }
 
 .service-card {
@@ -1084,7 +1315,29 @@ ul {
     border-radius: 22px;
     padding: 32px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-index {
+    font-family: 'Almarai', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    opacity: 0.7;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.service-desc {
+    color: var(--text-dim);
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 4px 0 16px;
+    text-wrap: pretty;
 }
 
 .service-card:hover {
@@ -1147,6 +1400,8 @@ ul {
     padding: 8px 14px;
     border-radius: 10px;
     display: inline-block;
+    margin-top: auto;
+    align-self: flex-start;
 }
 
 /* ============================================
@@ -1785,6 +2040,8 @@ ul {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     margin-bottom: 8px;
 }
 
@@ -2192,6 +2449,12 @@ ul {
     text-align: center;
 }
 
+/* النص متوسط — الأزرار لازم تتوسط معا عشان ما تبانش مفصولة */
+.hero-minimal .hero-cta {
+    justify-content: center;
+    margin-inline: auto;
+}
+
 .hero-minimal .hero-visual,
 .hero-minimal .hero-bg { display: none; }
 
@@ -2375,7 +2638,7 @@ ul {
     .projects-grid { grid-template-columns: repeat(3, 1fr); }
     .services-grid { grid-template-columns: repeat(3, 1fr); }
     .contact-grid { grid-template-columns: repeat(3, 1fr); }
-    .about-grid { grid-template-columns: 1fr 1.2fr; gap: 40px; align-items: center; }
+    .about-grid { grid-template-columns: 0.8fr 1.2fr; gap: 40px; align-items: stretch; }
     .section { padding: 110px 0; }
     .section-title { font-size: 38px; }
     .section-desc { font-size: 16px; }
@@ -2418,6 +2681,12 @@ ul {
     .projects-grid { grid-template-columns: 1fr; }
     .services-grid { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; }
+    .about-steps { grid-template-columns: 1fr; }
+    .about-identity { padding: 28px 24px; }
+    .about-identity .about-avatar { margin-bottom: 16px; }
+    .lang-switch { margin-inline-end: 4px; }
+    .lang-btn { padding: 6px 9px; font-size: 11px; }
+    .pricing-wrap { margin-top: 36px; padding-top: 28px; }
     .admin-panel { width: 100vw; max-height: 100vh; border-radius: 0; }
     .admin-overlay { padding: 0; }
     .admin-tabs { gap: 2px; padding: 10px 12px; }
@@ -3795,6 +4064,112 @@ html[data-f-comments="off"] #comments { display: none; }
 }
 .admin-item-footer .admin-remove-btn { margin-inline-start: auto; }
 
+/* ---- مبدّل لغة التحرير في رأس اللوحة ---- */
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.admin-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-soft);
+}
+.admin-lang-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    padding-inline: 8px;
+    letter-spacing: 0.02em;
+}
+.admin-lang .lang-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.admin-lang .lang-btn:hover { color: var(--text); }
+.admin-lang .lang-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+}
+
+/* ---- شارات الحالة/النوع + صف الإعدادات ---- */
+.admin-status-chip,
+.admin-kind-chip {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    white-space: nowrap;
+}
+.admin-status-chip.is-hidden {
+    background: color-mix(in srgb, var(--danger, #ef4444) 14%, transparent);
+    color: var(--danger, #ef4444);
+    border-color: color-mix(in srgb, var(--danger, #ef4444) 35%, transparent);
+}
+.admin-kind-chip.is-pricing {
+    background: color-mix(in srgb, var(--success, #22c55e) 14%, transparent);
+    color: var(--success, #22c55e);
+    border-color: color-mix(in srgb, var(--success, #22c55e) 35%, transparent);
+}
+.admin-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 9px 11px;
+    margin-top: 8px;
+    border: 1px dashed var(--border);
+    border-radius: 9px;
+    background: var(--bg-soft);
+}
+.admin-select {
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 9px;
+    cursor: pointer;
+}
+.admin-select:focus { outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 1px; }
+
+/* ---- خطوات المنهجية في تبويب النصوص ---- */
+.admin-step-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+.admin-step-item .admin-item-footer { margin-top: 0; }
+.admin-step-item .admin-remove-btn { margin-inline-start: auto; }
+.admin-field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin: 4px 0 8px;
+}
+.admin-section-sub {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    margin-inline-start: 8px;
+}
+
 /* صفوف التواصل الإضافية */
 .admin-social-list {
     display: grid;
@@ -3845,8 +4220,11 @@ html[data-f-comments="off"] #comments { display: none; }
 .admin-tap-hint {
     position: fixed;
     bottom: 26px;
-    inset-inline-start: 50%;
-    transform: translateX(50%) translateY(14px);
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    width: max-content;
+    max-width: calc(100vw - 32px);
+    margin-inline: auto;
     z-index: 1500;
     padding: 10px 18px;
     border-radius: 999px;
@@ -3858,11 +4236,12 @@ html[data-f-comments="off"] #comments { display: none; }
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
     opacity: 0;
     pointer-events: none;
+    transform: translateY(14px);
     transition: opacity 0.28s ease, transform 0.28s var(--ease-silk, ease);
 }
 .admin-tap-hint.show {
     opacity: 1;
-    transform: translateX(50%) translateY(0);
+    transform: translateY(0);
 }
 
 /* شاشات متوسطة: الشريط الجانبي يعلو المحتوى */

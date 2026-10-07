@@ -524,11 +524,16 @@ var Publisher = (function () {
         }).catch(function () { finish(remotePhoto()); });
     }
 
-    function getSha() {
+    /* نسخ من الـSHA المعروف — بتتجدّد من ردّ الـPUT نفسها.
+       العميل الوحيد هو اللوحة، والـ409 (حد تاني عدّل) بي force-refresh. */
+    var _shaCache = { data: null, html: null, seoSig: null };
+
+    function getSha(force) {
+        if (!force && _shaCache.data) return Promise.resolve(_shaCache.data);
         return api(API + '?ref=' + BRANCH, 'GET').then(function (r) {
             if (r.status === 404) return null;
             if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json().then(function (j) { return j.sha || null; });
+            return r.json().then(function (j) { _shaCache.data = j.sha || null; return _shaCache.data; });
         });
     }
 
@@ -541,14 +546,17 @@ var Publisher = (function () {
         if (sha) body.sha = sha;
         return api(API, 'PUT', body).then(function (r) {
             if (r.status === 409 && !attempt) {
-                return getSha().then(function (newSha) { return put(content, newSha, true); });
+                return getSha(true).then(function (newSha) { return put(content, newSha, true); });
             }
             if (!r.ok) {
                 return r.json().catch(function () { return {}; }).then(function (j) {
                     throw new Error((j && j.message) || ('HTTP ' + r.status));
                 });
             }
-            return true;
+            return r.json().catch(function () { return {}; }).then(function (j) {
+                if (j && j.content && j.content.sha) _shaCache.data = j.content.sha;
+                return true;
+            });
         });
     }
 
@@ -653,11 +661,28 @@ var Publisher = (function () {
         return api(HTML_API, 'PUT', body).then(function (r) { return r.ok; });
     }
 
+    /* بصمة وسوم الـSEO — لو مافيش تغيّر فيها مانعملش لا GET ولا PUT للـHTML (أوفر رحلة) */
+    function seoSignature(payload) {
+        var s = (payload && payload.seo) || {};
+        var c = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) || {};
+        return JSON.stringify([
+            String(s.title || ''), String(s.description || ''), String(s.keywords || ''),
+            String(s.ogImage || ''), String(s.ogImageAlt || ''),
+            String(c.defaultTitle || ''), String(c.ogImage || ''), String(c.ogImageAlt || '')
+        ]);
+    }
+
     function syncStaticSeo(payload) {
+        var sig = seoSignature(payload);
+        if (_shaCache.seoSig && _shaCache.seoSig === sig && _shaCache.html) return Promise.resolve(true);
         return fetchIndexHtml().then(function (cur) {
+            if (sig === _shaCache.seoSig && cur.sha === _shaCache.html) return true;
             var next = buildHtmlSeo(payload, cur);
-            if (next === cur.html) return true;
-            return putIndexHtml(next, cur.sha);
+            if (next === cur.html) { _shaCache.seoSig = sig; _shaCache.html = cur.sha; return true; }
+            return putIndexHtml(next, cur.sha).then(function (ok) {
+                if (ok) { _shaCache.seoSig = sig; _shaCache.html = cur.sha; }
+                return ok;
+            });
         }).catch(function () { return false; });
     }
 
@@ -974,8 +999,12 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                 }
             }, { threshold: 0.3 });
 
-var heroStats = document.getElementById('heroStats');
-        if (heroStats) observer.observe(heroStats);
+        var heroStats = document.getElementById('heroStats');
+        if (heroStats) {
+            if (heroStats.__obs) return;   /* مراقب اتربط قبل كده — متكررش */
+            heroStats.__obs = 1;
+            observer.observe(heroStats);
+        }
     });
     }
 
@@ -1166,6 +1195,7 @@ var heroStats = document.getElementById('heroStats');
             loginSection.classList.add('hidden');
             dashboard.classList.remove('hidden');
             initTabs();
+            initAdminLang();
             loadProfileForm();
             loadStatsForm();
             loadSkillsForm();
@@ -1176,6 +1206,7 @@ var heroStats = document.getElementById('heroStats');
             loadFeaturesForm();
             loadSeoForm();
             loadContentForm();
+            loadAboutForm();
             loadSectionsForm();
             loadCommentsAdmin();
             renderAdminStats();
@@ -1351,6 +1382,43 @@ var heroStats = document.getElementById('heroStats');
         });
 
         /* --- Tabs --- */
+        /* ===== لغة التحرير =====
+           المبدّل في رأس اللوحة = لغة الموقع نفسها؛ أي حقل نصي بيتحفظ بلغة التحرير
+           الحالية والغة التانية بتفضل زي ما هي (مفيش أي نص بيضيع). */
+        function syncAdminLang() {
+            var box = document.getElementById('adminLangSwitch');
+            if (box) {
+                box.querySelectorAll('.lang-btn').forEach(function (b) {
+                    b.classList.toggle('active', b.getAttribute('data-lang') === Lang.get());
+                });
+            }
+            var sub = document.getElementById('adminSidebarSub');
+            if (sub) sub.textContent = 'الحقول دي بلغة ' + (Lang.get() === 'ar' ? 'عربي' : 'English') + ' — اختار القسم اللي تعدّله';
+        }
+
+        function initAdminLang() {
+            var box = document.getElementById('adminLangSwitch');
+            if (box && !box.__bound) {
+                box.__bound = '1';
+                box.addEventListener('click', function (e) {
+                    var b = e.target.closest('.lang-btn');
+                    if (b) Lang.setLang(b.getAttribute('data-lang'));
+                });
+            }
+            if (!window.__adminLangBound) {
+                window.__adminLangBound = '1';
+                document.addEventListener('langchange', function () {
+                    syncAdminLang();
+                    if (!document.getElementById('adminDashboard') || document.getElementById('adminDashboard').classList.contains('hidden')) return;
+                    var active = document.querySelector('.admin-tab.active');
+                    if (!active) return;
+                    var key = active.getAttribute('data-tab');
+                    if (typeof TAB_RELOAD[key] === 'function') { try { TAB_RELOAD[key](); } catch (e) {} }
+                });
+            }
+            syncAdminLang();
+        }
+
         function initTabs() {
             document.querySelectorAll('.admin-tab').forEach(function (tab) {
                 if (tab.dataset.tabBound) return;
@@ -1373,7 +1441,7 @@ var heroStats = document.getElementById('heroStats');
         var TAB_RELOAD = {
             profile: loadProfileForm, stats: loadStatsForm, skills: loadSkillsForm,
             projects: loadProjectsForm, services: loadServicesForm, sections: loadSectionsForm,
-            appearance: loadLayoutForm, content: loadContentForm, features: loadFeaturesForm,
+            appearance: loadLayoutForm, content: function () { loadContentForm(); loadAboutForm(); }, features: loadFeaturesForm,
             seo: loadSeoForm, comments: loadCommentsAdmin
         };
 
@@ -1381,11 +1449,11 @@ var heroStats = document.getElementById('heroStats');
         function loadProfileForm() {
             var d = DataManager.load();
             if (!d) return;
-            setVal('editName', d.profile.name);
-            setVal('editRole', d.profile.role);
-            setVal('editTagline', d.profile.tagline);
-            setVal('editBio', d.profile.bio);
-            setVal('editLocation', d.profile.location);
+            setVal('editName', t(d.profile.name));
+            setVal('editRole', t(d.profile.role));
+            setVal('editTagline', t(d.profile.tagline));
+            setVal('editBio', t(d.profile.bio));
+            setVal('editLocation', t(d.profile.location));
             setVal('editEmail', d.profile.email);
             setVal('editGithub', d.profile.socials.github);
             setVal('editBehance', d.profile.socials.behance);
@@ -1418,12 +1486,12 @@ var heroStats = document.getElementById('heroStats');
 
         document.getElementById('saveProfile').addEventListener('click', function () {
             var d = DataManager.load();
-            d.profile.name = getVal('editName');
-            d.profile.brand = d.profile.name;
-            d.profile.role = getVal('editRole');
-            d.profile.tagline = getVal('editTagline');
-            d.profile.bio = getVal('editBio');
-            d.profile.location = getVal('editLocation');
+            Lang.set(d.profile, 'name', getVal('editName'));
+            d.profile.brand = t(d.profile.name);
+            Lang.set(d.profile, 'role', getVal('editRole'));
+            Lang.set(d.profile, 'tagline', getVal('editTagline'));
+            Lang.set(d.profile, 'bio', getVal('editBio'));
+            Lang.set(d.profile, 'location', getVal('editLocation'));
             d.profile.email = getVal('editEmail');
             d.profile.socials.github = getVal('editGithub');
             d.profile.socials.behance = getVal('editBehance');
@@ -1463,13 +1531,31 @@ var heroStats = document.getElementById('heroStats');
             return name + ' ' + n;
         }
 
+        /* نص واحد للمقارنة سواء الحقل نص أو ثنائي اللغة {en,ar} */
+        function biText(v) {
+            if (v == null) return '';
+            if (typeof v === 'object' && !Array.isArray(v)) return String(v.en || v.ar || '');
+            return String(v);
+        }
         function dupItem(listName, i, dupKey, nameKey) {
             var d = DataManager.load();
             var arr = d[listName] || [];
             if (!arr[i]) return;
             var copy = JSON.parse(JSON.stringify(arr[i]));
-            var base = String(arr[i][nameKey] || 'بدون اسم').replace(/\s+\d+$/, '');
-            copy[nameKey] = ensureUniqueName(arr.map(function (x) { return x[nameKey]; }), base);
+            var src = arr[i][nameKey];
+            var taken = arr.map(function (x) { return biText(x[nameKey]); });
+            if (src && typeof src === 'object' && !Array.isArray(src)) {
+                /* حقل ثنائي اللغة: نضيف الرقم للاتنين مع بعض بدل ما يطلع [object Object] */
+                var b = asBi(src);
+                var en = String(b.en || '').replace(/\s+\d+$/, '');
+                var ar = String(b.ar || '').replace(/\s+\d+$/, '');
+                var n = 2;
+                while (taken.indexOf((en || 'بدون اسم') + ' ' + n) !== -1 ||
+                       taken.indexOf((ar || 'بدون اسم') + ' ' + n) !== -1) n++;
+                copy[nameKey] = { en: (en || 'بدون اسم') + ' ' + n, ar: (ar || 'بدون اسم') + ' ' + n };
+            } else {
+                copy[nameKey] = uniqueName(String(src || 'بدون اسم').replace(/\s+\d+$/, ''), taken);
+            }
             arr.splice(i + 1, 0, copy);
             DataManager.save(d);
         }
@@ -1505,21 +1591,87 @@ var heroStats = document.getElementById('heroStats');
             if (field) { field.focus(); field.select(); field.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
         }
 
+        function collectStats() {
+            var old = (DataManager.load().stats) || [];
+            var out = [];
+            document.querySelectorAll('#statsList .admin-dynamic-item').forEach(function (item, i) {
+                var vEl = item.querySelector('[data-field="value"]');
+                var lEl = item.querySelector('[data-field="label"]');
+                var prev = old[i] || {};
+                out.push({
+                    value: biVal(prev.value, vEl ? vEl.value : ''),
+                    label: biVal(prev.label, lEl ? lEl.value : '')
+                });
+            });
+            return out;
+        }
+
+        function collectSkills() {
+            var old = (DataManager.load().skills) || [];
+            var vals = [];
+            document.querySelectorAll('#skillsList .admin-dynamic-item input').forEach(function (inp) {
+                if (inp.value.trim()) vals.push(inp.value.trim());
+            });
+            return biList(old, vals);
+        }
+
+        /* قراءة DOM → بيانات محفوظة قبل أي عملية صف (تكرار/حذف/تحريك)
+           عشان التعديلات اللي لسه ما اتحفظتش ضايشش */
+        var LIST_FLUSH = {
+            stats: collectStats,
+            skills: collectSkills,
+            projects: collectProjects,
+            services: collectServices
+        };
+        function flushList(listName) {
+            var fn = LIST_FLUSH[listName];
+            if (!fn) return;
+            try {
+                var d = DataManager.load();
+                var next = fn();
+                if (next) { d[listName] = next; DataManager.save(d); }
+            } catch (e) {}
+        }
+
         function bindRowTools(container, listName, dupKey, nameKey, reload, after) {
             if (!container) return;
             bindOnce(container, 'rowTools', function (e) {
+                var mv = e.target.closest('[data-move]');
+                if (mv) {
+                    var mi = rowIndexOf(mv);
+                    var to = mv.getAttribute('data-move') === 'up' ? mi - 1 : mi + 1;
+                    if (mi > -1) {
+                        flushList(listName);
+                        var md = DataManager.load();
+                        var marr = md[listName] || [];
+                        if (to >= 0 && to < marr.length) {
+                            var moved = marr.splice(mi, 1)[0];
+                            marr.splice(to, 0, moved);
+                            DataManager.save(md);
+                            reload();
+                            if (after) after();
+                        }
+                    }
+                    return;
+                }
                 var ren = e.target.closest('[data-rename]');
-                if (ren) { focusNameField(ren, nameKey); return; }
+                if (ren) { flushList(listName); focusNameField(ren, nameKey); return; }
                 var dup = e.target.closest('[data-dup]');
                 if (dup) {
                     var j = rowIndexOf(dup);
-                    if (j > -1) { dupItem(listName, j, dupKey, nameKey); reload(); if (after) after(); }
+                    if (j > -1) {
+                        flushList(listName);
+                        dupItem(listName, j, dupKey, nameKey);
+                        reload();
+                        if (after) after();
+                    }
                     return;
                 }
                 var del = e.target.closest('.admin-remove-btn');
                 if (del && !del.hasAttribute('data-sec')) {
                     var k = rowIndexOf(del);
                     if (k > -1) {
+                        flushList(listName);
                         var dd = DataManager.load();
                         dd[listName].splice(k, 1);
                         DataManager.save(dd);
@@ -1536,21 +1688,21 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('statsList');
             list.innerHTML = '';
             (d.stats || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(s.value) + '" data-field="value" placeholder="الرقم"><input class="admin-input admin-input-sm" value="' + esc(s.label) + '" data-field="label" placeholder="التسمية"><button class="admin-mini-btn" data-rename="stats" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="stats" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(t(s.value)) + '" data-field="value" placeholder="الرقم"><input class="admin-input admin-input-sm" value="' + esc(t(s.label)) + '" data-field="label" placeholder="التسمية"><button class="admin-mini-btn" data-rename="stats" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="stats" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
             });
             bindRowTools(list, 'stats', 'value', 'label', loadStatsForm, renderAdminStats);
         }
 
         document.getElementById('addStat').addEventListener('click', function () {
             var d = DataManager.load();
-            d.stats.push({ value: '', label: '' });
+            d.stats.push({ value: asBi(''), label: asBi('') });
             DataManager.save(d);
             loadStatsForm();
         });
 
         document.getElementById('saveStats').addEventListener('click', function () {
             var d = DataManager.load();
-            d.stats = readDynamicList('statsList', ['value', 'label']);
+            d.stats = collectStats();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
@@ -1564,7 +1716,7 @@ var heroStats = document.getElementById('heroStats');
             var list = document.getElementById('skillsList');
             list.innerHTML = '';
             (d.skills || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(s) + '" placeholder="اسم المهارة"><button class="admin-mini-btn" data-rename="skills" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="skills" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
+                list.innerHTML += '<div class="admin-dynamic-item" data-idx="' + i + '"><input class="admin-input admin-input-sm" value="' + esc(t(s)) + '" placeholder="اسم المهارة"><button class="admin-mini-btn" data-rename="skills" data-idx="' + i + '" title="تغيير الاسم">✎</button><button class="admin-mini-btn" data-dup="skills" data-idx="' + i + '" title="تكرار">⧉</button><button class="admin-remove-btn" data-idx="' + i + '">✕</button></div>';
             });
             bindStringListTools(list, 'skills', loadSkillsForm);
         }
@@ -1588,8 +1740,10 @@ var heroStats = document.getElementById('heroStats');
                 var d = DataManager.load();
                 var arr = d[listName] || [];
                 if (dup) {
-                    var base = String(arr[i] || '').replace(/\s+\d+$/, '');
-                    arr.splice(i + 1, 0, ensureUniqueName(arr, base));
+                    var base = String(t(arr[i]) || '').replace(/\s+\d+$/, '');
+                    var copy = asBi(arr[i]);
+                    copy[Lang.get()] = ensureUniqueName(Lang.list(arr), base);
+                    arr.splice(i + 1, 0, copy);
                 } else {
                     arr.splice(i, 1);
                 }
@@ -1601,34 +1755,95 @@ var heroStats = document.getElementById('heroStats');
 
         document.getElementById('addSkill').addEventListener('click', function () {
             var d = DataManager.load();
-            d.skills.push('');
+            d.skills.push(asBi(''));
             DataManager.save(d);
             loadSkillsForm();
         });
 
         document.getElementById('saveSkills').addEventListener('click', function () {
             var d = DataManager.load();
-            d.skills = readSimpleList('skillsList');
+            d.skills = collectSkills();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             showSaved(this);
         });
 
-        /* --- Projects --- */
+        /* --- المشاريع --- */
+        function collectProjects() {
+            var old = (DataManager.load().projects) || [];
+            var out = [];
+            document.querySelectorAll('#projectsList .admin-project-item').forEach(function (item, i) {
+                var q = function (f) { var el = item.querySelector('[data-field="' + f + '"]'); return el ? el.value : ''; };
+                var chk = function (f) { var el = item.querySelector('[data-field="' + f + '"]'); return !!(el && el.checked); };
+                var sel = function (f, def) { var el = item.querySelector('[data-field="' + f + '"]'); return el && el.value ? el.value : def; };
+                var prev = old[i] || {};
+                var base = {};
+                Object.keys(prev).forEach(function (k) { base[k] = prev[k]; });
+                var categoryLabel = biVal(prev.categoryLabel, q('categoryLabel'));
+                base.title = biVal(prev.title, q('title'));
+                base.category = q('category');
+                base.categoryLabel = categoryLabel;
+                base.description = biVal(prev.description, q('description'));
+                base.image = q('image');
+                base.tools = biVal(prev.tools, q('tools'));
+                base.link = q('link');
+                base.tags = [t(categoryLabel)];
+                base.year = q('year');
+                base.featured = chk('featured');
+                base.status = sel('status', 'published');
+                out.push(base);
+            });
+            return out;
+        }
+
         function loadProjectsForm() {
             var d = DataManager.load();
             var list = document.getElementById('projectsList');
+            if (!list) return;
             list.innerHTML = '';
             (d.projects || []).forEach(function (p, i) {
-                list.innerHTML += '<div class="admin-dynamic-item admin-project-item" data-idx="' + i + '"><div class="admin-project-header"><strong>' + esc(p.title) + '</strong><span class="project-tag">' + esc(p.categoryLabel) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(p.title) + '" data-field="title" placeholder="العنوان"><input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)"><input class="admin-input admin-input-sm" value="' + esc(p.categoryLabel) + '" data-field="categoryLabel" placeholder="اسم التصنيف"><input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة"><input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)"><input class="admin-input admin-input-sm" value="' + esc(p.tools) + '" data-field="tools" placeholder="الأدوات (مفصولة بفاصلة: فوتوشوب، إيليستريتور)"><input class="admin-input admin-input-sm" value="' + esc(p.link) + '" data-field="link" dir="ltr" placeholder="رابط المشروع (اختياري)"><textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(p.description) + '</textarea></div><div class="admin-item-footer"><button class="admin-mini-btn" data-rename="projects" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button><button class="admin-mini-btn" data-dup="projects" data-idx="' + i + '" title="تكرار">⧉ تكرار</button><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button></div></div>';
+                var hidden = p.status === 'hidden';
+                list.innerHTML += '<div class="admin-dynamic-item admin-project-item" data-idx="' + i + '">' +
+                    '<div class="admin-project-header"><strong>' + esc(t(p.title)) + '</strong>' +
+                    '<span class="project-tag">' + esc(t(p.categoryLabel)) + '</span>' +
+                    '<span class="admin-status-chip' + (hidden ? ' is-hidden' : '') + '">' + (hidden ? 'مخفي' : 'منشور') + '</span></div>' +
+                    '<div class="admin-project-fields">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(p.title)) + '" data-field="title" placeholder="العنوان">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(p.category) + '" data-field="category" placeholder="التصنيف (identity/social/motion/print)">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(p.categoryLabel)) + '" data-field="categoryLabel" placeholder="اسم التصنيف">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(p.year) + '" data-field="year" placeholder="السنة">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(p.image) + '" data-field="image" dir="ltr" placeholder="رابط الصورة (اختياري)">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(p.tools)) + '" data-field="tools" placeholder="الأدوات (مفصولة بفاصلة: فوتوشوب، إيليستريتور)">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(p.link) + '" data-field="link" dir="ltr" placeholder="رابط المشروع (اختياري)">' +
+                    '<textarea class="admin-input admin-input-sm" data-field="description" rows="2" placeholder="الوصف">' + esc(t(p.description)) + '</textarea>' +
+                    '</div>' +
+                    '<div class="admin-meta-row">' +
+                    '<label class="admin-check-label"><input type="checkbox" data-field="featured"' + (p.featured ? ' checked' : '') + '> ★ مميّز (يظهر بعلامة)</label>' +
+                    '<select class="admin-select" data-field="status"><option value="published"' + (hidden ? '' : ' selected') + '>منشور في الموقع</option><option value="hidden"' + (hidden ? ' selected' : '') + '>مخفي</option></select>' +
+                    '</div>' +
+                    '<div class="admin-item-footer">' +
+                    '<button class="admin-mini-btn" data-move="up" data-idx="' + i + '" title="تحريك لأعلى">↑ أعلى</button>' +
+                    '<button class="admin-mini-btn" data-move="down" data-idx="' + i + '" title="تحريك لأسفل">↓ أسفل</button>' +
+                    '<button class="admin-mini-btn" data-rename="projects" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button>' +
+                    '<button class="admin-mini-btn" data-dup="projects" data-idx="' + i + '" title="تكرار">⧉ تكرار</button>' +
+                    '<button class="admin-remove-btn" data-idx="' + i + '">✕ حذف المشروع</button>' +
+                    '</div></div>';
             });
             bindRowTools(list, 'projects', 'title', 'title', loadProjectsForm, renderAdminStats);
         }
 
         document.getElementById('addProject').addEventListener('click', function () {
             var d = DataManager.load();
-            d.projects.push({ title: 'مشروع جديد', category: 'social', categoryLabel: 'سوشيال ميديا', description: 'وصف المشروع', image: '', tools: '', link: '', tags: [], year: '2026' });
+            var isAr = Lang.get() === 'ar';
+            d.projects.push({
+                title: { en: 'New project', ar: 'مشروع جديد' },
+                category: 'social',
+                categoryLabel: { ar: 'سوشيال ميديا', en: 'Social Media' },
+                description: { en: 'Project description', ar: 'وصف المشروع' },
+                image: '', tools: '', link: '', tags: [], year: '2026',
+                featured: false, status: 'published'
+            });
             DataManager.save(d);
             loadProjectsForm();
             renderAdminStats();
@@ -1636,23 +1851,7 @@ var heroStats = document.getElementById('heroStats');
 
         document.getElementById('saveProjects').addEventListener('click', function () {
             var d = DataManager.load();
-            var items = document.querySelectorAll('#projectsList .admin-project-item');
-            d.projects = [];
-            items.forEach(function (item) {
-                var toolsInput = item.querySelector('[data-field="tools"]');
-                var linkInput = item.querySelector('[data-field="link"]');
-                d.projects.push({
-                    title: item.querySelector('[data-field="title"]').value,
-                    category: item.querySelector('[data-field="category"]').value,
-                    categoryLabel: item.querySelector('[data-field="categoryLabel"]').value,
-                    description: item.querySelector('[data-field="description"]').value,
-                    image: item.querySelector('[data-field="image"]').value,
-                    tools: toolsInput ? toolsInput.value : '',
-                    link: linkInput ? linkInput.value : '',
-                    tags: [item.querySelector('[data-field="categoryLabel"]').value],
-                    year: item.querySelector('[data-field="year"]').value
-                });
-            });
+            d.projects = collectProjects();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
@@ -1805,39 +2004,85 @@ var heroStats = document.getElementById('heroStats');
         });
 
         /* --- Services --- */
+        function collectServices() {
+            var old = (DataManager.load().services) || [];
+            var out = [];
+            document.querySelectorAll('#servicesList .admin-service-item').forEach(function (item, i) {
+                var q = function (f) { var el = item.querySelector('[data-field="' + f + '"]'); return el ? el.value : ''; };
+                var chk = function (f) { var el = item.querySelector('[data-field="' + f + '"]'); return !!(el && el.checked); };
+                var sel = function (f, def) { var el = item.querySelector('[data-field="' + f + '"]'); return el && el.value ? el.value : def; };
+                var prev = old[i] || {};
+                var base = {};
+                Object.keys(prev).forEach(function (k) { base[k] = prev[k]; });
+                base.name = biVal(prev.name, q('name'));
+                base.price = biVal(prev.price, q('price'));
+                base.features = biList(prev.features, linesOf(q('features')));
+                base.delivery = biVal(prev.delivery, q('delivery'));
+                base.featured = chk('featured');
+                base.kind = sel('kind', 'service');
+                base.status = sel('status', 'published');
+                out.push(base);
+            });
+            return out;
+        }
+
         function loadServicesForm() {
             var d = DataManager.load();
             var list = document.getElementById('servicesList');
+            if (!list) return;
             list.innerHTML = '';
             (d.services || []).forEach(function (s, i) {
-                list.innerHTML += '<div class="admin-dynamic-item admin-service-item" data-idx="' + i + '"><div class="admin-project-header"><strong>' + esc(s.name) + '</strong><span class="project-tag">' + esc(s.price) + '</span></div><div class="admin-project-fields"><input class="admin-input admin-input-sm" value="' + esc(s.name) + '" data-field="name" placeholder="اسم الخدمة"><input class="admin-input admin-input-sm" value="' + esc(s.price) + '" data-field="price" placeholder="السعر"><textarea class="admin-input admin-input-sm" data-field="features" rows="3" placeholder="المميزات (كل سطر ميزة)">' + (s.features || []).join('\n') + '</textarea><input class="admin-input admin-input-sm" value="' + esc(s.delivery) + '" data-field="delivery" placeholder="مدة التسليم"></div><label class="admin-check-label"><input type="checkbox" data-field="featured"' + (s.featured ? ' checked' : '') + '> الأكثر طلباً</label><div class="admin-item-footer"><button class="admin-mini-btn" data-rename="services" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button><button class="admin-mini-btn" data-dup="services" data-idx="' + i + '" title="تكرار">⧉ تكرار</button><button class="admin-remove-btn" data-idx="' + i + '">✕ حذف الخدمة</button></div></div>';
+                var hidden = s.status === 'hidden';
+                var isPricing = s.kind === 'pricing';
+                list.innerHTML += '<div class="admin-dynamic-item admin-service-item" data-idx="' + i + '">' +
+                    '<div class="admin-project-header"><strong>' + esc(t(s.name)) + '</strong>' +
+                    '<span class="project-tag">' + esc(t(s.price)) + '</span>' +
+                    '<span class="admin-status-chip' + (hidden ? ' is-hidden' : '') + '">' + (hidden ? 'مخفي' : 'منشور') + '</span>' +
+                    '<span class="admin-kind-chip' + (isPricing ? ' is-pricing' : '') + '">' + (isPricing ? 'باقة' : 'خدمة') + '</span></div>' +
+                    '<div class="admin-project-fields">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(s.name)) + '" data-field="name" placeholder="اسم الخدمة">' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(s.price)) + '" data-field="price" placeholder="السعر">' +
+                    '<textarea class="admin-input admin-input-sm" data-field="features" rows="3" placeholder="المميزات (كل سطر ميزة)">' + esc(Lang.list(s.features).join('\n')) + '</textarea>' +
+                    '<input class="admin-input admin-input-sm" value="' + esc(t(s.delivery)) + '" data-field="delivery" placeholder="مدة التسليم">' +
+                    '</div>' +
+                    '<div class="admin-meta-row">' +
+                    '<label class="admin-check-label"><input type="checkbox" data-field="featured"' + (s.featured ? ' checked' : '') + '> الأكثر طلباً</label>' +
+                    '<select class="admin-select" data-field="kind"><option value="service"' + (isPricing ? '' : ' selected') + '>خدمة أساسية</option><option value="pricing"' + (isPricing ? ' selected' : '') + '>باقة تسعير</option></select>' +
+                    '<select class="admin-select" data-field="status"><option value="published"' + (hidden ? '' : ' selected') + '>منشور</option><option value="hidden"' + (hidden ? ' selected' : '') + '>مخفي</option></select>' +
+                    '</div>' +
+                    '<div class="admin-item-footer">' +
+                    '<button class="admin-mini-btn" data-move="up" data-idx="' + i + '" title="تحريك لأعلى">↑ أعلى</button>' +
+                    '<button class="admin-mini-btn" data-move="down" data-idx="' + i + '" title="تحريك لأسفل">↓ أسفل</button>' +
+                    '<button class="admin-mini-btn" data-rename="services" data-idx="' + i + '" title="تغيير الاسم">✎ تغيير الاسم</button>' +
+                    '<button class="admin-mini-btn" data-dup="services" data-idx="' + i + '" title="تكرار">⧉ تكرار</button>' +
+                    '<button class="admin-remove-btn" data-idx="' + i + '">✕ حذف الخدمة</button>' +
+                    '</div></div>';
             });
             bindRowTools(list, 'services', 'name', 'name', loadServicesForm, renderAdminStats);
         }
 
         document.getElementById('addService').addEventListener('click', function () {
             var d = DataManager.load();
-            d.services.push({ name: 'خدمة جديدة', price: 'ابتداءً من 0$', features: ['ميزة 1', 'ميزة 2'], delivery: 'مدة التسليم: أسبوع', featured: false });
+            var isAr = Lang.get() === 'ar';
+            d.services.push({
+                name: { en: 'New service', ar: 'خدمة جديدة' },
+                price: { en: 'From $0', ar: 'ابتداءً من 0$' },
+                features: [{ en: 'Feature 1', ar: 'ميزة 1' }, { en: 'Feature 2', ar: 'ميزة 2' }],
+                delivery: { en: 'Delivery: 1 week', ar: 'مدة التسليم: أسبوع' },
+                featured: false, kind: 'service', status: 'published'
+            });
             DataManager.save(d);
             loadServicesForm();
+            renderAdminStats();
         });
 
         document.getElementById('saveServices').addEventListener('click', function () {
             var d = DataManager.load();
-            var items = document.querySelectorAll('#servicesList .admin-service-item');
-            d.services = [];
-            items.forEach(function (item) {
-                d.services.push({
-                    name: item.querySelector('[data-field="name"]').value,
-                    price: item.querySelector('[data-field="price"]').value,
-                    features: item.querySelector('[data-field="features"]').value.split('\n').filter(function (l) { return l.trim(); }),
-                    delivery: item.querySelector('[data-field="delivery"]').value,
-                    featured: item.querySelector('[data-field="featured"]').checked
-                });
-            });
+            d.services = collectServices();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
+            renderAdminStats();
             showSaved(this);
         });
 
@@ -1913,49 +2158,112 @@ var heroStats = document.getElementById('heroStats');
         }
 
         /* --- Content --- */
+        /* --- نصوص الموقع (ثنائي اللغة) --- */
+        var SITE_TEXT_FIELDS = [
+            ['badge', 'editBadge'], ['heroBtn1', 'editHeroBtn1'], ['heroBtn2', 'editHeroBtn2'],
+            ['aboutTitle', 'editAboutTitle'], ['aboutDesc', 'editAboutDesc'],
+            ['projectsTitle', 'editProjectsTitle'], ['projectsDesc', 'editProjectsDesc'],
+            ['servicesTitle', 'editServicesTitle'], ['servicesDesc', 'editServicesDesc'],
+            ['contactTitle', 'editContactTitle'], ['contactDesc', 'editContactDesc'],
+            ['contactCard1', 'editContactCard1'], ['contactCard2', 'editContactCard2'], ['contactCard3', 'editContactCard3'],
+            ['footerText', 'editFooterText']
+        ];
+
         function loadContentForm() {
             var d = DataManager.load();
             if (!d || !d.site) return;
-            setVal('editBadge', d.site.badge);
-            setVal('editHeroBtn1', d.site.heroBtn1);
-            setVal('editHeroBtn2', d.site.heroBtn2);
-            setVal('editAboutTitle', d.site.aboutTitle);
-            setVal('editAboutDesc', d.site.aboutDesc);
-            setVal('editProjectsTitle', d.site.projectsTitle);
-            setVal('editProjectsDesc', d.site.projectsDesc);
-            setVal('editServicesTitle', d.site.servicesTitle);
-            setVal('editServicesDesc', d.site.servicesDesc);
-            setVal('editContactTitle', d.site.contactTitle);
-            setVal('editContactDesc', d.site.contactDesc);
-            setVal('editContactCard1', d.site.contactCard1);
-            setVal('editContactCard2', d.site.contactCard2);
-            setVal('editContactCard3', d.site.contactCard3);
-            setVal('editFooterText', d.site.footerText);
+            SITE_TEXT_FIELDS.forEach(function (pair) { setVal(pair[1], t(d.site[pair[0]])); });
         }
 
         document.getElementById('saveContent').addEventListener('click', function () {
             var d = DataManager.load();
             if (!d.site) d.site = {};
-            d.site.badge = getVal('editBadge');
-            d.site.heroBtn1 = getVal('editHeroBtn1');
-            d.site.heroBtn2 = getVal('editHeroBtn2');
-            d.site.aboutTitle = getVal('editAboutTitle');
-            d.site.aboutDesc = getVal('editAboutDesc');
-            d.site.projectsTitle = getVal('editProjectsTitle');
-            d.site.projectsDesc = getVal('editProjectsDesc');
-            d.site.servicesTitle = getVal('editServicesTitle');
-            d.site.servicesDesc = getVal('editServicesDesc');
-            d.site.contactTitle = getVal('editContactTitle');
-            d.site.contactDesc = getVal('editContactDesc');
-            d.site.contactCard1 = getVal('editContactCard1');
-            d.site.contactCard2 = getVal('editContactCard2');
-            d.site.contactCard3 = getVal('editContactCard3');
-            d.site.footerText = getVal('editFooterText');
+            SITE_TEXT_FIELDS.forEach(function (pair) { Lang.set(d.site, pair[0], getVal(pair[1])); });
+            d.about = d.about || {};
+            Lang.set(d.about, 'lead', getVal('editAboutLead'));
+            d.about.steps = collectAboutSteps();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
             ScrollReveal.init();
             CounterAnimation.init();
             showSaved(this);
+        });
+
+        /* --- نبذة + خطوات المنهجية --- */
+        function collectAboutSteps() {
+            var prev = ((DataManager.load().about) || {}).steps || [];
+            var out = [];
+            document.querySelectorAll('#aboutStepsList .admin-dynamic-item').forEach(function (item, i) {
+                var kEl = item.querySelector('[data-field="key"]');
+                var tEl = item.querySelector('[data-field="text"]');
+                var p = prev[i] || {};
+                out.push({ key: biVal(p.key, kEl ? kEl.value : ''), text: biVal(p.text, tEl ? tEl.value : '') });
+            });
+            return out;
+        }
+
+        function loadAboutForm() {
+            var d = DataManager.load();
+            var lead = document.getElementById('editAboutLead');
+            var list = document.getElementById('aboutStepsList');
+            if (lead) lead.value = t((d.about || {}).lead) || '';
+            if (!list) return;
+            list.innerHTML = '';
+            (((d.about || {}).steps) || []).forEach(function (st, i) {
+                list.innerHTML += '<div class="admin-dynamic-item admin-step-item" data-idx="' + i + '">' +
+                    '<input class="admin-input admin-input-sm" data-field="key" value="' + esc(t(st.key)) + '" placeholder="اسم الخطوة (Think)">' +
+                    '<textarea class="admin-input admin-input-sm" data-field="text" rows="2" placeholder="شرح الخطوة">' + esc(t(st.text)) + '</textarea>' +
+                    '<div class="admin-item-footer">' +
+                    '<button class="admin-mini-btn" data-move="up" data-idx="' + i + '">↑ أعلى</button>' +
+                    '<button class="admin-mini-btn" data-move="down" data-idx="' + i + '">↓ أسفل</button>' +
+                    '<button class="admin-mini-btn" data-dup-step data-idx="' + i + '">⧉ تكرار</button>' +
+                    '<button class="admin-remove-btn" data-idx="' + i + '">✕ حذف</button>' +
+                    '</div></div>';
+            });
+            bindStepTools(list);
+        }
+
+        function bindStepTools(container) {
+            if (!container || container.dataset.stepTools) return;
+            container.dataset.stepTools = '1';
+            container.addEventListener('click', function (e) {
+                var btn = e.target.closest('button');
+                if (!btn) return;
+                var card = btn.closest('[data-idx]');
+                var i = card ? parseInt(card.getAttribute('data-idx'), 10) : -1;
+                if (i < 0) return;
+                var d = DataManager.load();
+                d.about = d.about || {};
+                d.about.lead = biVal((d.about.lead), getVal('editAboutLead'));
+                d.about.steps = collectAboutSteps();
+                var steps = d.about.steps;
+                if (btn.hasAttribute('data-move')) {
+                    var to = btn.getAttribute('data-move') === 'up' ? i - 1 : i + 1;
+                    if (to >= 0 && to < steps.length) { var m = steps.splice(i, 1)[0]; steps.splice(to, 0, m); }
+                } else if (btn.hasAttribute('data-dup-step')) {
+                    var copy = JSON.parse(JSON.stringify(steps[i]));
+                    steps.splice(i + 1, 0, copy);
+                } else if (btn.classList.contains('admin-remove-btn')) {
+                    if (steps.length <= 1) { alert('لازم تفضل خطوة واحدة على الأقل'); return; }
+                    steps.splice(i, 1);
+                } else return;
+                DataManager.save(d);
+                loadAboutForm();
+                renderSite();
+                ScrollReveal.init();
+            });
+        }
+
+        document.getElementById('addAboutStep').addEventListener('click', function () {
+            var d = DataManager.load();
+            d.about = d.about || {};
+            d.about.lead = biVal(d.about.lead, getVal('editAboutLead'));
+            d.about.steps = collectAboutSteps();
+            d.about.steps.push({ key: { en: 'Step', ar: 'خطوة' }, text: { en: '', ar: '' } });
+            DataManager.save(d);
+            loadAboutForm();
+            renderSite();
+            ScrollReveal.init();
         });
 
         /* --- Comments Admin --- */
@@ -2028,6 +2336,33 @@ var heroStats = document.getElementById('heroStats');
 
     function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = v || ''; }
     function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+    /* ===== أدوات التعديل ثنائي اللغة =====
+       كل حقل نصي بيتحفظ {en, ar} — لغة التحرير الحالية بتتكتب والتانية بتفضل زي ما هي */
+    function asBi(oldVal) {
+        if (oldVal != null && typeof oldVal === 'object' && !Array.isArray(oldVal)) {
+            return { en: oldVal.en == null ? '' : oldVal.en, ar: oldVal.ar == null ? '' : oldVal.ar };
+        }
+        var s = (oldVal == null) ? '' : String(oldVal);
+        return { en: s, ar: s };
+    }
+    function biVal(oldVal, newVal) {
+        var o = asBi(oldVal);
+        o[Lang.get()] = newVal;
+        return o;
+    }
+    /* قوائم نصوص (مهارات/مميزات خدمة) — عنصر بعنصر بلغة التحرير */
+    function biList(oldArr, newLines) {
+        var out = [];
+        for (var i = 0; i < newLines.length; i++) {
+            var old = (oldArr && i < oldArr.length) ? oldArr[i] : '';
+            var o = asBi(old);
+            o[Lang.get()] = newLines[i];
+            out.push(o);
+        }
+        return out;
+    }
+    function linesOf(v) { return String(v == null ? '' : v).split('\n').map(function (x) { return x.trim(); }).filter(function (x) { return x !== ''; }); }
     function esc(s) { return String(s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
     function showSaved(btn) { var orig = btn.textContent; btn.textContent = 'تم الحفظ ✓'; btn.classList.add('saved'); setTimeout(function () { btn.textContent = orig; btn.classList.remove('saved'); }, 2000); }
     function readDynamicList(listId, fields) {
@@ -2087,6 +2422,98 @@ function hydratePhoto() {
 }
 
 /* يطبّق البيانات المنشورة (data.json) على شكل الموقع — الثيم واللايوت والمحتوى والصورة */
+/* ============================================
+   i18n — اللغة (إنجليزي افتراضي + عربي)
+   القيم ممكن تكون نص عادي أو { en: '...', ar: '...' }
+   ============================================ */
+var Lang = (function () {
+    var KEY = 'amahdy_lang';
+    var cur = 'en';
+    try { var sv = localStorage.getItem(KEY); if (sv === 'en' || sv === 'ar') cur = sv; } catch (e) {}
+
+    function get() { return cur; }
+    function isRTL() { return cur === 'ar'; }
+
+    /* قراءة قيمة مترجمة من أي شكل بيانات */
+    function t(v) {
+        if (v == null) return '';
+        if (typeof v === 'string') return v;
+        if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+        if (Array.isArray(v)) return v.map(t).join(' · ');
+        if (typeof v !== 'object') return String(v);
+        var r = v[cur];
+        if (r != null && r !== '') return (typeof r === 'object') ? t(r) : String(r);
+        var fb = v.ar != null && v.ar !== '' ? v.ar : v.en;
+        if (fb == null || fb === '') return '';
+        return (typeof fb === 'object') ? t(fb) : String(fb);
+    }
+    /* مصفوفة عناصر مترجمة → مصفوفة نصوص */
+    function list(v) {
+        if (!v) return [];
+        if (!Array.isArray(v)) return [t(v)];
+        return v.map(function (x) { return t(x); }).filter(function (x) { return x !== ''; });
+    }
+    /* كتابة قيمة بلغة التحرير الحالية مع الحفاظ على اللغة الأخرى */
+    function set(obj, key, val) {
+        if (!obj) return;
+        var cur2 = obj[key];
+        if (cur2 == null) cur2 = '';
+        if (typeof cur2 !== 'object' || cur2 === null || Array.isArray(cur2)) {
+            if (Array.isArray(val)) { obj[key] = val; return; }
+            obj[key] = { ar: cur2 === '' ? val : String(cur2), en: cur2 === '' ? val : String(cur2) };
+        }
+        obj[key][cur] = val;
+    }
+    /* النصوص الثابتة المكتوبة في HTML (data-en / data-ar / data-ph-* / data-*-label) */
+    function applyStatic() {
+        var L = cur;
+        document.querySelectorAll('[data-en],[data-ar],[data-ph-en],[data-ph-ar],[data-en-label],[data-ar-label]').forEach(function (el) {
+            var v = el.getAttribute('data-' + L);
+            if (v != null) el.textContent = v;
+            var ph = el.getAttribute('data-ph-' + L);
+            if (ph != null) el.setAttribute('placeholder', ph);
+            var al = el.getAttribute('data-' + L + '-label') || (L === 'ar' ? el.getAttribute('data-ar-label') : null);
+            if (al != null) el.setAttribute('aria-label', al);
+        });
+        var sw = document.getElementById('langSwitch');
+        if (sw) sw.querySelectorAll('.lang-btn').forEach(function (b) {
+            var on = b.getAttribute('data-lang') === L;
+            b.classList.toggle('active', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
+    function applyDir() {
+        var html = document.documentElement;
+        html.setAttribute('lang', cur);
+        html.setAttribute('dir', cur === 'ar' ? 'rtl' : 'ltr');
+    }
+    function setLang(l) {
+        if (l !== 'en' && l !== 'ar') return;
+        if (l === cur) return;
+        cur = l;
+        try { localStorage.setItem(KEY, l); } catch (e) {}
+        applyDir();
+        applyStatic();
+        renderSite();
+        renderComments();
+        document.dispatchEvent(new CustomEvent('langchange', { detail: { lang: l } }));
+    }
+    function init() {
+        applyDir();
+        applyStatic();
+        var sw = document.getElementById('langSwitch');
+        if (sw && !sw.__bound) {
+            sw.__bound = 1;
+            sw.addEventListener('click', function (e) {
+                var b = e.target.closest('.lang-btn');
+                if (b) setLang(b.getAttribute('data-lang'));
+            });
+        }
+    }
+    return { get: get, t: t, list: list, set: set, isRTL: isRTL, applyStatic: applyStatic, applyDir: applyDir, setLang: setLang, init: init };
+})();
+function t(v) { return Lang.t(v); }
+
 function applyRemoteData() {
     if (!DataManager.getRemote()) return;
     var root = document.documentElement;
@@ -2106,7 +2533,17 @@ function renderSite() {
     if (!d) return;
 
     function $(id) { return document.getElementById(id); }
-    function fill(id, v) { var el = $(id); if (el && v) el.textContent = v; }
+    function fill(id, v) { var el = $(id); if (el && v != null && v !== '') { var out = t(v); if (out !== '') el.textContent = out; } }
+    /* فقرات متعددة (مفصولة بسطر فاضي) → <p> لكل فقرة */
+    function fillRich(id, v) {
+        var el = $(id); if (!el) return;
+        var out = v ? t(v) : '';
+        if (!out) return;
+        el.innerHTML = out.split(/\n\s*\n|\n/).map(function (para) {
+            para = para.trim();
+            return para ? '<p>' + escHtml(para) + '</p>' : '';
+        }).join('');
+    }
 
     var p = d.profile;
     var s = d.site || {};
@@ -2114,11 +2551,26 @@ function renderSite() {
 
     fill('heroName', p.name);
     fill('heroRole', p.role);
-    fill('heroTagline', p.tagline);
     fill('heroBadge', s.badge);
     fill('heroBtn1', s.heroBtn1);
     fill('heroBtn2', s.heroBtn2);
-    fill('aboutBio', p.bio);
+
+    /* إحصائيات الهيرو — بتتبني من d.stats بلغة العرض الحالية */
+    var statsBox = $('heroStats');
+    if (statsBox) {
+        var statHtml = (d.stats || []).map(function (x) {
+            var v = t(x.value);
+            if (v === '') return '';
+            return '<div class="hero-stat"><span class="hero-stat-num" data-value="' + escAttr(v) + '">' + escHtml(v) + '</span>' +
+                '<span class="hero-stat-label">' + escHtml(t(x.label)) + '</span></div>';
+        }).join('');
+        statsBox.innerHTML = statHtml;
+        statsBox.style.display = statHtml ? '' : 'none';
+        statsBox.__obs = 0;
+        if (typeof CounterAnimation !== 'undefined') CounterAnimation.init();
+    }
+
+    fillRich('aboutBio', p.bio);
     fill('aboutTitle', s.aboutTitle);
     fill('aboutDesc', s.aboutDesc);
     fill('contactTitle', s.contactTitle);
@@ -2132,6 +2584,19 @@ function renderSite() {
     fill('servicesDesc', s.servicesDesc);
     fill('footerText', s.footerText);
     fill('footerYear', String(new Date().getFullYear()));
+
+    // About — هوية + منهجية العمل (Think → Concept → Design → Refine)
+    fill('aboutIdentityName', p.name);
+    var ab = d.about || {};
+    fillRich('aboutLead', ab.lead);
+    var stepsEl = $('aboutSteps');
+    if (stepsEl && ab.steps && ab.steps.length) {
+        stepsEl.innerHTML = ab.steps.map(function (st, i) {
+            return '<li class="about-step" data-step="' + (i + 1 < 10 ? '0' : '') + (i + 1) + '">' +
+                '<span class="about-step-key">' + escHtml(t(st.key)) + '</span>' +
+                '<p>' + escHtml(t(st.text)) + '</p></li>';
+        }).join('');
+    }
 
     // Profile photo — from localStorage, else IndexedDB, else published data.json
     var av = $('aboutAvatar');
@@ -2190,19 +2655,19 @@ function renderSite() {
     // Skills
     var sk = $('aboutSkills');
     if (sk && d.skills) {
-        sk.innerHTML = d.skills.map(function (s) {
-            return '<span class="skill-tag">' + s + '</span>';
+        sk.innerHTML = Lang.list(d.skills).map(function (s) {
+            return '<span class="skill-tag">' + escHtml(s) + '</span>';
         }).join('');
     }
 
     // Filter toolbar
     var cats = {};
-    (d.projects || []).forEach(function (p) { cats[p.category] = p.categoryLabel; });
+    (d.projects || []).forEach(function (p) { if (p.category) cats[p.category] = p.categoryLabel; });
     var tb = $('projectsToolbar');
     if (tb) {
-        var fb = '<button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">الكل</button>';
+        var fb = '<button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">' + escHtml(t({ en: 'All', ar: 'الكل' })) + '</button>';
         Object.keys(cats).forEach(function (k) {
-            fb += '<button type="button" class="filter-btn" data-filter="' + escAttr(k) + '" aria-pressed="false">' + escHtml(cats[k]) + '</button>';
+            fb += '<button type="button" class="filter-btn" data-filter="' + escAttr(k) + '" aria-pressed="false">' + escHtml(t(cats[k])) + '</button>';
         });
         tb.innerHTML = fb;
         tb.querySelectorAll('.filter-btn').forEach(function (btn) {
@@ -2222,22 +2687,56 @@ function renderSite() {
     var grid = $('projectsGrid');
     if (grid && d.projects) {
         var lb = SiteControls.features(d).lightbox;
-        grid.innerHTML = d.projects.map(function (p, i) {
+        var shown = (d.projects || []).filter(function (pr) { return !pr.status || pr.status === 'published'; });
+        grid.innerHTML = shown.map(function (p, i) {
+            var label = t(p.categoryLabel) || p.category;
             var img = p.image && isValidURL(p.image)
                 ? '<div class="project-cover" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
-                : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(p.categoryLabel || p.category) + '</span></div>';
+                : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(label) + '</span></div>';
             var attrs = ' id="project-' + i + '" data-idx="' + i + '"';
-            if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr('عرض مشروع: ' + (p.title || '')) + '"';
-            return '<article class="project-card reveal"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta"><span class="project-tag">' + escHtml(p.categoryLabel || p.category) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span></div><h3 class="project-title">' + escHtml(p.title) + '</h3><p class="project-desc">' + escHtml(p.description) + '</p></div></article>';
+            if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr(t({ en: 'Open project: ', ar: 'عرض مشروع: ' }) + (t(p.title) || '')) + '"';
+            var meta = '<span class="project-tag">' + escHtml(label) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span>';
+            if (p.featured) meta += '<span class="project-featured-flag" title="' + escAttr(t({ en: 'Featured', ar: 'مميّز' })) + '">★</span>';
+            return '<article class="project-card reveal' + (p.featured ? ' is-featured' : '') + '"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta">' + meta + '</div><h3 class="project-title">' + escHtml(t(p.title)) + '</h3><p class="project-desc">' + escHtml(t(p.description)) + '</p></div></article>';
         }).join('');
     }
 
-    // Services
+    // Services — الخدمات الأساسية ثم الباقات
     var sg = $('servicesGrid');
+    var pg = document.getElementById('pricingGrid');
     if (sg && d.services) {
-        sg.innerHTML = d.services.map(function (s) {
-            return '<div class="service-card' + (s.featured ? ' featured' : '') + ' reveal">' + (s.featured ? '<div class="service-badge">الأكثر طلباً</div>' : '') + '<h3 class="service-name">' + escHtml(s.name) + '</h3><div class="service-price">' + escHtml(s.price) + '</div><ul class="service-features">' + (s.features || []).map(function (f) { return '<li>' + escHtml(f) + '</li>'; }).join('') + '</ul><div class="service-delivery">' + escHtml(s.delivery || '') + '</div></div>';
+        var kinds = (d.services || []).filter(function (x) { return !x.status || x.status === 'published'; });
+        var core = kinds.filter(function (x) { return x.kind !== 'pricing'; });
+        var packs = kinds.filter(function (x) { return x.kind === 'pricing'; });
+        if (!core.length && packs.length) { core = packs; packs = []; }
+        sg.innerHTML = core.map(function (s, i) {
+            var feats = Lang.list(s.features);
+            return '<div class="service-card' + (s.featured ? ' featured' : '') + ' reveal">' +
+                (s.featured ? '<div class="service-badge">' + escHtml(t({ en: 'Most requested', ar: 'الأكثر طلباً' })) + '</div>' : '') +
+                '<span class="service-index" aria-hidden="true">' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</span>' +
+                '<h3 class="service-name">' + escHtml(t(s.name)) + '</h3>' +
+                (s.price ? '<div class="service-price">' + escHtml(t(s.price)) + '</div>' : '') +
+                (s.description ? '<p class="service-desc">' + escHtml(t(s.description)) + '</p>' : '') +
+                (feats.length ? '<ul class="service-features">' + feats.map(function (f) { return '<li>' + escHtml(f) + '</li>'; }).join('') + '</ul>' : '') +
+                (s.delivery ? '<div class="service-delivery">' + escHtml(t(s.delivery)) + '</div>' : '') +
+                '</div>';
         }).join('');
+        var pw = document.getElementById('pricingWrap');
+        if (pg) {
+            pg.innerHTML = packs.map(function (s) {
+                var feats = Lang.list(s.features);
+                return '<div class="service-card pricing-card' + (s.featured ? ' featured' : '') + '">' +
+                    (s.featured ? '<div class="service-badge">' + escHtml(t({ en: 'Most popular', ar: 'الأكثر طلباً' })) + '</div>' : '') +
+                    '<h3 class="service-name">' + escHtml(t(s.name)) + '</h3>' +
+                    (s.price ? '<div class="service-price">' + escHtml(t(s.price)) + '</div>' : '') +
+                    (feats.length ? '<ul class="service-features">' + feats.map(function (f) { return '<li>' + escHtml(f) + '</li>'; }).join('') + '</ul>' : '') +
+                    (s.delivery ? '<div class="service-delivery">' + escHtml(t(s.delivery)) + '</div>' : '') +
+                    '</div>';
+            }).join('');
+        }
+        if (pw) pw.hidden = !packs.length;
+        var pn = document.getElementById('pricingNote');
+        if (pn) { var note = t(d.contactNote); pn.textContent = note || ''; if (pn.parentElement) pn.parentElement.hidden = !note; }
     }
 
     // Add reveal classes to sections
@@ -2507,22 +3006,25 @@ var ProjectLightbox = (function () {
     }
 
     function collect() {
-        items = ((DataManager.load() || {}).projects || []).slice();
+        items = ((DataManager.load() || {}).projects || []).filter(function (p) {
+            return !p.status || p.status === 'published';
+        });
     }
 
     function render() {
         var p = items[idx];
         if (!p || !el.overlay) return;
         var img = p.image && isValidURL(p.image);
+        var fallbackLabel = t({ en: 'Project', ar: 'مشروع' });
         el.media.innerHTML = img
             ? '<div class="lb-img" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
-            : '<div class="lb-art"><span>' + escHtml(p.categoryLabel || p.category || 'مشروع') + '</span></div>';
-        el.title.textContent = p.title || '';
-        el.desc.textContent = p.description || '';
-        el.cat.textContent = p.categoryLabel || p.category || '';
+            : '<div class="lb-art"><span>' + escHtml(t(p.categoryLabel) || p.category || fallbackLabel) + '</span></div>';
+        el.title.textContent = t(p.title) || '';
+        el.desc.textContent = t(p.description) || '';
+        el.cat.textContent = t(p.categoryLabel) || p.category || '';
         el.year.textContent = p.year || '';
         var chips = [];
-        (p.tags || []).forEach(function (t) { if (t) chips.push('<span class="lb-chip">' + escHtml(t) + '</span>'); });
+        Lang.list(p.tags).forEach(function (tg) { if (tg) chips.push('<span class="lb-chip">' + escHtml(tg) + '</span>'); });
         String(p.tools || '').split(/[,،]/).forEach(function (tool) {
             tool = tool.trim();
             if (tool) chips.push('<span class="lb-chip lb-chip--tool">' + escHtml(tool) + '</span>');
@@ -2959,6 +3461,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Init layout
     LayoutManager.init();
 
+    // اللغة (إنجليزي افتراضي) — قبل أي رسم
+    Lang.init();
+
     // Render site
     renderSite();
 
@@ -2996,16 +3501,21 @@ document.addEventListener('DOMContentLoaded', function () {
     var links = document.getElementById('navLinks');
 
     if (toggle && links) {
+        function navLabel(open) {
+            return t(open
+                ? { en: 'Close navigation menu', ar: 'إغلاق قائمة التنقل' }
+                : { en: 'Open navigation menu', ar: 'فتح قائمة التنقل' });
+        }
         toggle.addEventListener('click', function () {
             var open = links.classList.toggle('open');
             toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-            toggle.setAttribute('aria-label', open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل');
+            toggle.setAttribute('aria-label', navLabel(open));
         });
         links.addEventListener('click', function (e) {
             if (e.target.closest('a')) {
                 links.classList.remove('open');
                 toggle.setAttribute('aria-expanded', 'false');
-                toggle.setAttribute('aria-label', 'فتح قائمة التنقل');
+                toggle.setAttribute('aria-label', navLabel(false));
             }
         });
         document.addEventListener('keydown', function (e) {
@@ -3056,22 +3566,23 @@ document.addEventListener('DOMContentLoaded', function () {
     renderComments();
 });
 
-function renderComments() {
-    var list = document.getElementById('commentsList');
-    if (!list) return;
-    CommentStore.getAll().then(function (comments) {
-        if (!comments || comments.length === 0) {
-            list.innerHTML = '<div class="comments-empty">لا توجد تعليقات بعد — كن أول من يعلّق!</div>';
-            return;
-        }
-        list.innerHTML = comments.map(function (c) {
-            var initial = (c.name || '?')[0];
-            var d = new Date(c.date);
-            var dateStr = d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
-            return '<div class="comment-card"><div class="comment-header"><div class="comment-avatar">' + initial + '</div><div class="comment-name">' + escHtml(c.name) + '</div><div class="comment-date">' + dateStr + '</div></div><div class="comment-text">' + escHtml(c.text) + '</div></div>';
-        }).join('');
-    });
-}
+    function renderComments() {
+        var list = document.getElementById('commentsList');
+        if (!list) return;
+        CommentStore.getAll().then(function (comments) {
+            if (!comments || comments.length === 0) {
+                list.innerHTML = '<div class="comments-empty">' + escHtml(t({ en: 'No comments yet — be the first to leave one!', ar: 'لا توجد تعليقات بعد — كن أول من يعلّق!' })) + '</div>';
+                return;
+            }
+            var loc = t({ en: 'en-GB', ar: 'ar-EG' });
+            list.innerHTML = comments.map(function (c) {
+                var initial = (c.name || '?')[0];
+                var d = new Date(c.date);
+                var dateStr = d.toLocaleDateString(loc, { year: 'numeric', month: 'short', day: 'numeric' });
+                return '<div class="comment-card"><div class="comment-header"><div class="comment-avatar">' + initial + '</div><div class="comment-name">' + escHtml(c.name) + '</div><div class="comment-date">' + escHtml(dateStr) + '</div></div><div class="comment-text">' + escHtml(c.text) + '</div></div>';
+            }).join('');
+        });
+    }
 
 function escHtml(s) {
     var div = document.createElement('div');
