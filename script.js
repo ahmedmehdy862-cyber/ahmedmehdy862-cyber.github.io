@@ -2900,9 +2900,18 @@ var SiteControls = (function () {
     function buildStructuredData(d) {
         var p = (d && d.profile) || {};
         var s = (d && d.seo) || {};
+        /* الحقول بقت ثنائية اللغة {en,ar} — لازم نطلع نص واحد بدل [object Object] */
+        function txt(v) {
+            if (v == null) return '';
+            if (typeof v === 'object' && !Array.isArray(v)) {
+                var lang = (typeof Lang !== 'undefined' && Lang.get) ? Lang.get() : 'en';
+                return String(v[lang] || v.en || v.ar || '');
+            }
+            return String(v);
+        }
         var base = String(CFG.siteUrl || '').replace(/\/$/, '');
         var url = CFG.siteUrl;
-        var name = String(p.name || CFG.author || '').trim();
+        var name = txt(p.name || CFG.author || '').trim();
         var desc = String(s.description || CFG.defaultDescription || '').trim();
         var title = String(s.title || document.title || '').trim();
         var img = absoluteUrl(usableImage(s.ogImage) || CFG.ogImage);
@@ -2910,17 +2919,18 @@ var SiteControls = (function () {
         var sameAs = socialUrls(p);
         var skills = Array.isArray(d && d.skills) && d.skills.length ? d.skills
             : (Array.isArray(p.skills) ? p.skills : []);
+        var skillText = skills.map(txt).filter(function (x) { return !!x; });
 
         var person = {
             '@type': 'Person', '@id': base + '/#person',
             name: name, url: url,
-            jobTitle: String(p.role || '').trim() || undefined,
+            jobTitle: txt(p.role).trim() || undefined,
             image: img, description: desc,
-            knowsAbout: skills.length ? skills.slice(0, 12) : undefined,
+            knowsAbout: skillText.length ? skillText.slice(0, 12) : undefined,
             sameAs: sameAs.length ? sameAs : undefined
         };
         if (p.email) person.email = 'mailto:' + String(p.email).replace(/^mailto:/, '');
-        if (p.location) person.address = { '@type': 'Place', name: String(p.location) };
+        if (p.location) person.address = { '@type': 'Place', name: txt(p.location) };
 
         var website = {
             '@type': 'WebSite', '@id': base + '/#website',
@@ -2945,12 +2955,14 @@ var SiteControls = (function () {
                 return {
                     '@type': 'CreativeWork',
                     position: i + 1,
-                    name: String(pr.title || ''),
-                    description: String(pr.desc || pr.description || ''),
+                    name: txt(pr.title),
+                    description: txt(pr.desc || pr.description),
                     url: url + '#project-' + (pr.id != null ? pr.id : i),
                     creator: { '@id': base + '/#person' },
                     dateCreated: pr.year ? String(pr.year) : undefined,
-                    keywords: Array.isArray(pr.tags) && pr.tags.length ? pr.tags.join(', ') : undefined
+                    keywords: Array.isArray(pr.tags) && pr.tags.length
+                        ? pr.tags.map(txt).filter(function (x) { return !!x; }).join(', ') || undefined
+                        : undefined
                 };
             });
             graph.push({
