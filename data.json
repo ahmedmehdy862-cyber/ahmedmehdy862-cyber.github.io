@@ -1,25 +1,25 @@
 {
   "profile": {
     "name": {
-      "ar": "Ahmed Mahdy",
+      "ar": "أحمد مهدي",
       "en": "Ahmed Mahdy"
     },
-    "brand": "Ahmed Mahdy",
+    "brand": "A.Mahdy",
     "role": {
-      "ar": "Graphic Designer specialized in Social Media & Campaign Visuals",
+      "ar": "مصمم جرافيك متخصص في تصميم السوشيال ميديا والحملات البصرية",
       "en": "Graphic Designer specialized in Social Media & Campaign Visuals"
     },
     "tagline": {
-      "ar": "Graphic Designer specialized in Social Media & Campaign Visuals, turning ideas into bold, purposeful, and visually consistent experiences that capture attention and communicate with impact.",
-      "en": "Graphic Designer specialized in Social Media & Campaign Visuals, turning ideas into bold, purposeful, and visually consistent experiences that capture attention and communicate with impact."
+      "ar": "مصمم جرافيك متخصص في السوشيال ميديا والحملات البصرية، يحوّل الأفكار إلى تجارب بصرية جسورة وهادفة ومتّسقة تلفت الانتباه وتترك أثرًا.",
+      "en": "Graphic Designer specialized in Social Media & Campaign Visuals, turning ideas into bold, purposeful and visually consistent experiences that capture attention and communicate with impact."
     },
     "bio": {
-      "ar": "I’m a Graphic Designer specialized in Social Media & Campaign Visuals, passionate about turning ideas into visual experiences that connect with people and leave a lasting impression.\n\nMy approach combines strong design fundamentals, creative concept development, visual storytelling, and a deep understanding of social media. I focus on creating work that is not only visually appealing, but also intentional, consistent, and aligned with the goal behind it.\n\nFrom developing a campaign’s visual concept and key visual to building cohesive social media content, I enjoy working across the creative process — from the first idea to the final execution.\n\nI’m continuously developing my skills in visual communication and art direction, with the ambition to create stronger visual systems, lead creative campaigns, and turn meaningful ideas into memorable experiences.",
+      "ar": "مصمم جرافيك متخصص في السوشيال ميديا والحملات البصرية، شغوف بتحويل الأفكار إلى تجارب بصرية تتواصل مع الناس وتترك أثرًا باقيًا.\n\nيجمع أسلوبي بين أساسيات التصميم القوية، وتطوير المفهوم الإبداعي، والسرد البصري، وفهم عميق لطبيعة السوشيال ميديا. أركّز على إنتاج عمل ليس جاذبًا بصريًا فحسب، بل مقصودًا ومتّسقًا ومتوافقًا مع الهدف الذي بُني من أجله.\n\nمن تطوير المفهوم البصري للحملة والـKey Visual إلى بناء محتوى سوشيال ميديا متكامل، أستمتع بالعمل على كامل العملية الإبداعية — من الفكرة الأولى حتى التنفيذ النهائي.\n\nأطوّر مهاراتي باستمرار في التواصل البصري والإخراج الفني، بطموح لبناء أنظمة بصرية أقوى، وقيادة حملات إبداعية، وتحويل الأفكار المعبّرة إلى تجارب لا تُنسى.",
       "en": "I’m a Graphic Designer specialized in Social Media & Campaign Visuals, passionate about turning ideas into visual experiences that connect with people and leave a lasting impression.\n\nMy approach combines strong design fundamentals, creative concept development, visual storytelling, and a deep understanding of social media. I focus on creating work that is not only visually appealing, but also intentional, consistent, and aligned with the goal behind it.\n\nFrom developing a campaign’s visual concept and key visual to building cohesive social media content, I enjoy working across the creative process — from the first idea to the final execution.\n\nI’m continuously developing my skills in visual communication and art direction, with the ambition to create stronger visual systems, lead creative campaigns, and turn meaningful ideas into memorable experiences."
     },
     "location": {
-      "ar": "Egypt",
-      "en": "مصر"
+      "ar": "مصر",
+      "en": "Egypt"
     },
     "email": "freepik.mich@gmail.com",
     "socials": {
@@ -38,43 +38,43 @@
     },
     "heroBtn1": {
       "ar": "شاهد أعمالي",
-      "en": "Watch my work"
+      "en": "See my work"
     },
     "heroBtn2": {
       "ar": "تواصل معي",
-      "en": "Contact me"
+      "en": "Get in touch"
     },
     "aboutTitle": {
       "ar": "عني",
       "en": "About me"
     },
     "aboutDesc": {
-      "ar": "I’m a designer who enjoys exploring the space between creativity and purpose.  I’m naturally curious about how ideas become visuals, how small details influence perception, and how a collection of designs can come together to tell one clear story.  I’m constantly learning, experimenting, and challenging myself to see design from a wider perspective — not just as a way to make things look good, but as a tool for communication and meaningful experiences.",
-      "en": "I’m a designer who enjoys exploring the space between creativity and purpose.  I’m naturally curious about how ideas become visuals, how small details influence perception, and how a collection of designs can come together to tell one clear story.  I’m constantly learning, experimenting, and challenging myself to see design from a wider perspective — not just as a way to make things look good, but as a tool for communication and meaningful experiences."
+      "ar": "كيف أفكر قبل أن أصمم",
+      "en": "How I think before I design"
     },
     "projectsTitle": {
       "ar": "أعمالي",
-      "en": "My work"
+      "en": "Selected Work"
     },
     "projectsDesc": {
       "ar": "مجموعة مختارة من المشاريع التي نفذتها وأشرفت عليها",
-      "en": "مجموعة مختارة من المشاريع التي نفذتها وأشرفت عليها"
+      "en": "A curated selection of projects I designed and art-directed"
     },
     "servicesTitle": {
       "ar": "الخدمات",
-      "en": "My Services"
+      "en": "Services"
     },
     "servicesDesc": {
-      "ar": "ما الذي أقدمه لعملائي",
-      "en": "What I offer for my clients"
+      "ar": "ما الذي أقدّمه لعملائي",
+      "en": "What I offer to my clients"
     },
     "contactTitle": {
       "ar": "تواصل معي",
-      "en": "Contact me"
+      "en": "Contact Me"
     },
     "contactDesc": {
       "ar": "جاهز لنبدأ مشروعك؟ تواصل معي",
-      "en": "Ready to begin Your project with me ?"
+      "en": "Ready to start your project? Let’s talk"
     },
     "contactCard1": {
       "ar": "البريد الإلكتروني",
@@ -82,218 +82,447 @@
     },
     "contactCard2": {
       "ar": "سوشيال ميديا",
-      "en": "My social"
+      "en": "Social Media"
     },
     "contactCard3": {
       "ar": "الموقع",
-      "en": "Location"
+      "en": "Based in"
     },
     "footerText": {
-      "ar": "صمم بواسطة أحمد مهدي بكل حب",
-      "en": "صمم بواسطة أحمد مهدي بكل حب"
+      "ar": "صمّم بواسطة أحمد مهدي بكل حب",
+      "en": "Designed by Ahmed Mahdy with love"
     }
   },
   "stats": [
     {
       "value": {
-        "en": "5+",
-        "ar": "+5"
+        "ar": "+5",
+        "en": "5+"
       },
       "label": {
-        "en": "سنوات خبرة",
-        "ar": "Years of Experience "
+        "ar": "سنوات خبرة",
+        "en": "Years of Experience"
       }
     },
     {
       "value": {
-        "en": "20+",
-        "ar": "+20"
+        "ar": "+20",
+        "en": "20+"
       },
       "label": {
-        "en": "جهة تعاونت معها",
-        "ar": "Clients I've Worked With "
+        "ar": "جهة تعاونت معها",
+        "en": "Clients I’ve Worked With"
       }
     },
     {
       "value": {
-        "en": "100+",
-        "ar": "+100"
+        "ar": "+100",
+        "en": "100+"
       },
       "label": {
-        "en": "مشروع مكتمل",
-        "ar": "Completed projects"
+        "ar": "مشروع مكتمل",
+        "en": "Completed Projects"
       }
     },
     {
       "value": {
-        "en": "350+",
-        "ar": "+350"
+        "ar": "+350",
+        "en": "350+"
       },
       "label": {
-        "en": "تصميم ",
-        "ar": "Design "
+        "ar": "تصميم",
+        "en": "Designs Delivered"
       }
     }
   ],
   "skills": [
     {
-      "en": "هوية بصرية",
-      "ar": "هوية بصرية"
+      "ar": "هوية بصرية",
+      "en": "Visual Identity"
     },
     {
-      "en": "سوشيال ميديا ديزاين",
-      "ar": "سوشيال ميديا ديزاين"
+      "ar": "سوشيال ميديا ديزاين",
+      "en": "Social Media Design"
     },
     {
-      "en": "تصميم بوسترات",
-      "ar": "تصميم بوسترات"
+      "ar": "تصميم بوسترات",
+      "en": "Poster Design"
     },
     {
-      "en": "استراتيجية محتوى",
-      "ar": "مطبوعات"
+      "ar": "استراتيجية محتوى",
+      "en": "Content Strategy"
     }
   ],
   "projects": [
     {
-      "title": "حملة نقطة بداية",
+      "title": {
+        "ar": "حملة نقطة بداية",
+        "en": "Start Line Campaign"
+      },
       "category": "social",
-      "categoryLabel": "سوشيال ميديا",
-      "description": "حملة سوشيال ميديا متكاملة حقّق منشورها أعلى أداء على الصفحة خلال أكثر من عامين.",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة سوشيال ميديا متكاملة حقّق منشورها أعلى أداء على الصفحة خلال أكثر من عامين.",
+        "en": "An end-to-end social media campaign whose post became the page’s top performer for over two years."
+      },
       "image": "",
       "tags": [
-        "حملة",
-        "سوشيال ميديا",
-        "محتوى"
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
+        },
+        {
+          "ar": "محتوى",
+          "en": "Content"
+        }
       ],
       "year": "2026"
     },
     {
-      "title": "هوية طلابية مستدامة",
+      "title": {
+        "ar": "هوية طلابية مستدامة",
+        "en": "Sustainable Student Identity"
+      },
       "category": "identity",
-      "categoryLabel": "هوية بصرية",
-      "description": "بناء هوية بصرية متكاملة لمنظمات طلابية يشمل الشعار، النظم اللونية، والمطبوعات.",
+      "categoryLabel": {
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
+      },
+      "description": {
+        "ar": "بناء هوية بصرية متكاملة لمنظمات طلابية يشمل الشعار، النظم اللونية، والمطبوعات.",
+        "en": "A complete visual identity for student organisations — logo, colour system and print collateral."
+      },
       "image": "",
       "tags": [
-        "هوية بصرية",
-        "شعار",
-        "براند"
+        {
+          "ar": "هوية بصرية",
+          "en": "Visual Identity"
+        },
+        {
+          "ar": "شعار",
+          "en": "Logo"
+        },
+        {
+          "ar": "براند",
+          "en": "Branding"
+        }
       ],
       "year": "2026"
     },
     {
-      "title": "سلسلة موشن توعوي",
+      "title": {
+        "ar": "سلسلة موشن توعوي",
+        "en": "Awareness Motion Series"
+      },
       "category": "motion",
-      "categoryLabel": "موشن",
-      "description": "سلسلة مقاطع موشن توعوية قصيرة تجاوزت 36 ألف مشاهدة عبر مقاطع Reels.",
+      "categoryLabel": {
+        "ar": "موشن",
+        "en": "Motion"
+      },
+      "description": {
+        "ar": "سلسلة مقاطع موشن توعوية قصيرة تجاوزت 36 ألف مشاهدة عبر مقاطع Reels.",
+        "en": "A series of short awareness motion clips that passed 36K views across Reels."
+      },
       "image": "",
       "tags": [
-        "موشن",
-        "Reels",
-        "توعية"
+        {
+          "ar": "موشن",
+          "en": "Motion"
+        },
+        {
+          "ar": "Reels",
+          "en": "Reels"
+        },
+        {
+          "ar": "توعية",
+          "en": "Awareness"
+        }
       ],
       "year": "2026"
     },
     {
-      "title": "نظام بوسترات مطبوع",
+      "title": {
+        "ar": "نظام بوسترات مطبوع",
+        "en": "Printed Poster System"
+      },
       "category": "print",
-      "categoryLabel": "طباعي",
-      "description": "تصميم نظام مطبوعات متكامل للفعاليات شمل البروشور والبوسترات وأدلة العرض.",
+      "categoryLabel": {
+        "ar": "طباعي",
+        "en": "Print"
+      },
+      "description": {
+        "ar": "تصميم نظام مطبوعات متكامل للفعاليات شمل البروشور والبوسترات وأدلة العرض.",
+        "en": "A complete print system for events — brochures, posters and presentation guides."
+      },
       "image": "",
       "tags": [
-        "طباعي",
-        "بوسترات",
-        "فعاليات"
+        {
+          "ar": "طباعي",
+          "en": "Print"
+        },
+        {
+          "ar": "بوسترات",
+          "en": "Posters"
+        },
+        {
+          "ar": "فعاليات",
+          "en": "Events"
+        }
       ],
       "year": "2025"
     },
     {
-      "title": "إدارة محتوى شهرية",
+      "title": {
+        "ar": "إدارة محتوى شهرية",
+        "en": "Monthly Content Management"
+      },
       "category": "social",
-      "categoryLabel": "سوشيال ميديا",
-      "description": "خطة محتوى شهرية كاملة مع تقارير أداء وتطوير مستمر لصفحات تجاوزت مليون مشاهدة.",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "خطة محتوى شهرية كاملة مع تقارير أداء وتطوير مستمر لصفحات تجاوزت مليون مشاهدة.",
+        "en": "A full monthly content plan with performance reporting and continuous optimisation for pages past one million views."
+      },
       "image": "",
       "tags": [
-        "محافظة المحتوى",
-        "استراتيجية",
-        "تقارير"
+        {
+          "ar": "إدارة المحتوى",
+          "en": "Content Management"
+        },
+        {
+          "ar": "استراتيجية",
+          "en": "Strategy"
+        },
+        {
+          "ar": "تقارير",
+          "en": "Reporting"
+        }
       ],
       "year": "2026"
     },
     {
-      "title": "هوية فعالية كبرى",
+      "title": {
+        "ar": "هوية فعالية كبرى",
+        "en": "Major Event Identity"
+      },
       "category": "identity",
-      "categoryLabel": "هوية بصرية",
-      "description": "هوية بصرية لفعالية كبرى شملت الهوية الرئيسية، الصور الترويجية، وأدوات التنفيذ.",
+      "categoryLabel": {
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
+      },
+      "description": {
+        "ar": "هوية بصرية لفعالية كبرى شملت الهوية الرئيسية، الصور الترويجية، وأدوات التنفيذ.",
+        "en": "A visual identity for a major event — core identity, promotional imagery and execution tools."
+      },
       "image": "",
       "tags": [
-        "هوية بصرية",
-        "فعالية",
-        "براند"
+        {
+          "ar": "هوية بصرية",
+          "en": "Visual Identity"
+        },
+        {
+          "ar": "فعالية",
+          "en": "Event"
+        },
+        {
+          "ar": "براند",
+          "en": "Branding"
+        }
       ],
       "year": "2025"
     }
   ],
   "services": [
     {
-      "name": "Social media design ",
-      "price": "ابتداءً من 400",
+      "name": {
+        "ar": "تصميم السوشيال ميديا",
+        "en": "Social Media Design"
+      },
+      "price": {
+        "ar": "ابتداءً من 400",
+        "en": "From 400 EGP"
+      },
       "features": [
-        "تصميم محتوى بصري احترافي ومخصص للسوشيال ميديا",
-        "تصميم Posts وCarousels وStories",
-        "دراسة مجانية للصفحة قبل التنفيذ لتحديد نوع وعدد التصميمات المناسبة",
-        "تقديم تصور مبدئي للفكرة قبل بدء التنفيذ",
-        "الالتزام بالهوية البصرية للعلامة التجارية",
-        "اختيار ومعالجة الصور المناسبة للمحتوى",
-        "تصميمات متوافقة مع مختلف منصات التواصل الاجتماعي",
-        "جولتان من التعديلات دون تغيير الفكرة أو الـConcept المتفق عليه",
-        "تسليم الملفات النهائية بجودة عالية وجاهزة للنشر"
+        {
+          "ar": "تصميم محتوى بصري احترافي ومخصص للسوشيال ميديا",
+          "en": "Professional, tailored visual content for social media"
+        },
+        {
+          "ar": "تصميم Posts وCarousels وStories",
+          "en": "Design of posts, carousels and stories"
+        },
+        {
+          "ar": "دراسة مجانية للصفحة قبل التنفيذ لتحديد نوع وعدد التصميمات المناسبة",
+          "en": "A free page audit before we start to define the right types and number of designs"
+        },
+        {
+          "ar": "تقديم تصور مبدئي للفكرة قبل بدء التنفيذ",
+          "en": "An initial concept for the idea before execution begins"
+        },
+        {
+          "ar": "الالتزام بالهوية البصرية للعلامة التجارية",
+          "en": "Full adherence to the brand’s visual identity"
+        },
+        {
+          "ar": "اختيار ومعالجة الصور المناسبة للمحتوى",
+          "en": "Selecting and retouching images that fit the content"
+        },
+        {
+          "ar": "تصميمات متوافقة مع مختلف منصات التواصل الاجتماعي",
+          "en": "Designs compatible with all social media platforms"
+        },
+        {
+          "ar": "جولتان من التعديلات دون تغيير الفكرة أو الـConcept المتفق عليه",
+          "en": "Two rounds of revisions without changing the agreed concept"
+        },
+        {
+          "ar": "تسليم الملفات النهائية بجودة عالية وجاهزة للنشر",
+          "en": "Final files delivered in high quality, ready to publish"
+        }
       ],
-      "delivery": "مدة التسليم: من 3 لـ 5 أيام",
-      "featured": false
+      "delivery": {
+        "ar": "مدة التسليم: من 3 لـ 5 أيام",
+        "en": "Delivery: 3 to 5 days"
+      }
     },
     {
-      "name": "Campaign Visuals",
-      "price": "ابتداءً من 1500 جنية",
+      "name": {
+        "ar": "الحملات البصرية",
+        "en": "Campaign Visuals"
+      },
+      "price": {
+        "ar": "ابتداءً من 1500 جنية",
+        "en": "From 1,500 EGP"
+      },
       "features": [
-        "- دراسة فكرة الحملة وأهدافها قبل بدء التنفيذ",
-        "- تطوير الـCreative Concept والاتجاه البصري للحملة",
-        "- تقديم تصور مبدئي للفكرة والتخيل قبل التنفيذ",
-        "- تصميم Key Visual رئيسي يعبر عن فكرة الحملة",
-        "- بناء نظام بصري متكامل للحملة",
-        "- تحديد أسلوب الصور والألوان والتكوينات والعناصر البصرية",
-        "- تحويل الـKey Visual إلى تصميمات متعددة تناسب الحملة",
-        "- تصميم Posts وCarousels وStories حسب احتياج الحملة",
-        "- تكييف التصميمات لمختلف منصات التواصل الاجتماعي",
-        "- جولتان من التعديلات دون تغيير الفكرة أو الـConcept المتفق عليه",
-        "- تسليم الملفات النهائية بجودة عالية وجاهزة للنشر"
+        {
+          "ar": "دراسة فكرة الحملة وأهدافها قبل بدء التنفيذ",
+          "en": "Studying the campaign idea and its objectives before we start"
+        },
+        {
+          "ar": "تطوير الـCreative Concept والاتجاه البصري للحملة",
+          "en": "Developing the creative concept and the campaign’s visual direction"
+        },
+        {
+          "ar": "تقديم تصور مبدئي للفكرة والتخيل قبل التنفيذ",
+          "en": "An initial concept and visualisation before execution"
+        },
+        {
+          "ar": "تصميم Key Visual رئيسي يعبر عن فكرة الحملة",
+          "en": "Designing a main key visual that expresses the campaign idea"
+        },
+        {
+          "ar": "بناء نظام بصري متكامل للحملة",
+          "en": "Building a complete visual system for the campaign"
+        },
+        {
+          "ar": "تحديد أسلوب الصور والألوان والتكوينات والعناصر البصرية",
+          "en": "Defining the imagery, colour, composition and visual elements"
+        },
+        {
+          "ar": "تحويل الـKey Visual إلى تصميمات متعددة تناسب الحملة",
+          "en": "Turning the key visual into multiple designs for the campaign"
+        },
+        {
+          "ar": "تصميم Posts وCarousels وStories حسب احتياج الحملة",
+          "en": "Posts, carousels and stories as the campaign requires"
+        },
+        {
+          "ar": "تكييف التصميمات لمختلف منصات التواصل الاجتماعي",
+          "en": "Adapting the designs to all social media platforms"
+        },
+        {
+          "ar": "جولتان من التعديلات دون تغيير الفكرة أو الـConcept المتفق عليه",
+          "en": "Two rounds of revisions without changing the agreed concept"
+        },
+        {
+          "ar": "تسليم الملفات النهائية بجودة عالية وجاهزة للنشر",
+          "en": "Final files delivered in high quality, ready to publish"
+        }
       ],
-      "delivery": "مدة التسليم: تختلف على حسب نوع وعدد التصميمات",
+      "delivery": {
+        "ar": "مدة التسليم: تختلف على حسب نوع وعدد التصميمات",
+        "en": "Delivery: varies with the type and number of designs"
+      },
       "featured": true
     },
     {
-      "name": "Visual Identity",
-      "price": "إبتداءً من 1500 جنية",
+      "name": {
+        "ar": "الهوية البصرية",
+        "en": "Visual Identity"
+      },
+      "price": {
+        "ar": "ابتداءً من 1500 جنية",
+        "en": "From 1,500 EGP"
+      },
       "features": [
-        "دراسة طبيعة المشروع والجمهور المستهدف",
-        "تحديد الاتجاه البصري المناسب للعلامة",
-        "تطوير منظومة ألوان متكاملة",
-        "اختيار الخطوط المناسبة للهوية",
-        "تصميم العناصر والأنماط البصرية المساندة",
-        "بناء نظام Layout وتكوينات متناسقة",
-        "تحديد أسلوب استخدام الصور والمعالجة البصرية",
-        "تصميم تطبيقات أساسية توضح طريقة استخدام الهوية",
-        "تجهيز الهوية للاستخدام على منصات التواصل الاجتماعي",
-        "إعداد Mini Visual Guidelines للاستخدام الأساسي",
-        "جولتان من التعديلات دون تغيير الاتجاه البصري المتفق عليه",
-        "تسليم الملفات النهائية بشكل منظم وجاهز للاستخدام"
+        {
+          "ar": "دراسة طبيعة المشروع والجمهور المستهدف",
+          "en": "Studying the project and its target audience"
+        },
+        {
+          "ar": "تحديد الاتجاه البصري المناسب للعلامة",
+          "en": "Defining a visual direction that fits the brand"
+        },
+        {
+          "ar": "تطوير منظومة ألوان متكاملة",
+          "en": "Developing a complete colour system"
+        },
+        {
+          "ar": "اختيار الخطوط المناسبة للهوية",
+          "en": "Choosing typography that suits the identity"
+        },
+        {
+          "ar": "تصميم العناصر والأنماط البصرية المساندة",
+          "en": "Designing supporting visual elements and patterns"
+        },
+        {
+          "ar": "بناء نظام Layout وتكوينات متناسقة",
+          "en": "Building a layout system with consistent compositions"
+        },
+        {
+          "ar": "تحديد أسلوب استخدام الصور والمعالجة البصرية",
+          "en": "Defining how images are used and treated visually"
+        },
+        {
+          "ar": "تصميم تطبيقات أساسية توضح طريقة استخدام الهوية",
+          "en": "Core applications that demonstrate how to use the identity"
+        },
+        {
+          "ar": "تجهيز الهوية للاستخدام على منصات التواصل الاجتماعي",
+          "en": "Preparing the identity for social media use"
+        },
+        {
+          "ar": "إعداد Mini Visual Guidelines للاستخدام الأساسي",
+          "en": "A mini visual guidelines document for essential use"
+        },
+        {
+          "ar": "جولتان من التعديلات دون تغيير الاتجاه البصري المتفق عليه",
+          "en": "Two rounds of revisions without changing the agreed visual direction"
+        },
+        {
+          "ar": "تسليم الملفات النهائية بشكل منظم وجاهز للاستخدام",
+          "en": "Final files delivered neatly, ready to use"
+        }
       ],
-      "delivery": "مدة التسليم: من 7 لـ 10 أيام",
-      "featured": false
+      "delivery": {
+        "ar": "مدة التسليم: من 7 لـ 10 أيام",
+        "en": "Delivery: 7 to 10 days"
+      }
     }
   ],
   "sections": [],
   "seo": {
-    "title": "Ahmed mahdy Portfolio",
+    "title": "Ahmed Mahdy | Graphic Designer — Social Media & Campaign Visuals",
     "description": "Graphic Designer specialized in Social Media & Campaign Visuals, turning ideas into bold, purposeful, and visually consistent experiences that capture attention and communicate with impact.",
     "keywords": "مصمم جرافيك، مصمم سوشيال ميديا، مصمم محتوى بصري، تصميم جرافيك، تصميم محتوى للسوشيال ميديا، تصميم منشورات، تصميم كاروسيل، تصميم ستوري، تصميم حملات إعلانية، تصميم الحملات البصرية، تصميم الهوية البصرية، مصمم هوية بصرية، تصميم الهوية البصرية للعلامات التجارية، تصميم Key Visual، التصميم الإبداعي، الإخراج الفني، التوجيه الإبداعي، التوجيه البصري، التواصل البصري، تصميم الإعلانات، تصميم المحتوى الرقمي، مصمم براندينج، تصميم العلامات التجارية، خدمات التصميم الإبداعي، مصمم جرافيك مستقل، فريلانسر جرافيك ديزاين، مصمم جرافيك في مصر، مصمم جرافيك القاهرة، مصمم جرافيك طنطا، مصمم سوشيال ميديا في مصر، مصمم سوشيال ميديا القاهرة، بورتفوليو مصمم جرافيك Graphic Designer, Social Media Designer, Social Media Graphic Designer, Campaign Visual Designer, Visual Designer, Graphic Design Services, Social Media Design Services, Campaign Design, Campaign Visuals, Visual Identity Designer, Social Media Graphics, Social Media Content Design, Social Media Post Design, Social Media Branding, Creative Campaign Design, Visual Communication, Visual Identity Design, Creative Direction, Art Direction, Key Visual Design, Brand Visual Identity, Digital Graphic Design, Graphic Designer Egypt, Graphic Designer in Egypt, Freelance Graphic Designer Egypt, Social Media Designer Egypt, Social Media Designer in Egypt, Graphic Design Services Egypt, Social Media Design Services Egypt, Branding Designer Egypt, Visual Designer Egypt, Freelance Designer Egypt, Graphic Designer Cairo, Social Media Designer Cairo, Freelance Graphic Designer Cairo, Hire a Graphic Designer, Hire a Graphic Designer in Egypt, Graphic Designer for Social Media, Professional Graphic Design Services, Campaign Design Services, Visual Identity Design Services, Social Media Branding Services, Creative Design Services, Graphic Design Portfolio, Social Media Design Portfolio, Campaign Design Portfolio",
     "ogImage": ""
@@ -306,7 +535,10 @@
     "scrollProgress": true,
     "lightbox": true
   },
-  "contactNote": "الأسعار والاتفاق يُحدّدان حسب نطاق المشروع بعد مناقشة مباشرة، والأسعار أعلاه مرجع مبدئي لبدء التواصل.",
+  "contactNote": {
+    "ar": "الأسعار والاتفاق يُحدّدان حسب نطاق المشروع بعد مناقشة مباشرة، والأسعار أعلاه مرجع مبدئي لبدء التواصل.",
+    "en": "Pricing and scope are agreed after a direct discussion; the prices above are a starting reference to get in touch."
+  },
   "theme": "forest",
   "layout": {
     "cardStyle": "gradient",

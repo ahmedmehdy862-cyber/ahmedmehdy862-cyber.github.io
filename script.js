@@ -1788,7 +1788,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                 base.image = q('image');
                 base.tools = biVal(prev.tools, q('tools'));
                 base.link = q('link');
-                base.tags = [t(categoryLabel)];
+                base.tags = (Array.isArray(prev.tags) && prev.tags.length) ? prev.tags : [t(categoryLabel)];
                 base.year = q('year');
                 base.featured = chk('featured');
                 base.status = sel('status', 'published');
@@ -2608,7 +2608,7 @@ function renderSite() {
                 if (cur && cur.getAttribute('src') === src) return;
                 var img = document.createElement('img');
                 img.src = src;
-                img.alt = p.name || 'A.M';
+                img.alt = t(p.name) || 'A.M';
                 img.decoding = 'async';
                 img.loading = 'lazy';
                 img.onload = function () {
@@ -2648,8 +2648,9 @@ function renderSite() {
 
     // Make location card clickable (Google Maps)
     var cl = $('contactLocation');
-    if (cl && p.location) {
-        cl.innerHTML = '<a href="https://maps.google.com/?q=' + encodeURIComponent(p.location) + '" target="_blank" rel="noopener noreferrer" class="contact-link">' + escHtml(p.location) + '</a>';
+    var loc = t(p.location);
+    if (cl && loc) {
+        cl.innerHTML = '<a href="https://maps.google.com/?q=' + encodeURIComponent(loc) + '" target="_blank" rel="noopener noreferrer" class="contact-link">' + escHtml(loc) + '</a>';
     }
 
     // Skills
@@ -3037,7 +3038,7 @@ var ProjectLightbox = (function () {
         el.year.textContent = p.year || '';
         var chips = [];
         Lang.list(p.tags).forEach(function (tg) { if (tg) chips.push('<span class="lb-chip">' + escHtml(tg) + '</span>'); });
-        String(p.tools || '').split(/[,،]/).forEach(function (tool) {
+        String(t(p.tools) || '').split(/[,،]/).forEach(function (tool) {
             tool = tool.trim();
             if (tool) chips.push('<span class="lb-chip lb-chip--tool">' + escHtml(tool) + '</span>');
         });
@@ -3099,9 +3100,14 @@ var ProjectLightbox = (function () {
         el.overlay.addEventListener('click', function (e) { if (e.target === el.overlay) close(); });
         document.addEventListener('keydown', function (e) {
             if (el.overlay.classList.contains('hidden')) return;
+            var rtl = document.documentElement.getAttribute('dir') === 'rtl';
             if (e.key === 'Escape') close();
-            else if (e.key === 'ArrowLeft') step(1);
-            else if (e.key === 'ArrowRight') step(-1);
+            else if (e.key === 'ArrowLeft') step(rtl ? 1 : -1);
+            else if (e.key === 'ArrowRight') step(rtl ? -1 : 1);
+        });
+        /* أعد رسم اللايت بوكس لو اللغة اتغيّرت وهو مفتوح */
+        document.addEventListener('langchange', function () {
+            if (el.overlay && !el.overlay.classList.contains('hidden')) render();
         });
         document.addEventListener('click', function (e) {
             if (!enabled()) return;

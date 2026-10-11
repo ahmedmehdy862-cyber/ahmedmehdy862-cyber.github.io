@@ -2280,7 +2280,7 @@ html[lang="en"] .section-title {
 .comment-date {
     font-size: 11px;
     color: var(--text-dim);
-    margin-right: auto;
+    margin-inline-end: auto;
 }
 
 .comment-text {
@@ -4287,3 +4287,9 @@ html[data-f-comments="off"] #comments { display: none; }
     .admin-publish-badge { font-size: 11px; padding: 6px 10px; }
     .admin-item-footer { gap: 5px; }
 }
+
+/* ============================================
+   RTL / العربية — الحروف العربية لا تحتاج تباعدًا
+   (letter-spacing يكسر اتّصال الحروف) — نلغيه في وضع RTL
+   ============================================ */
+html[dir="rtl"] * { letter-spacing: normal; }
