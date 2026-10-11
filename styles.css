@@ -3520,6 +3520,8 @@ html.cur-on textarea {
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     background: var(--bg-soft);
+    /* ثبّت الشريط على الحافة اليسرى دايمًا حتى لا يختفي الشريط في RTL */
+    direction: ltr;
 }
 .ticker-track {
     display: flex;
@@ -3544,7 +3546,7 @@ html.cur-on textarea {
     color: var(--accent);
 }
 @keyframes tickerMove {
-    to { transform: translateX(-50%); }
+    to { transform: translateX(-33.3333%); }
 }
 
 /* تباين + محاذاة: تحديد النص وخاتم الفوكس */
