@@ -1897,7 +1897,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             var desc = getVal('seoDescription') || 'وصف الصفحة سيظهر هنا — اكتب وصفًا واضحًا ١٥٠ حرفًا';
             var img = getVal('seoOgImage');
             box.innerHTML =
-                '<div class="seo-prev-head">' + escHtml('ahmedmehdy862-cyber.github.io') + '</div>' +
+                '<div class="seo-prev-head">' + escHtml('ahmedmahdyportofolio.vercel.app') + '</div>' +
                 '<div class="seo-prev-title">' + escHtml(t) + '</div>' +
                 '<div class="seo-prev-desc">' + escHtml(desc) + '</div>' +
                 (img ? '<div class="seo-prev-img">' + escHtml(img) + '</div>' : '');
@@ -2772,7 +2772,7 @@ var SiteControls = (function () {
     var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true };
     var root = document.documentElement;
     var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG : {
-        siteUrl: 'https://ahmedmehdy862-cyber.github.io/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
+        siteUrl: 'https://ahmedmahdyportofolio.vercel.app/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
         locale: 'ar_AR', ogImage: 'assets/og-image.png', ogImageAlt: 'شعار A.Mahdy',
         ogImageWidth: 1200, ogImageHeight: 630, ogImageType: 'image/png', twitterCard: 'summary_large_image'
     };

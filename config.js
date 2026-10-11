@@ -12,14 +12,14 @@
 var SITE_CONFIG = {
     /* هوية الموقع */
     siteName: 'A.Mahdy',
-    siteUrl: 'https://ahmedmehdy862-cyber.github.io/',
+    siteUrl: 'https://ahmedmahdyportofolio.vercel.app/',
     author: 'أحمد مهدي',
     locale: 'en_US',
     lang: 'en',
 
     /* نصوص SEO الافتراضية (لو data.json مافيش seo) */
-    defaultTitle: 'A.Mahdy — أحمد مهدي | جرافيك ديزاينر ومصمم محتوى',
-    defaultDescription: 'جرافيك ديزاينر ومصمم محتوى — هوية بصرية، سوشيال ميديا، موشن جرافيك ومطبوعات. شوف أعمالي المختارة وابدأ مشروعك.',
+    defaultTitle: 'أحمد مهدي | مصمم جرافيك سوشيال ميديا — A.Mahdy',
+    defaultDescription: 'مصمم جرافيك سوشيال ميديا في مصر — هوية بصرية، تصميم بوسترات، وحملات إعلانية. شاهد أعمالي المختارة وابدأ مشروعك.',
 
     /* صورة المشاركة — 1200x630 (المقاس المعياري لـ OG) */
     ogImage: 'assets/og-image.png',
@@ -30,7 +30,7 @@ var SITE_CONFIG = {
     twitterCard: 'summary_large_image',
 
     /* Google Search Console — تم التحقق بملف HTML على root:
-       https://ahmedmehdy862-cyber.github.io/google81932fd24b44f03c.html */
+       https://ahmedmahdyportofolio.vercel.app/google81932fd24b44f03c.html */
     googleVerification: 'google81932fd24b44f03c',
 
     /* ألوان وأبعاد المتصفح */
