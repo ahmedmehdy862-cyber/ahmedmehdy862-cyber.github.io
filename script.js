@@ -2428,7 +2428,7 @@ function hydratePhoto() {
    ============================================ */
 var Lang = (function () {
     var KEY = 'amahdy_lang';
-    var cur = 'en';
+    var cur = (typeof CFG !== 'undefined' && (CFG.defaultLang === 'en' || CFG.defaultLang === 'ar')) ? CFG.defaultLang : 'ar';
     try { var sv = localStorage.getItem(KEY); if (sv === 'en' || sv === 'ar') cur = sv; } catch (e) {}
 
     function get() { return cur; }

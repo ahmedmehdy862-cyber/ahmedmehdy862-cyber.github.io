@@ -14,8 +14,8 @@ var SITE_CONFIG = {
     siteName: 'A.Mahdy',
     siteUrl: 'https://ahmedmahdyportofolio.vercel.app/',
     author: 'أحمد مهدي',
-    locale: 'en_US',
-    lang: 'en',
+    locale: 'ar_AR',
+    lang: 'ar',
 
     /* نصوص SEO الافتراضية (لو data.json مافيش seo) */
     defaultTitle: 'أحمد مهدي | مصمم جرافيك سوشيال ميديا — A.Mahdy',
@@ -35,7 +35,7 @@ var SITE_CONFIG = {
 
     /* ألوان وأبعاد المتصفح */
     themeColor: '#0a0a12',
-    defaultLang: 'en',
-    defaultDir: 'ltr'
+    defaultLang: 'ar',
+    defaultDir: 'rtl'
 };
 if (typeof module !== 'undefined' && module.exports) module.exports = SITE_CONFIG;
