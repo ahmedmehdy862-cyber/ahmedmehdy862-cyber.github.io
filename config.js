@@ -30,8 +30,8 @@ var SITE_CONFIG = {
     twitterCard: 'summary_large_image',
 
     /* Google Search Console — تم التحقق بملف HTML على root:
-       https://ahmedmahdyportofolio.vercel.app/google81932fd24b44f03c.html */
-    googleVerification: 'google81932fd24b44f03c',
+       https://ahmedmahdyportofolio.vercel.app/google3a266dc4112bb399.html */
+    googleVerification: 'google3a266dc4112bb399',
 
     /* ألوان وأبعاد المتصفح */
     themeColor: '#0a0a12',
