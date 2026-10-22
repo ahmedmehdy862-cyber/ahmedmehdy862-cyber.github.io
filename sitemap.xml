@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <!--
     الموقع صفحة واحدة (single page) — الأقسام كلها روابط داخلية (#anchor)
@@ -9,10 +8,9 @@
   -->
   <url>
     <loc>https://ahmedmahdyportofolio.vercel.app/</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://ahmedmahdyportofolio.vercel.app/"/>
   </url>
 
 </urlset>

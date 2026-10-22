@@ -2928,14 +2928,15 @@ var SiteControls = (function () {
             jobTitle: txt(p.role).trim() || undefined,
             image: img, description: desc,
             knowsAbout: skillText.length ? skillText.slice(0, 12) : undefined,
+            knowsLanguage: ['ar', 'en'],
             sameAs: sameAs.length ? sameAs : undefined
         };
         if (p.email) person.email = 'mailto:' + String(p.email).replace(/^mailto:/, '');
-        if (p.location) person.address = { '@type': 'Place', name: txt(p.location) };
+        if (p.location) person.address = { '@type': 'PostalAddress', addressLocality: txt(p.location), addressCountry: 'EG' };
 
         var website = {
             '@type': 'WebSite', '@id': base + '/#website',
-            url: url, name: CFG.siteName, inLanguage: CFG.lang || 'ar',
+            url: url, name: CFG.siteName, description: desc, inLanguage: CFG.lang || 'ar',
             publisher: { '@id': base + '/#person' }
         };
 
@@ -2943,6 +2944,7 @@ var SiteControls = (function () {
             '@type': 'ProfilePage', '@id': base + '/#webpage',
             url: url, name: title, description: desc, inLanguage: CFG.lang || 'ar',
             isPartOf: { '@id': base + '/#website' }, about: { '@id': base + '/#person' },
+            mainEntity: { '@id': base + '/#person' },
             primaryImageOfPage: img ? { '@id': base + '/#logo' } : undefined
         };
         if (img) page.image = img;
