@@ -544,7 +544,7 @@ const SITE_DATA = {
     "ar": "الأسعار والاتفاق يُحدّدان حسب نطاق المشروع بعد مناقشة مباشرة، والأسعار أعلاه مرجع مبدئي لبدء التواصل.",
     "en": "Pricing and scope are agreed after a direct discussion; the prices above are a starting reference to get in touch."
   },
-  "theme": "forest",
+  "theme": "mix",
   "layout": {
     "cardStyle": "gradient",
     "heroStyle": "minimal",

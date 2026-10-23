@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="forest">
+<html lang="ar" dir="rtl" data-theme="mix">
 <head>
     <script>
     /* GitHub Pages ألغينا استخدامه — أي زائر على github.io يتحول تلقائيًا للنطاق الرسمي على Vercel */
@@ -14,7 +14,7 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <meta name="theme-color" content="#0a0a12">
+    <meta name="theme-color" content="#070a09">
     <meta name="color-scheme" content="dark">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -56,6 +56,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&family=Almarai:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=23">
+    <link rel="stylesheet" href="theme-mix.css?v=1">
     <!-- Prefetch المحتوى المنشور + صورة الهيرو فوق الطية -->
 <link rel="preload" href="assets/Asset-1-1.png" as="image" fetchpriority="high">
     <link rel="preload" href="assets/Asset-1.png" as="image">
@@ -144,7 +145,9 @@
             <div class="hero-visual">
                 <div class="hero-frame">
                     <div class="frame-topbar"><span></span><span></span><span></span></div>
-                    <div class="frame-art" id="heroArt"></div>
+                    <div class="frame-art" id="heroArt">
+                        <span class="frame-monogram" aria-hidden="true">A.M</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -484,9 +487,10 @@
                 <!-- Tab: المظهر -->
                 <div class="admin-tab-panel" data-panel="appearance">
                     <div class="admin-section-block">
-                        <h3>الثيم (10 ثيمات)</h3>
+                        <h3>الثيم (11 ثيمات)</h3>
                         <p class="admin-hint">اختار الثيم اللي يعجبك — بيتحفظ تلقائي</p>
                         <div class="admin-themes-grid" id="adminThemes">
+                            <button class="admin-theme-btn" data-theme="mix"><span class="admin-theme-color" style="background:linear-gradient(135deg,#a3e635,#2dd4bf)"></span><span>ميكس</span></button>
                             <button class="admin-theme-btn" data-theme="neon"><span class="admin-theme-color" style="background:#8b5cf6"></span><span>نيون</span></button>
                             <button class="admin-theme-btn" data-theme="light"><span class="admin-theme-color" style="background:#f59e0b"></span><span>مشمس</span></button>
                             <button class="admin-theme-btn" data-theme="forest"><span class="admin-theme-color" style="background:#10b981"></span><span>غابة</span></button>

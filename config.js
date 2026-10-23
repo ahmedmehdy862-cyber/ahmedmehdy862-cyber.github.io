@@ -34,7 +34,7 @@ var SITE_CONFIG = {
     googleVerification: 'google3a266dc4112bb399',
 
     /* ألوان وأبعاد المتصفح */
-    themeColor: '#0a0a12',
+    themeColor: '#070a09',
     defaultLang: 'ar',
     defaultDir: 'rtl'
 };
