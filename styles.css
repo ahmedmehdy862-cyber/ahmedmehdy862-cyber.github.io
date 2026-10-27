@@ -2956,6 +2956,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    font-synthesis-weight: none;
 }
 
 /* Prevent layout shifts from images */

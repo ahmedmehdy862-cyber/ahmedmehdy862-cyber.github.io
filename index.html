@@ -72,7 +72,7 @@
     <!-- Preloader —opening of the site -->
     <div class="preloader" id="preloader" aria-hidden="true">
         <div class="pre-inner">
-            <img src="assets/Asset-1.png" alt="" class="pre-logo" width="56" height="56">
+            <img src="assets/Asset-1.png" alt="" class="pre-logo" width="56" height="56" fetchpriority="high" decoding="async">
             <div class="pre-line"><span id="preBar"></span></div>
             <div class="pre-pct" id="prePct">0</div>
         </div>
@@ -92,7 +92,7 @@
     <nav class="nav" id="mainNav" aria-label="Main navigation" data-ar-label="التنقل الرئيسي">
         <div class="nav-inner">
             <div class="nav-logo">
-                <img src="assets/Asset-1.png" alt="A.Mahdy" class="nav-logo-img" width="36" height="36" decoding="async">
+                <img src="assets/Asset-1.png" alt="A.Mahdy" class="nav-logo-img" width="36" height="36" decoding="async" loading="eager">
                 <span class="nav-logo-text">Ahmed<span class="accent-dot"> Mahdy.</span></span>
             </div>
             <ul class="nav-links" id="navLinks">
@@ -125,21 +125,21 @@
         </div>
         <div class="container hero-content">
             <div class="hero-text">
-                <div class="hero-logo"><img src="assets/Asset-1-1.png" alt="A.Mahdy logo" class="hero-logo-img" width="617" height="214" fetchpriority="high" decoding="async"></div>
-                <div class="hero-badge" id="heroBadge" data-en="My Portfolio" data-ar="معرض أعمالي">My Portfolio</div>
+                <div class="hero-logo"><img src="assets/Asset-1-1.png" alt="A.Mahdy logo" class="hero-logo-img" width="617" height="214" fetchpriority="high" decoding="async" loading="eager"></div>
+                <div class="hero-badge" id="heroBadge" data-en="Available for Projects" data-ar="متاح للمشاريع">متاح للمشاريع</div>
                 <h1 class="hero-title" id="heroTitle">
                     <span class="hero-name" id="heroName">أحمد مهدي</span>
-                    <span class="hero-role" id="heroRole">مصمم جرافيك سوشيال ميديا — هوية بصرية وحملات إعلانية</span>
+                    <span class="hero-role" id="heroRole">مصمم جرافيك | سوشيال ميديا وهوية بصرية</span>
                 </h1>
                 <div class="hero-cta">
-                    <a href="#projects" class="btn btn-primary" id="heroBtn1" data-en="See my work" data-ar="شاهد أعمالي">See my work</a>
-                    <a href="#contact" class="btn btn-ghost" id="heroBtn2" data-en="Get in touch" data-ar="تواصل معي">Get in touch</a>
+                    <a href="#projects" class="btn btn-primary" id="heroBtn1" data-en="View Selected Work" data-ar="عرض الأعمال المختارة">عرض الأعمال المختارة</a>
+                    <a href="#contact" class="btn btn-ghost" id="heroBtn2" data-en="Start a Project" data-ar="ابدأ مشروعك">ابدأ مشروعك</a>
                 </div>
                 <div class="hero-stats" id="heroStats">
                     <div class="hero-stat"><span class="hero-stat-num" data-value="5+">5+</span><span class="hero-stat-label" data-en="Years of Experience" data-ar="سنوات خبرة">Years of Experience</span></div>
-                    <div class="hero-stat"><span class="hero-stat-num" data-value="20+">20+</span><span class="hero-stat-label" data-en="Clients I've Worked With" data-ar="جهة تعاونت معها">Clients I've Worked With</span></div>
+                    <div class="hero-stat"><span class="hero-stat-num" data-value="20+">20+</span><span class="hero-stat-label" data-en="Brands Worked With" data-ar="علامة تجارية">Brands Worked With</span></div>
                     <div class="hero-stat"><span class="hero-stat-num" data-value="100+">100+</span><span class="hero-stat-label" data-en="Completed Projects" data-ar="مشروع مكتمل">Completed Projects</span></div>
-                    <div class="hero-stat"><span class="hero-stat-num" data-value="350+">350+</span><span class="hero-stat-label" data-en="Designs Delivered" data-ar="تصميم">Designs Delivered</span></div>
+                    <div class="hero-stat"><span class="hero-stat-num" data-value="350+">350+</span><span class="hero-stat-label" data-en="Designs Delivered" data-ar="تصميم مُسلّم">Designs Delivered</span></div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -167,8 +167,8 @@
         <div class="container">
             <div class="section-header reveal section-header--start">
                 <span class="section-number">01</span>
-                <h2 class="section-title" id="aboutTitle" data-en="About me" data-ar="عني">About me</h2>
-                <p class="section-desc" id="aboutDesc" data-en="How I think before I design" data-ar="كيف أفكر قبل أن أصمم">How I think before I design</p>
+                <h2 class="section-title" id="aboutTitle" data-en="About me" data-ar="من أنا">About me</h2>
+                <p class="section-desc" id="aboutDesc" data-en="Design with purpose, built to communicate" data-ar="تصميم هادف يحقق الغرض ويصل للرسالة">Design with purpose, built to communicate</p>
             </div>
             <div class="about-grid">
                 <div class="about-card about-identity">
@@ -176,31 +176,31 @@
                         <div class="about-avatar-placeholder" id="aboutAvatar">A.M</div>
                     </div>
                     <p class="about-identity-name" id="aboutIdentityName">Ahmed Mahdy</p>
-                    <p class="about-identity-role" id="aboutIdentityRole" data-en="Graphic Designer · Social Media" data-ar="جرافيك ديزاينر · سوشيال ميديا">Graphic Designer · Social Media</p>
+                    <p class="about-identity-role" id="aboutIdentityRole" data-en="Graphic Designer | Social Media & Visual Identity" data-ar="مصمم جرافيك | سوشيال ميديا وهوية بصرية">Graphic Designer | Social Media & Visual Identity</p>
                 </div>
                 <div class="about-card about-content">
-                    <p class="about-lead" id="aboutLead" data-en="I start by understanding the purpose behind the project, then develop a clear visual direction before moving into execution. Every detail is considered to create work that is consistent, purposeful, and built to communicate." data-ar="أبدأ بفهم الهدف من المشروع، ثم أحدّد اتجاهًا بصريًا واضحًا قبل التنفيذ. كل تفصيل مدروس ليصنع عملًا متّسقًا وهادفًا مبنيًا على التواصل.">I start by understanding the purpose behind the project, then develop a clear visual direction before moving into execution. Every detail is considered to create work that is consistent, purposeful, and built to communicate.</p>
+                    <p class="about-lead" id="aboutLead" data-en="I help brands turn ideas into clear, cohesive visuals that capture attention and build trust." data-ar="أساعد العلامات التجارية على تحويل أفكارها إلى هويات بصرية ومحتوى واضح ومتّسق، يجذب الانتباه ويعزّز الثقة.">I help brands turn ideas into clear, cohesive visuals that capture attention and build trust.</p>
                     <ol class="about-steps" id="aboutSteps">
                         <li class="about-step" data-step="01">
-                            <span class="about-step-key" data-en="Think" data-ar="فكر">Think</span>
-                            <p data-en="Understand the goal, the audience and the message before a single shape is drawn." data-ar="أفهم الهدف والجمهور والرسالة قبل أن أرسم شكلًا واحدًا.">Understand the goal, the audience and the message before a single shape is drawn.</p>
+                            <span class="about-step-key" data-en="Research" data-ar="فهم">Research</span>
+                            <p data-en="Understand goals, audience, and message to set the right direction." data-ar="أفهم الهدف والجمهور والرسالة قبل الشروع في التصميم.">Understand goals, audience, and message to set the right direction.</p>
                         </li>
                         <li class="about-step" data-step="02">
                             <span class="about-step-key" data-en="Concept" data-ar="مفهوم">Concept</span>
-                            <p data-en="Shape a clear visual direction that the whole project can follow." data-ar="أحدّد اتجاهًا بصريًا واضحًا يستطيع المشروع بأكمله اتباعه.">Shape a clear visual direction that the whole project can follow.</p>
+                            <p data-en="Develop a focused visual concept that fits the brand and purpose." data-ar="أضع مفهومًا بصريًا واضحًا يتوافق مع هوية العلامة وأهدافها.">Develop a focused visual concept that fits the brand and purpose.</p>
                         </li>
                         <li class="about-step" data-step="03">
                             <span class="about-step-key" data-en="Design" data-ar="تصميم">Design</span>
-                            <p data-en="Execute with precision and intent — every detail earns its place." data-ar="أُنفّذ بدقّة وقصد واضح — كل تفصيل يأخذ مكانه بحساب.">Execute with precision and intent — every detail earns its place.</p>
+                            <p data-en="Design with clarity, hierarchy, and purpose for real impact." data-ar="أصمم بدقة، وترتيب هرمي واضح، وبهدف محدد لتحقيق التأثير المطلوب.">Design with clarity, hierarchy, and purpose for real impact.</p>
                         </li>
                         <li class="about-step" data-step="04">
-                            <span class="about-step-key" data-en="Refine" data-ar="صقل">Refine</span>
-                            <p data-en="Review, polish and align until the work stays consistent and clear." data-ar="أراجع وأصقل وأوحّد حتى يبقى العمل متسقًا وواضحًا.">Review, polish and align until the work stays consistent and clear.</p>
+                            <span class="about-step-key" data-en="Deliver" data-ar="تسليم">Deliver</span>
+                            <p data-en="Refine and deliver clean, ready-to-use files with full consistency." data-ar="أُصلح وأُحسّن وأسلّم ملفات نظيفة وجاهزة للاستخدام مباشرةً.">Refine and deliver clean, ready-to-use files with full consistency.</p>
                         </li>
                     </ol>
                 </div>
                 <div class="about-card about-story">
-                    <p class="about-bio" id="aboutBio" data-en="I care about design as a tool for communication — not just a visual shape." data-ar="أهتم بالتصميم كأداة للتواصل — وليس مجرّد شكل بصري.">I care about design as a tool for communication — not just a visual shape.</p>
+                    <p class="about-bio" id="aboutBio" data-en="Focused on Social Media Design, Visual Identity & Campaigns. I care about clarity, balance, and turning ideas into designs that actually work." data-ar="متخصص في تصميم السوشيال ميديا، الهوية البصرية، والحملات الإعلانية. أهتم بالوضوح والتناسق، وأحوّل الأفكار إلى تصاميم تخدم الغرض وتحقق النتيجة.">Focused on Social Media Design, Visual Identity & Campaigns. I care about clarity, balance, and turning ideas into designs that actually work.</p>
                     <div class="about-skills" id="aboutSkills"></div>
                 </div>
             </div>
@@ -210,10 +210,10 @@
     <!-- Projects -->
     <section class="section" id="projects">
         <div class="container">
-            <div class="section-header reveal">
+            <div class="section-header reveal section-header--start">
                 <span class="section-number">02</span>
-                <h2 class="section-title" id="projectsTitle" data-en="Selected Work" data-ar="أعمالي">Selected Work</h2>
-                <p class="section-desc" id="projectsDesc" data-en="A curated selection of projects I designed and art-directed" data-ar="مجموعة مختارة من المشاريع التي نفذتها وأشرفت عليها">A curated selection of projects I designed and art-directed</p>
+                <h2 class="section-title" id="projectsTitle" data-en="Selected Work" data-ar="أعمال مختارة">Selected Work</h2>
+                <p class="section-desc" id="projectsDesc" data-en="A focused selection of visual work across identity, campaigns and social media" data-ar="مجموعة مركّزة من الأعمال في الهوية البصرية والحملات والسوشيال ميديا">A focused selection of visual work across identity, campaigns and social media</p>
             </div>
             <div class="projects-toolbar" id="projectsToolbar">
                 <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">الكل</button>
@@ -228,7 +228,7 @@
             <div class="section-header reveal section-header--start">
                 <span class="section-number">03</span>
                 <h2 class="section-title" id="servicesTitle" data-en="Services" data-ar="الخدمات">Services</h2>
-                <p class="section-desc" id="servicesDesc" data-en="What I offer to my clients" data-ar="ما الذي أقدّمه لعملائي">What I offer to my clients</p>
+                <p class="section-desc" id="servicesDesc" data-en="Clear offers for social media, identity and campaigns" data-ar="عروض واضحة للهوية البصرية، السوشيال ميديا، والحملات الإعلانية">Clear offers for social media, identity and campaigns</p>
             </div>
             <div class="services-grid" id="servicesGrid"></div>
             <div class="pricing-wrap" id="pricingWrap" hidden>
@@ -244,10 +244,10 @@
     <!-- Contact -->
     <section class="section" id="contact">
         <div class="container">
-            <div class="section-header reveal">
+            <div class="section-header reveal section-header--start">
                 <span class="section-number">04</span>
-                <h2 class="section-title" id="contactTitle" data-en="Contact Me" data-ar="تواصل معي">Contact Me</h2>
-                <p class="section-desc" id="contactDesc" data-en="Ready to start your project? Let's talk" data-ar="جاهز لنبدأ مشروعك؟ تواصل معي">Ready to start your project? Let's talk</p>
+                <h2 class="section-title" id="contactTitle" data-en="Contact" data-ar="تواصل">Contact</h2>
+                <p class="section-desc" id="contactDesc" data-en="Have a project in mind? Let's build something great together" data-ar="عندك مشروع؟ لنتحدث ونبدأ التنفيذ">Have a project in mind? Let's build something great together</p>
             </div>
             <div class="contact-grid">
                 <div class="contact-card">
