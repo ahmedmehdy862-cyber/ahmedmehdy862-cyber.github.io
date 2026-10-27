@@ -197,6 +197,23 @@ var DataManager = (function () {
 
     function markPublished() { stampClear(DIRTY_KEY); }
 
+    /* اعتماد النسخة المنشورة فورًا على المتصفح
+       ------------------------------------------------------------
+       بيحل مشكلة "النسخة المحلية القديمة بتتكتب فوق المنشور":
+       بنحط data.json في localStorage + نمسح علامة التعديل المعلّقة
+       + الثيم/اللايوت المحليين. الصورة بتفضل زي ما هي (لو محلية
+       ولسه ما اتنشرتش). */
+    function adoptRemote() {
+        if (!remote) return false;
+        var stored = false;
+        try { stored = lsSet(DATA_KEY, JSON.stringify(remote)); } catch (e) { stored = false; }
+        if (!stored) { try { localStorage.removeItem(DATA_KEY); } catch (e) {} }
+        stampClear(DIRTY_KEY);
+        stampClear(THEME_KEY);
+        stampClear(LAYOUT_KEY);
+        return true;
+    }
+
     /* تعديل محلي لازم يبقى محفوظ—even لو اتنشر من جهاز تاني.
        بنقارن تاريخ آخر تعديل محلي بالتاريخ المنشور على السيرفر:
        لو المنشور أحدث ⇒ النسخة المحلية مجرد snapshot قديم وبنتبنّى المنشور.
@@ -320,7 +337,7 @@ var DataManager = (function () {
         } catch (e) {}
     }
 
-    return { load: load, save: save, reconcile: reconcile, markPublished: markPublished, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, storeLogo: storeLogo, cleanupOversizedLogo: cleanupOversizedLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
+    return { load: load, save: save, reconcile: reconcile, markPublished: markPublished, adoptRemote: adoptRemote, getDefault: getDefault, setRemote: setRemote, getRemote: getRemote, hasLocalLogo: hasLocalLogo, getLogo: getLogo, setLogo: setLogo, storeLogo: storeLogo, cleanupOversizedLogo: cleanupOversizedLogo, getTheme: getTheme, setTheme: setTheme, getLayout: getLayout, setLayout: setLayout, reset: reset };
 })();
 
 /* ============================================
@@ -625,7 +642,8 @@ var Publisher = (function () {
             error: ['فشل النشر', 'badge-err'],
             checking: ['بنتأكد إن التحديث وصل للجمهور…', 'badge-work'],
             liveOk: ['تم التحديث للجمهور ✓', 'badge-ok'],
-            livePending: ['تم النشر — التحديث بيوصل خلال دقائق', 'badge-warn']
+            livePending: ['تم النشر — التحديث بيوصل خلال دقائق', 'badge-warn'],
+            pulled: ['تم تحديث النسخة المحلية من الموقع ✓', 'badge-ok']
         }[state];
         if (badge) setBadge(badge[0], badge[1]);
         var el = statusEl();
@@ -640,7 +658,8 @@ var Publisher = (function () {
             error: ['status-err', 'فشل النشر: ' + (extra || 'خطأ غير معروف')],
             checking: ['', 'جاري التحقق من وصول التحديث إلى الموقع الحي…'],
             liveOk: ['status-ok', 'تم التحديث للجمهور ✓ — الزوار شايفين أحدث نسخة من الموقع.'],
-            livePending: ['status-warn', 'تم النشر — Vercel بياخد دقيقة تقريبًا لبناء التحديث، جرّب تحديث الصفحة بعد شوية.']
+            livePending: ['status-warn', 'تم النشر — Vercel بياخد دقيقة تقريبًا لبناء التحديث، جرّب تحديث الصفحة بعد شوية.'],
+            pulled: ['status-ok', 'تم سحب النسخة المنشورة واعتمادها على المتصفح ✓ — أي تعديل جديد هينشر من عليها.']
         };
         var m = map[state] || ['', extra || ''];
         el.className = 'admin-hint ' + m[0];
@@ -977,6 +996,36 @@ var Publisher = (function () {
             });
     }
 
+    /* ============================================
+       سحب النسخة المنشورة وفرضها على المتصفح
+       ------------------------------------------------------------
+       بيحل حالة "النسخة المحلية القديمة بتكتب فوق المنشور":
+       لو المتصفح فيه نسخة قديمة + علامة تعديل معلّقة، reconcile()
+       بيحترم المحلي، وأول حفظ بينشر القديم ويمسح الجديد.
+       الزر ده بيعكس الاتجاه: بيجيب أحدث data.json من الموقع الحي،
+       بيمسح أي تعديل محلي معلّق، وبيقرا النسخة المنشورة.
+       ============================================ */
+    function pullFromRemote() {
+        var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) || {};
+        var base = String(CFG.siteUrl || window.location.origin || '').replace(/\/+$/, '');
+        if (!base) { setStatus('error', 'مفيش رابط موقع محدد في config.js'); return Promise.resolve(false); }
+        setBadge('جاري جلب النسخة المنشورة…', 'badge-work');
+        return fetch(base + '/data.json?_=' + Date.now(), { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+                if (!d || !d.profile) throw new Error('رد غير متوقع من الموقع');
+                DataManager.setRemote(d);
+                DataManager.adoptRemote();
+                applyRemoteData();
+                setStatus('pulled');
+                return true;
+            })
+            .catch(function (e) {
+                setStatus('error', 'تعذّر جلب النسخة المنشورة: ' + ((e && e.message) || 'خطأ'));
+                return false;
+            });
+    }
+
     function publish() {
         var token = getToken();
         if (!token) { setStatus('noToken'); return Promise.resolve(false); }
@@ -1097,7 +1146,7 @@ var Publisher = (function () {
         publish: publish, schedule: schedule, setStatus: setStatus, refreshStatus: refreshStatus,
         markPhoto: markPhoto, maybeAutoPublishPhoto: maybeAutoPublishPhoto,
         saveAndPublish: saveAndPublish, hasPendingChanges: hasPendingChanges, setBadge: setBadge,
-        retryPending: retryPending, verifyLive: verifyLive
+        retryPending: retryPending, verifyLive: verifyLive, pullFromRemote: pullFromRemote
     };
 })();
 
@@ -1550,8 +1599,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             });
         });
 
-        var dlRecoveryBtn = document.getElementById('downloadRecovery');
-        if (dlRecoveryBtn) dlRecoveryBtn.addEventListener('click', function () { TokenVault.downloadRecovery(); });
+        var dlRecoveryBtn = document.getElementById('downloadRecovery');        if (dlRecoveryBtn) dlRecoveryBtn.addEventListener('click', function () { TokenVault.downloadRecovery(); });
 
         var impRecoveryBtn = document.getElementById('importRecovery');
         var impRecoveryFile = document.getElementById('recoveryFile');
@@ -1571,6 +1619,28 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                 impRecoveryFile.value = '';
             });
         }
+
+        var pullRemoteBtn = document.getElementById('pullRemote');
+        if (pullRemoteBtn) pullRemoteBtn.addEventListener('click', function () {
+            pullRemoteBtn.disabled = true;
+            Publisher.pullFromRemote().then(function (ok) {
+                pullRemoteBtn.disabled = false;
+                if (ok) {
+                    try {
+                        var inp = document.getElementById('ghTokenInput');
+                        if (inp) inp.value = Publisher.getToken();
+                        var el = document.getElementById('tokenState');
+                        if (el) { el.textContent = Publisher.getToken() ? 'محفوظ ✓ — مخفي بشكل افتراضي' : 'لم يُحفظ بعد'; el.classList.toggle('is-set', !!Publisher.getToken()); }
+                    } catch (e) {}
+                    /* أعد تحميل نماذج اللوحة بالنسخة الجديدة */
+                    try {
+                        loadProfileForm(); loadStatsForm(); loadSkillsForm(); loadProjectsForm();
+                        loadServicesForm(); loadLayoutForm(); loadFeaturesForm(); loadSeoForm();
+                        loadContentForm(); loadAboutForm(); loadSectionsForm(); renderAdminStats();
+                    } catch (e) {}
+                }
+            });
+        });
         if (autoChk) autoChk.checked = Publisher.isAuto();
         if (autoChk) autoChk.addEventListener('change', function () {
             Publisher.setAuto(autoChk.checked);

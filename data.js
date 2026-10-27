@@ -11,8 +11,8 @@ const SITE_DATA = {
     },
     "brand": "A.Mahdy",
     "role": {
-      "ar": "مصمم جرافيك سوشيال ميديا — هوية بصرية وحملات إعلانية",
-      "en": "Graphic Designer specialized in Social Media & Campaign Visuals"
+      "ar": "مصمم جرافيك | سوشيال ميديا وهوية بصرية",
+      "en": "Graphic Designer | Social Media & Visual Identity"
     },
     "tagline": {
       "ar": "مصمم جرافيك متخصص في السوشيال ميديا والحملات البصرية، يحوّل الأفكار إلى تجارب بصرية جسورة وهادفة ومتّسقة تلفت الانتباه وتترك أثرًا.",
@@ -38,48 +38,48 @@ const SITE_DATA = {
   },
   "site": {
     "badge": {
-      "ar": "معرض أعمالي",
-      "en": "My Portfolio"
+      "ar": "متاح للمشاريع",
+      "en": "Available for Projects"
     },
     "heroBtn1": {
-      "ar": "شاهد أعمالي",
-      "en": "See my work"
+      "ar": "عرض الأعمال المختارة",
+      "en": "View Selected Work"
     },
     "heroBtn2": {
-      "ar": "تواصل معي",
-      "en": "Get in touch"
+      "ar": "ابدأ مشروعك",
+      "en": "Start a Project"
     },
     "aboutTitle": {
-      "ar": "عني",
+      "ar": "من أنا",
       "en": "About me"
     },
     "aboutDesc": {
-      "ar": "كيف أفكر قبل أن أصمم",
-      "en": "How I think before I design"
+      "ar": "تصميم هادف يحقق الغرض ويصل للرسالة",
+      "en": "Design with purpose, built to communicate"
     },
     "projectsTitle": {
-      "ar": "أعمالي",
+      "ar": "أعمال مختارة",
       "en": "Selected Work"
     },
     "projectsDesc": {
-      "ar": "مجموعة مختارة من المشاريع التي نفذتها وأشرفت عليها",
-      "en": "A curated selection of projects I designed and art-directed"
+      "ar": "مجموعة مركّزة من الأعمال في الهوية البصرية والحملات والسوشيال ميديا",
+      "en": "A focused selection of visual work across identity, campaigns and social media"
     },
     "servicesTitle": {
       "ar": "الخدمات",
       "en": "Services"
     },
     "servicesDesc": {
-      "ar": "ما الذي أقدّمه لعملائي",
-      "en": "What I offer to my clients"
+      "ar": "عروض واضحة للهوية البصرية، السوشيال ميديا، والحملات الإعلانية",
+      "en": "Clear offers for social media, identity and campaigns"
     },
     "contactTitle": {
-      "ar": "تواصل معي",
-      "en": "Contact Me"
+      "ar": "تواصل",
+      "en": "Contact"
     },
     "contactDesc": {
-      "ar": "جاهز لنبدأ مشروعك؟ تواصل معي",
-      "en": "Ready to start your project? Let’s talk"
+      "ar": "عندك مشروع؟ لنتحدث ونبدأ التنفيذ",
+      "en": "Have a project in mind? Let's build something great together"
     },
     "contactCard1": {
       "ar": "البريد الإلكتروني",
