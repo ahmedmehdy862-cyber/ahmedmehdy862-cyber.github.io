@@ -232,13 +232,15 @@
 
 [data-theme="mix"] .hero-name {
     font-family: var(--font-display);
-    background: linear-gradient(115deg, #ffffff 0%, var(--mix-cream) 38%, var(--accent) 72%, var(--mix-deep) 100%);
+    background: linear-gradient(115deg, #ffffff 0%, var(--mix-cream) 35%, var(--accent) 65%, var(--mix-deep) 100%);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: var(--accent);
     padding-top: 0;
     filter: drop-shadow(0 10px 30px rgba(163, 230, 53, 0.14));
+    animation: heroTextShine 9s linear infinite;
 }
 
 [data-theme="mix"] .hero-role {
@@ -258,7 +260,10 @@
     font-family: var(--font-body);
     font-weight: 800;
     padding: 14px 28px;
-    transition: transform 0.3s var(--mix-ease), box-shadow 0.3s var(--mix-ease), background 0.3s var(--mix-ease);
+    transition: transform 0.3s var(--mix-ease), box-shadow 0.3s var(--mix-ease), background 0.3s var(--mix-ease), border-color 0.3s var(--mix-ease);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
 }
 
 [data-theme="mix"] .btn-primary {
@@ -268,8 +273,12 @@
 }
 
 [data-theme="mix"] .btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 48px rgba(163, 230, 53, 0.28);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 24px 56px rgba(163, 230, 53, 0.32);
+}
+
+[data-theme="mix"] .btn-primary:active {
+    transform: translateY(-1px) scale(0.99);
 }
 
 [data-theme="mix"] .btn-ghost {
@@ -282,7 +291,12 @@
 
 [data-theme="mix"] .btn-ghost:hover {
     background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-2px);
+}
+
+[data-theme="mix"] .btn-ghost:active {
+    transform: translateY(-1px) scale(0.99);
 }
 
 [data-theme="mix"] .hero-stats {

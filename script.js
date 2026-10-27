@@ -809,15 +809,17 @@ var Publisher = (function () {
                 el.classList.toggle('active', el.getAttribute('data-theme') === theme);
             });
         }
-        updateDots(saved || 'neon');
+        updateDots(saved || root.getAttribute('data-theme') || 'mix');
 
         document.addEventListener('click', function (e) {
             var btn = e.target.closest('.theme-dot, .admin-theme-btn');
             if (!btn) return;
             var theme = btn.getAttribute('data-theme');
+            if (!theme) return;
             root.setAttribute('data-theme', theme);
             DataManager.setTheme(theme);
             updateDots(theme);
+            try { var m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#070a09'); } catch (ex) {}
         });
     });
 })();
@@ -2111,14 +2113,19 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             var preview = document.getElementById('adminLogoPreview');
             var avatar = document.getElementById('aboutAvatar');
             if (preview) preview.innerHTML = '<img src="' + esc(src) + '" alt="Logo">';
-            if (avatar) { avatar.innerHTML = '<img src="' + esc(src) + '" alt="A.M">'; avatar.classList.add('has-logo'); }
+            if (avatar) {
+                avatar.classList.remove('about-avatar-placeholder');
+                avatar.classList.add('about-avatar');
+                avatar.innerHTML = '<img src="' + esc(src) + '" alt="A.M" decoding="async">';
+                avatar.classList.add('has-logo');
+            }
             return true;
         }
 
         function loadPhoto() {
             var logo = DataManager.getLogo();
             if (applyPhoto(logo)) return;
-            FileStore.getURL('profile_logo').then(function (url) { applyPhoto(url); });
+            FileStore.getURL('profile_logo').then(function (url) { if (applyPhoto(url)) return; }).catch(function () {});
         }
 
         document.getElementById('logoUpload').addEventListener('change', function (e) {
@@ -2606,17 +2613,13 @@ function renderSite() {
                 if (!src) return;
                 var cur = av.querySelector('img');
                 if (cur && cur.getAttribute('src') === src) return;
+                av.classList.remove('about-avatar-placeholder');
+                av.classList.add('about-avatar');
                 var img = document.createElement('img');
                 img.src = src;
                 img.alt = t(p.name) || 'A.M';
                 img.decoding = 'async';
-                img.loading = 'lazy';
-                img.onload = function () {
-                    var ratio = (img.naturalWidth && img.naturalHeight) ? (img.naturalWidth / img.naturalHeight) : 1;
-                    av.style.aspectRatio = ratio.toFixed(4);
-                    av.style.width = ratio < 1 ? 'min(300px, 82vw)' : 'min(440px, 90vw)';
-                    av.classList.add('has-photo');
-                };
+                img.loading = 'eager';
                 av.innerHTML = '';
                 av.appendChild(img);
                 av.classList.add('has-logo');
@@ -3509,7 +3512,13 @@ document.addEventListener('DOMContentLoaded', function () {
     remoteReady.then(function (d) {
         if (!d) { markLayoutReady(); return; }
         if (document.body) {
-            document.documentElement.setAttribute('data-theme', DataManager.getTheme() || 'neon');
+            var rt = DataManager.getTheme();
+            if (rt) {
+                document.documentElement.setAttribute('data-theme', rt);
+                document.querySelectorAll('.theme-dot, .admin-theme-btn').forEach(function (el) {
+                    el.classList.toggle('active', el.getAttribute('data-theme') === rt);
+                });
+            }
             LayoutManager.apply(DataManager.getLayout());
         }
         applyRemoteData();
