@@ -217,7 +217,14 @@ var DataManager = (function () {
         if (!pub || localPub >= pub) return false;
 
         /* المنشور أحدث ⇒ نحدّث النسخة المحلية ونمسح الصور/الثيم المخزّنة محليًا */
-        try { lsSet(DATA_KEY, JSON.stringify(remote)); } catch (e) {}
+        var stored = false;
+        try { stored = lsSet(DATA_KEY, JSON.stringify(remote)); } catch (e) { stored = false; }
+        /* لو مقدرناش نخزن النسخة الجديدة (المساحة ممتلئة) بنمسح النسخة القديمة،
+           وإ.loads() هيرجّع من getDefault() اللي بيرجّع remote — أحسن من إني
+           أسيب الزائر يفضل شايف نسخة قديمة مخزّنة */
+        if (!stored) {
+            try { localStorage.removeItem(DATA_KEY); } catch (e) {}
+        }
         stampClear(THEME_KEY);
         stampClear(LAYOUT_KEY);
         if (remote.photoUrl) {
@@ -320,7 +327,7 @@ var DataManager = (function () {
    RemoteData — يجلب data.json المنشور من الموقع
    ============================================ */
 var RemoteData = (function () {
-    function load() {
+    function loadOnce() {
         if (!window.fetch || window.location.protocol === 'file:') return Promise.resolve(null);
         return new Promise(function (resolve) {
             var done = false;
@@ -340,6 +347,15 @@ var RemoteData = (function () {
                     clearTimeout(timer);
                     if (!done) { done = true; resolve(null); }
                 });
+        });
+    }
+
+    /* محاولة تانية لو أول جلب فشل (شبكة ضعيفة/قطع مؤقت) — من غير كده
+       الزائر بيحسّب نسخة index.html/data.js القديمة المدمجة في الصفحة */
+    function load() {
+        return loadOnce().then(function (d) {
+            if (d) return d;
+            return new Promise(function (r) { setTimeout(r, 1500); }).then(loadOnce);
         });
     }
     return { load: load };
@@ -396,13 +412,16 @@ var Publisher = (function () {
 
     function setStatus(state, extra) {
         var badge = {
-            noToken: ['النشر التلقائي: مفعّل', 'badge-idle'],
+            noToken: ['النشر: يحتاج GitHub Token', 'badge-idle'],
             autoOff: ['النشر التلقائي: متوقف', 'badge-off'],
             publishing: ['جاري النشر…', 'badge-work'],
             ok: ['تم النشر ✓', 'badge-ok'],
             idleReady: ['النشر التلقائي مفعّل', 'badge-ok'],
             photoPending: ['الصورة لم تُنشر بعد', 'badge-warn'],
-            error: ['فشل النشر', 'badge-err']
+            error: ['فشل النشر', 'badge-err'],
+            checking: ['بنتأكد إن التحديث وصل للجمهور…', 'badge-work'],
+            liveOk: ['تم التحديث للجمهور ✓', 'badge-ok'],
+            livePending: ['تم النشر — التحديث بيوصل خلال دقائق', 'badge-warn']
         }[state];
         if (badge) setBadge(badge[0], badge[1]);
         var el = statusEl();
@@ -414,7 +433,10 @@ var Publisher = (function () {
             ok: ['status-ok', 'تم النشر ✓ — الموقع هيتحدث خلال دقيقة تقريبًا.'],
             idleReady: ['status-ok', 'النشر التلقائي مفعّل — أي تعديل تحفظه هيتنشر تلقائيًا.'],
             photoPending: ['status-warn', 'صورتك لسه محليًا بس — اضغط «انشر الآن» عشان تظهر للزوار في كل الأجهزة.'],
-            error: ['status-err', 'فشل النشر: ' + (extra || 'خطأ غير معروف')]
+            error: ['status-err', 'فشل النشر: ' + (extra || 'خطأ غير معروف')],
+            checking: ['', 'جاري التحقق من وصول التحديث إلى الموقع الحي…'],
+            liveOk: ['status-ok', 'تم التحديث للجمهور ✓ — الزوار شايفين أحدث نسخة من الموقع.'],
+            livePending: ['status-warn', 'تم النشر — Vercel بياخد دقيقة تقريبًا لبناء التحديث، جرّب تحديث الصفحة بعد شوية.']
         };
         var m = map[state] || ['', extra || ''];
         el.className = 'admin-hint ' + m[0];
@@ -704,6 +726,53 @@ var Publisher = (function () {
         });
     }
 
+    /* ============================================
+       التأكد إن التحديث وصل للجمهور فعلًا
+       ------------------------------------------------------------
+       بعد ما data.json يتكتب على GitHub، Vercel لازم يعيد البناء
+       (دقيقة تقريبًا). بنجيب نسخة من الموقع الحي بـcache-buster
+       ونقارن updatedAt لحد ما يطابق اللي اتنشر — عشان الشارة
+       تقول الحقيقة بدل ما نفترض إن النشر نجح والجمهور لسه شايف
+       النسخة القديمة.
+       ============================================ */
+    var VERIFY_TRIES = 24;   // 24 محاولة × 5 ثواني = دقيقتين
+    var verifyTimer = null;
+
+    function liveDataUrl() {
+        var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) || {};
+        var base = String(CFG.siteUrl || window.location.origin || '').replace(/\/+$/, '');
+        if (!base) return '';
+        return base + '/data.json?_=' + Date.now();
+    }
+
+    function verifyLive(want, tries) {
+        tries = tries || 0;
+        clearTimeout(verifyTimer);
+        var url = liveDataUrl();
+        if (!url || !want) return;
+        setStatus('checking');
+        fetch(url, { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+                if (j && j.updatedAt && String(j.updatedAt) === String(want)) {
+                    setStatus('liveOk');
+                    return;
+                }
+                if (tries < VERIFY_TRIES) {
+                    verifyTimer = setTimeout(function () { verifyLive(want, tries + 1); }, 5000);
+                } else {
+                    setStatus('livePending');
+                }
+            })
+            .catch(function () {
+                if (tries < VERIFY_TRIES) {
+                    verifyTimer = setTimeout(function () { verifyLive(want, tries + 1); }, 5000);
+                } else {
+                    setStatus('livePending');
+                }
+            });
+    }
+
     function publish() {
         var token = getToken();
         if (!token) { setStatus('noToken'); return Promise.resolve(false); }
@@ -721,8 +790,9 @@ var Publisher = (function () {
                         DataManager.setRemote(payload);
                         DataManager.markPublished();
                         setStatus('ok');
-                        setTimeout(refreshStatus, 6000);
                         resolve(true);
+                        /* تأكد إن الزوار فعلاً بياجروا أحدث نسخة من الموقع الحي */
+                        verifyLive(payload.updatedAt, 0);
                         /* وسوم الـSEO الستاتيك — بعد ما الداتا تتنشر عشان الـcrawlers */
                         syncStaticSeo(payload);
                         if (queued) { queued = false; setTimeout(publish, 800); }
@@ -755,22 +825,53 @@ var Publisher = (function () {
             var local = DataManager.load();
             var rem = DataManager.getRemote();
             if (!rem) return true;
-            var a = JSON.stringify({ p: local.profile, s: local.site, pr: local.projects, sv: local.services, sk: local.skills, st: local.stats, se: local.seo, f: local.features, sec: local.sections });
-            var b = JSON.stringify({ p: rem.profile, s: rem.site, pr: rem.projects, sv: rem.services, sk: rem.skills, st: rem.stats, se: rem.seo, f: rem.features, sec: rem.sections });
+            /* لازم نقارن نفس الحقول اللي buildPayload بينشرها — غير كده تعديل
+               الثيم/اللايوت/ملاحظة التواصل كان بيتحفظ محليًا من غير ما يتنشر
+               للجمهور، والشارة كانت بتقول "لا حاجة للنشر" غلط */
+            var a = JSON.stringify({
+                p: local.profile, s: local.site, pr: local.projects, sv: local.services,
+                sk: local.skills, st: local.stats, se: local.seo, f: local.features,
+                sec: local.sections, cn: local.contactNote || '',
+                th: DataManager.getTheme() || '', ly: DataManager.getLayout()
+            });
+            var b = JSON.stringify({
+                p: rem.profile, s: rem.site, pr: rem.projects, sv: rem.services,
+                sk: rem.skills, st: rem.stats, se: rem.seo, f: rem.features,
+                sec: rem.sections, cn: rem.contactNote || '',
+                th: rem.theme || '', ly: rem.layout || null
+            });
             return a !== b;
-        } catch (e) { return false; }
+        } catch (e) { return true; }
     }
 
     /* أي تعديل = حفظ واحد بنفسي + نشر تلقائي بعده */
     function saveAndPublish(data) {
         DataManager.save(data);
         try {
+            /* من غير توكن/نشر تلقائي التعديل بيفضل محلي — قولها بصراحة
+               بدل شارة "لا حاجة للنشر" اللي كانت بتضيّع التعديلات */
+            if (!getToken()) { setStatus('noToken'); return; }
+            if (!isAuto()) { setStatus('autoOff'); return; }
             if (hasPendingChanges()) {
                 setBadge('التعديلات جاهزة للنشر…', 'badge-work');
                 schedule();
             } else if (!publishing) {
                 setBadge('محفوظ — لا حاجة للنشر', 'badge-ok');
             }
+        } catch (e) {}
+    }
+
+    /* لو فاضل تعديلات ما اتنشرتش (النشر فشل وقتها / مكنش فيه توكن /
+       الثيم أو اللايوت اتغيّروا لوحدهم) — نجرّب تاني أول ما اللوحة تتفتح */
+    function retryPending() {
+        try {
+            if (!getToken() || !isAuto() || publishing) return;
+            var dirty = false;
+            try { dirty = !!localStorage.getItem('amahdy_edited_at'); } catch (e) {}
+            var rem = DataManager.getRemote();
+            if (!dirty && !(rem && hasPendingChanges())) return;
+            setBadge('في تعديلات لم تُنشر بعد — جاري النشر…', 'badge-work');
+            schedule();
         } catch (e) {}
     }
 
@@ -791,7 +892,8 @@ var Publisher = (function () {
         getToken: getToken, setToken: setToken, isAuto: isAuto, setAuto: setAuto,
         publish: publish, schedule: schedule, setStatus: setStatus, refreshStatus: refreshStatus,
         markPhoto: markPhoto, maybeAutoPublishPhoto: maybeAutoPublishPhoto,
-        saveAndPublish: saveAndPublish, hasPendingChanges: hasPendingChanges, setBadge: setBadge
+        saveAndPublish: saveAndPublish, hasPendingChanges: hasPendingChanges, setBadge: setBadge,
+        retryPending: retryPending, verifyLive: verifyLive
     };
 })();
 
@@ -1215,6 +1317,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             if (typeof Publisher !== 'undefined') {
                 Publisher.refreshStatus();
                 Publisher.maybeAutoPublishPhoto();
+                Publisher.retryPending();
             }
         }
 
