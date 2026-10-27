@@ -576,9 +576,23 @@
                     <div class="admin-section-block">
                         <h3>النشر التلقائي على الموقع</h3>
                         <p class="admin-hint">اربط GitHub Token مرة واحدة — وبعدها أي تعديل تحفظه في اللوحة يتنشر للجمهور تلقائيًا خلال دقيقة.</p>
+
+                        <div class="admin-warn-box">
+                            <span class="admin-warn-ico">🔒</span>
+                            <div>
+                                <strong>التوكن سرّي — ما بيتحطش في أي ملف بيننشر على المستودع.</strong>
+                                بنحفظه تلقائيًا في 3 طبقات: المتصفح + نسخة احتياطية داخلية (IndexedDB) + نسخة سحابية مخفية (Gist) — عشان ما يضيعش لو مسحت بيانات الموقع.
+                                لو تسرب يومًا: اسحب الصلاحية من <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">GitHub Tokens</a>.
+                            </div>
+                        </div>
+
                         <div class="admin-field">
                             <label>GitHub Personal Access Token</label>
                             <input type="password" id="ghTokenInput" class="admin-input" dir="ltr" placeholder="ghp_..." autocomplete="off">
+                            <div class="admin-token-row">
+                                <span class="admin-token-state" id="tokenState">لم يُحفظ بعد</span>
+                                <button type="button" class="admin-link" id="toggleTokenShow">إظهار</button>
+                            </div>
                         </div>
                         <div class="admin-field">
                             <label class="admin-check-label">
@@ -586,10 +600,20 @@
                                 نشر تلقائي بعد كل تعديل
                             </label>
                         </div>
-                        <button class="admin-save-btn" id="saveGhToken">حفظ التوكن</button>
-                        <button class="admin-save-btn admin-save-btn--secondary" id="publishNowBtn">انشر الآن</button>
+                        <div class="admin-token-actions">
+                            <button class="admin-save-btn" id="saveGhToken">حفظ التوكن</button>
+                            <button class="admin-save-btn admin-save-btn--secondary" id="publishNowBtn">انشر الآن</button>
+                        </div>
+                        <div class="admin-token-actions">
+                            <button type="button" class="admin-save-btn admin-save-btn--secondary" id="backupGist">نسخة سحابية (Gist)</button>
+                            <button type="button" class="admin-save-btn admin-save-btn--secondary" id="downloadRecovery">تنزيل ملف الاسترجاع</button>
+                            <button type="button" class="admin-save-btn admin-save-btn--secondary" id="importRecovery">استرجاع من ملف</button>
+                            <input type="file" id="recoveryFile" accept=".json,.txt" hidden>
+                        </div>
                         <p class="admin-hint" id="publishStatus"></p>
+                        <p class="admin-hint" id="tokenVaultStatus"></p>
                         <p class="admin-hint">لإنشاء التوكن: GitHub ← Settings ← Developer settings ← Personal access tokens ← Fine-grained token ← اختر المستودع ده ومنحه صلاحية <strong>Contents: Read and write</strong>.</p>
+                        <p class="admin-hint">ملاحظة: النسخة السحابية (Gist) محتاجة توكن <strong>كلاسيك</strong> بصلاحية <code>gist</code> — التوكن Fine-grained مش بيدعمها. لو مش عايز توكن تاني، استخدم «تنزيل ملف الاسترجاع» (البديل الأسهل).</p>
                     </div>
                     <div class="admin-section-block">
                         <h3>تصدير البيانات (طريقة يدوية)</h3>

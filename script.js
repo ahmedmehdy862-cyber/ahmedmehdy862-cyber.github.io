@@ -379,6 +379,210 @@ function whenLayoutReady() {
     });
 }
 
+/* ============================================
+   TokenVault — حفظ GitHub Token بشكل دائم وآمن
+   ------------------------------------------------------------
+   المشكلة: التوكن كان في localStorage بس. أي مسح لبيانات الموقع
+   (أو حذف غلط من اللوحة) بيمسحه → النشر التلقائي يقف من غير ما
+   حد يحس، والتعديلات تفضل محليًا.
+
+   الحل — 3 طبقات:
+   1) localStorage  → المصدر الأساسي (قراءة فورية)
+   2) IndexedDB     → نسخة احتياطية داخلية بتترجع تلقائيًا لو 1 اتمسحت
+   3) Gist مخفي     → نسخة سحابية على حساب صاحب الموقع (اختياري)
+
+   + ملف استرجاع يتنزّل مرة ويتحفظ في مكان آمن — ده اللي بيشتغل
+     حتى لو كل حاجة اتمسحت من المتصفح.
+
+   التوكن عمره ما بيتحط في ملف بينشر على المستودع العام.
+   ============================================ */
+var TokenVault = (function () {
+    var TOKEN_KEY = 'amahdy_gh_token';
+    var IDB_KEY = 'gh_token_backup';
+    var GIST_ID_KEY = 'amahdy_gh_gist';
+    var GIST_FILE = 'ahmedmahdy-publish-token.txt';
+    var gistId = null;
+
+    function statusEl() { return document.getElementById('tokenVaultStatus'); }
+    function setStatus(msg, cls) {
+        var el = statusEl();
+        if (!el) return;
+        el.textContent = msg || '';
+        el.className = 'admin-hint ' + (cls || '');
+    }
+
+    function lsGet(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+    function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+    /* ---------- طبقة 2: IndexedDB ---------- */
+    function idbPut(v) {
+        try {
+            if (typeof FileStore === 'undefined' || !FileStore.put) return Promise.resolve(false);
+            return FileStore.put(IDB_KEY, v).then(function () { return true; }, function () { return false; });
+        } catch (e) { return Promise.resolve(false); }
+    }
+    function idbGet() {
+        try {
+            if (typeof FileStore === 'undefined' || !FileStore.get) return Promise.resolve(null);
+            return FileStore.get(IDB_KEY).then(function (v) { return v || null; }, function () { return null; });
+        } catch (e) { return Promise.resolve(null); }
+    }
+    function idbDel() {
+        try {
+            if (typeof FileStore === 'undefined' || !FileStore.del) return Promise.resolve();
+            return FileStore.del(IDB_KEY).catch(function () {});
+        } catch (e) { return Promise.resolve(); }
+    }
+
+    /* ---------- طبقة 3: Gist مخفي ---------- */
+    function readGistId() {
+        if (gistId) return gistId;
+        gistId = lsGet(GIST_ID_KEY) || null;
+        return gistId;
+    }
+
+    function gistRequest(token, method) {
+        var id = readGistId();
+        var files = {};
+        files[GIST_FILE] = { content: token };
+        return fetch('https://api.github.com/gists' + (id ? '/' + id : ''), {
+            method: method,
+            headers: {
+                'Authorization': 'Bearer ' + token,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json',
+                'X-GitHub-Api-Version': '2022-11-28'
+            },
+            body: JSON.stringify({
+                public: false,
+                description: 'A.Mahdy — نسخة احتياطية سرية لتوكن النشر',
+                files: files
+            })
+        });
+    }
+
+    function pushToGist(token) {
+        if (!token) return Promise.resolve({ ok: false, msg: '' });
+        return gistRequest(token, readGistId() ? 'PATCH' : 'POST').then(function (r) {
+            if (!r.ok) {
+                var msg;
+                if (r.status === 403) {
+                    msg = 'التوكن الحالي Fine-grained — GitHub مش بيسمح بعمل Gist بيه. ' +
+                          'استخدم توكن كلاسيك بصلاحية gist، أو نزّل ملف الاسترجاع (البديل الأسهل).';
+                } else if (r.status === 401) {
+                    msg = 'التوكن غير صالح أو انتهت صلاحيته.';
+                } else if (r.status === 404) {
+                    /* الـgist اتمسح أو الـid قديم — ننشئ واحد جديد */
+                    gistId = null; lsDel(GIST_ID_KEY);
+                    return pushToGist(token);
+                } else {
+                    msg = 'HTTP ' + r.status;
+                }
+                return { ok: false, msg: 'النسخة السحابية ما اتحفظتش: ' + msg };
+            }
+            /* مهم: نكمّل جوه نفس الـthen عشان رسالة الخطأ ما تتبهنش
+               برد ناجح من غير id */
+            return r.json().then(function (j) {
+                if (j && j.id) {
+                    var fresh = j.id !== gistId;
+                    gistId = j.id;
+                    lsSet(GIST_ID_KEY, gistId);
+                    return { ok: true, msg: (fresh ? 'أنشأنا' : 'حدّثنا') + ' النسخة السحابية ✓' };
+                }
+                return { ok: false, msg: 'النسخة السحابية ما اتحفظتش — ردّ غير متوقع من GitHub.' };
+            });
+        }).catch(function (e) {
+            return { ok: false, msg: 'تعذّر الوصول للنسخة السحابية (' + ((e && e.message) || 'شبكة') + ').' };
+        });
+    }
+
+    /* ---------- الاسترجاع ---------- */
+    /* بيشتغل أول تحميل للصفحة: لو localStorage فاضي بس IndexedDB
+       فيها التوكن → نرجّعه على طول ويكمّل النشر التلقائي */
+    function restore() {
+        var cur = lsGet(TOKEN_KEY).trim();
+        if (cur) {
+            idbPut(cur);
+            return Promise.resolve(true);
+        }
+        return idbGet().then(function (v) {
+            var tok = typeof v === 'string' ? v.trim() : '';
+            if (!tok) return false;
+            if (!lsSet(TOKEN_KEY, tok)) return false;
+            setStatus('تم استرجاع التوكن من النسخة الاحتياطية الداخلية ✓ — النشر التلقائي شغّال.', 'status-ok');
+            try {
+                if (typeof Publisher !== 'undefined' && Publisher && Publisher.refreshStatus) Publisher.refreshStatus();
+            } catch (e) {}
+            return true;
+        });
+    }
+
+    /* حفظ = localStorage + IndexedDB + Gist (آخرها اختياري) */
+    function save(token) {
+        token = String(token || '').trim();
+        if (!token) return Promise.resolve({ ok: false, msg: '' });
+        lsSet(TOKEN_KEY, token);
+        idbPut(token);
+        return pushToGist(token);
+    }
+
+    /* حذف من المتصفح فقط — النسخة السحابية تفضل موجودة للاسترجاع */
+    function clearLocal() {
+        lsDel(TOKEN_KEY);
+        idbDel();
+    }
+
+    /* ---------- ملف الاسترجاع (بيشتغل حتى لو كل حاجة اتمسحت) ---------- */
+    function downloadRecovery() {
+        var tok = lsGet(TOKEN_KEY).trim();
+        if (!tok) { setStatus('مفيش توكن محفوظ تقدر تصدّره دلوقتي.', 'status-warn'); return; }
+        var payload = {
+            app: 'ahmedmahdy-publish-token',
+            note: 'الملف ده سرّي — خزّنه في مكان آمن (مش على GitHub). بيرجّع توكن النشر لو اتمسح من المتصفح.',
+            token: tok,
+            gist: readGistId() || '',
+            savedAt: new Date().toISOString()
+        };
+        try {
+            var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'ahmedmahdy-recovery.json';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+            setStatus('تم تنزيل ملف الاسترجاع ✓ — خزّنه في مكان آمن ومترفعوش على GitHub.', 'status-ok');
+        } catch (e) {
+            setStatus('تعذّر تنزيل الملف: ' + (e && e.message), 'status-err');
+        }
+    }
+
+    function importRecovery(text) {
+        var tok = '', gid = '';
+        try {
+            var j = JSON.parse(text);
+            tok = String(j && j.token || '').trim();
+            gid = String(j && j.gist || '').trim();
+        } catch (e) {
+            tok = String(text || '').trim();
+        }
+        if (!tok) { setStatus('الملف مفيهوش توكن صالح.', 'status-err'); return Promise.resolve(false); }
+        if (gid) { gistId = gid; lsSet(GIST_ID_KEY, gid); }
+        return save(tok).then(function (r) {
+            setStatus(r.ok ? 'تمت الاستعادة من الملف ✓ ' + r.msg : 'تمت الاستعادة من الملف ✓ (النسخة السحابية: ' + r.msg + ')', r.ok ? 'status-ok' : 'status-warn');
+            try { if (typeof Publisher !== 'undefined' && Publisher.refreshStatus) Publisher.refreshStatus(); } catch (e) {}
+            return true;
+        });
+    }
+
+    return {
+        restore: restore, save: save, clearLocal: clearLocal,
+        pushToGist: pushToGist, downloadRecovery: downloadRecovery,
+        importRecovery: importRecovery, readGistId: readGistId, setStatus: setStatus
+    };
+})();
+
 var Publisher = (function () {
     var TOKEN_KEY = 'amahdy_gh_token';
     var AUTO_KEY = 'amahdy_auto_publish';
@@ -897,6 +1101,10 @@ var Publisher = (function () {
     };
 })();
 
+/* أول تحميل للصفحة: لو التوكن اتمسح من localStorage بالغلط
+   نرجّعه من النسخة الاحتياطية الداخلية قبل ما اللوحة تتفتح */
+TokenVault.restore();
+
 /* ============================================
    Themes
    ============================================ */
@@ -1280,13 +1488,90 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
         var publishNowBtn = document.getElementById('publishNowBtn');
 
         if (tokenInput) tokenInput.value = Publisher.getToken();
-        if (autoChk) autoChk.checked = Publisher.isAuto();
+
+        function refreshTokenState() {
+            var el = document.getElementById('tokenState');
+            if (!el) return;
+            var has = !!Publisher.getToken();
+            el.textContent = has ? 'محفوظ ✓ — مخفي بشكل افتراضي' : 'لم يُحفظ بعد';
+            el.classList.toggle('is-set', has);
+        }
+        refreshTokenState();
+
+        /* إظهار/إخفاء التوكن (افتراضيًا مخفي) */
+        var toggleTokenBtn = document.getElementById('toggleTokenShow');
+        if (toggleTokenBtn) toggleTokenBtn.addEventListener('click', function () {
+            var show = tokenInput.type === 'password';
+            tokenInput.type = show ? 'text' : 'password';
+            toggleTokenBtn.textContent = show ? 'إخفاء' : 'إظهار';
+        });
+
         if (saveTokenBtn) saveTokenBtn.addEventListener('click', function () {
-            Publisher.setToken(tokenInput.value);
+            var v = (tokenInput.value || '').trim();
+
+            /* حذف غلط = أكتر حاجة بتوقف النشر — لازم تأكيد */
+            if (!v && Publisher.getToken()) {
+                if (!confirm('التوكن الحالي هيتمسح والنشر التلقائي هيتوقف. متأكد؟')) {
+                    tokenInput.value = Publisher.getToken();
+                    return;
+                }
+                Publisher.setToken('');
+                TokenVault.clearLocal();
+                refreshTokenState();
+                Publisher.refreshStatus();
+                TokenVault.setStatus('تم حذف التوكن من المتصفح — النسخة السحابية (لو موجودة) سليمة وتقدر تسترجعها.', 'status-warn');
+                return;
+            }
+            if (!v) {
+                TokenVault.setStatus('التوكن فاضي — الصق التوكن الأول.', 'status-warn');
+                return;
+            }
+
+            Publisher.setToken(v);
             tokenInput.value = Publisher.getToken();
+            refreshTokenState();
             Publisher.refreshStatus();
             showSaved(saveTokenBtn);
+
+            TokenVault.setStatus('جارٍ حفظ النسخ الاحتياطية…');
+            TokenVault.save(v).then(function (r) {
+                if (r && r.msg) TokenVault.setStatus(r.msg, r.ok ? 'status-ok' : 'status-warn');
+                else TokenVault.setStatus('تم الحفظ في المتصفح + النسخة الداخلية ✓', 'status-ok');
+            });
         });
+
+        var backupGistBtn = document.getElementById('backupGist');
+        if (backupGistBtn) backupGistBtn.addEventListener('click', function () {
+            var t = Publisher.getToken();
+            if (!t) { TokenVault.setStatus('احفظ التوكن الأول.', 'status-warn'); return; }
+            TokenVault.setStatus('جارٍ حفظ النسخة السحابية…');
+            TokenVault.pushToGist(t).then(function (r) {
+                TokenVault.setStatus(r.msg, r.ok ? 'status-ok' : 'status-warn');
+            });
+        });
+
+        var dlRecoveryBtn = document.getElementById('downloadRecovery');
+        if (dlRecoveryBtn) dlRecoveryBtn.addEventListener('click', function () { TokenVault.downloadRecovery(); });
+
+        var impRecoveryBtn = document.getElementById('importRecovery');
+        var impRecoveryFile = document.getElementById('recoveryFile');
+        if (impRecoveryBtn && impRecoveryFile) {
+            impRecoveryBtn.addEventListener('click', function () { impRecoveryFile.click(); });
+            impRecoveryFile.addEventListener('change', function () {
+                var f = impRecoveryFile.files && impRecoveryFile.files[0];
+                if (!f) return;
+                var fr = new FileReader();
+                fr.onload = function () {
+                    TokenVault.importRecovery(String(fr.result || '')).then(function () {
+                        tokenInput.value = Publisher.getToken();
+                        refreshTokenState();
+                    });
+                };
+                fr.readAsText(f);
+                impRecoveryFile.value = '';
+            });
+        }
+        if (autoChk) autoChk.checked = Publisher.isAuto();
         if (autoChk) autoChk.addEventListener('change', function () {
             Publisher.setAuto(autoChk.checked);
             Publisher.refreshStatus();
