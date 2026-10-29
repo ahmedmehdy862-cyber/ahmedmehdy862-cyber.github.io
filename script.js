@@ -1320,6 +1320,52 @@ var ScrollReveal = (function () {
 })();
 
 /* ============================================
+   Lazy Background Loader
+   ------------------------------------------------------------
+   صور المشاريع بتتعرض كـ background-image (مش <img>)، فالـ
+   loading="lazy" مش شغّال معاها. هنا بنجهّزها بالتقاطري: أول
+   ما الكارت يقرب من الشاشة بنحط الخلفية — توفّر تنزيل 6 صور
+   دفعة واحدة وتحسّن LCP وINP.
+   ============================================ */
+var LazyBg = (function () {
+    var obs = null;
+    function load(el) {
+        var src = el.getAttribute('data-bg');
+        if (!src) return;
+        el.style.backgroundImage = 'url("' + src.replace(/"/g, '%22') + '")';
+        el.removeAttribute('data-bg');
+        el.classList.remove('cover-lazy');
+        el.classList.add('bg-in');
+        if (obs) obs.unobserve(el);
+    }
+    function bind(scope) {
+        var root = scope || document;
+        var nodes = root.querySelectorAll ? root.querySelectorAll('[data-bg]') : [];
+        if (!nodes.length) return;
+        if (!obs) { nodes.forEach(load); return; }
+        nodes.forEach(function (el) {
+            if (el.getAttribute('data-bg-bound')) return;
+            el.setAttribute('data-bg-bound', '1');
+            obs.observe(el);
+        });
+    }
+    function init() {
+        if (!('IntersectionObserver' in window)) { bind(); return; }
+        obs = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) load(entry.target);
+            });
+        }, { rootMargin: '300px 0px' }); /* نبدأ التنزيل قبل الظهور بـ300px */
+        bind();
+    }
+    function rescan() {
+        if (!obs && 'IntersectionObserver' in window) { init(); return; }
+        bind();
+    }
+    return { init: init, rescan: rescan };
+})();
+
+/* ============================================
    Counter Animation
    ============================================ */
 var CounterAnimation = (function () {
@@ -1837,7 +1883,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             });
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             showSaved(this);
         });
 
@@ -1976,7 +2022,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             });
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             CounterAnimation.init();
             showSaved(this);
         });
@@ -2165,7 +2211,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             d.stats = collectStats();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             CounterAnimation.init();
             showSaved(this);
         });
@@ -2225,7 +2271,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             d.skills = collectSkills();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             showSaved(this);
         });
 
@@ -2314,7 +2360,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             d.projects = collectProjects();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             renderAdminStats();
             showSaved(this);
         });
@@ -2453,7 +2499,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                 if (!confirm('استيراد البيانات دي هيستبدل المحتوى الحالي — متأكد؟')) return;
                 DataManager.save(incoming);
                 renderSite();
-                ScrollReveal.init();
+                ScrollReveal.init(); LazyBg.rescan();
                 CounterAnimation.init();
                 showDashboard();
                 renderAdminStats();
@@ -2541,7 +2587,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             d.services = collectServices();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             renderAdminStats();
             showSaved(this);
         });
@@ -2649,7 +2695,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             d.about.steps = collectAboutSteps();
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             CounterAnimation.init();
             showSaved(this);
         });
@@ -2715,7 +2761,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                 DataManager.save(d);
                 loadAboutForm();
                 renderSite();
-                ScrollReveal.init();
+                ScrollReveal.init(); LazyBg.rescan();
             });
         }
 
@@ -2728,7 +2774,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             DataManager.save(d);
             loadAboutForm();
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
         });
 
         /* --- Comments Admin --- */
@@ -2793,7 +2839,7 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             loadContentForm();
             LayoutManager.apply(DataManager.getLayout());
             renderSite();
-            ScrollReveal.init();
+            ScrollReveal.init(); LazyBg.rescan();
             CounterAnimation.init();
             if (typeof Publisher !== 'undefined') Publisher.schedule();
         });
@@ -2989,7 +3035,7 @@ function applyRemoteData() {
     });
     LayoutManager.apply(DataManager.getLayout());
     renderSite();
-    ScrollReveal.init();
+    ScrollReveal.init(); LazyBg.rescan();
     CounterAnimation.init();
 }
 
@@ -3153,7 +3199,7 @@ function renderSite() {
         grid.innerHTML = shown.map(function (p, i) {
             var label = t(p.categoryLabel) || p.category;
             var img = p.image && isValidURL(p.image)
-                ? '<div class="project-cover" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
+                ? '<div class="project-cover' + (typeof window !== 'undefined' && 'IntersectionObserver' in window ? ' cover-lazy' : '') + '" data-bg="' + escAttr(p.image) + '"></div>'
                 : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(label) + '</span></div>';
             var attrs = ' id="project-' + i + '" data-idx="' + i + '"';
             if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr(t({ en: 'Open project: ', ar: 'عرض مشروع: ' }) + (t(p.title) || '')) + '"';
@@ -3954,7 +4000,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Init scroll reveal & counters
-    ScrollReveal.init();
+    ScrollReveal.init(); LazyBg.rescan();
     document.documentElement.setAttribute('data-reveal-ready', '1');
     CounterAnimation.init();
 

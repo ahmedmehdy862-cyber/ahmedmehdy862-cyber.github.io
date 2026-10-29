@@ -4441,3 +4441,131 @@ html[data-f-comments="off"] #comments { display: none; }
    (letter-spacing يكسر اتّصال الحروف) — نلغيه في وضع RTL
    ============================================ */
 html[dir="rtl"] * { letter-spacing: normal; }
+
+/* ============================================
+   v15 - Lazy background media + motion polish
+   ============================================ */
+
+/* Placeholder while the project cover is still loading:
+   keeps the 16/9 box filled (no layout shift) and signals activity */
+.project-cover.cover-lazy {
+    background-color: var(--bg-soft, rgba(255, 255, 255, 0.04));
+    background-image: linear-gradient(100deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.07) 50%,
+            transparent 70%);
+    background-size: 200% 100%;
+    animation: coverShimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes coverShimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+}
+
+/* Smooth hand-off once the image is actually applied */
+.project-cover.bg-in {
+    animation: coverIn 0.55s var(--ease-silk, ease) both;
+}
+
+@keyframes coverIn {
+    from { opacity: 0.35; }
+    to { opacity: 1; }
+}
+
+/* Section header: staggered entrance for number → title → description */
+.anim-subtle .section-header.reveal > *,
+.anim-strong .section-header.reveal > * {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s var(--ease-silk, ease);
+}
+
+.anim-subtle .section-header.reveal.revealed > *,
+.anim-strong .section-header.reveal.revealed > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.anim-subtle .section-header.reveal.revealed > *:nth-child(1),
+.anim-strong .section-header.reveal.revealed > *:nth-child(1) { transition-delay: 0s; }
+.anim-subtle .section-header.reveal.revealed > *:nth-child(2),
+.anim-strong .section-header.reveal.revealed > *:nth-child(2) { transition-delay: 0.09s; }
+.anim-subtle .section-header.reveal.revealed > *:nth-child(3),
+.anim-strong .section-header.reveal.revealed > *:nth-child(3) { transition-delay: 0.18s; }
+.anim-subtle .section-header.reveal.revealed > *:nth-child(n+4),
+.anim-strong .section-header.reveal.revealed > *:nth-child(n+4) { transition-delay: 0.26s; }
+
+/* Grid cards: soft wave as they enter the viewport */
+.anim-subtle #projectsGrid .project-card.reveal.revealed,
+.anim-strong #projectsGrid .project-card.reveal.revealed { transition-delay: 0s; }
+.anim-subtle #projectsGrid .project-card.reveal.revealed:nth-child(3n+2),
+.anim-strong #projectsGrid .project-card.reveal.revealed:nth-child(3n+2) { transition-delay: 0.08s; }
+.anim-subtle #projectsGrid .project-card.reveal.revealed:nth-child(3n),
+.anim-strong #projectsGrid .project-card.reveal.revealed:nth-child(3n) { transition-delay: 0.16s; }
+
+/* Typographic micro-interactions */
+.section-title,
+.hero-name {
+    text-wrap: balance;
+}
+
+.section-title {
+    transition: color 0.5s var(--ease-silk, ease), transform 0.5s var(--ease-silk, ease);
+}
+
+.section-header:hover .section-title,
+.anim-subtle .section-header.reveal.revealed:hover .section-title,
+.anim-strong .section-header.reveal.revealed:hover .section-title {
+    transform: translateY(-2px);
+    transition: transform 0.4s var(--ease-silk, ease), color 0.4s ease;
+}
+
+.project-title {
+    position: relative;
+    display: inline-block;
+}
+
+.project-title::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: -4px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2, var(--accent)));
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.45s var(--ease-silk, ease);
+}
+
+html[dir="rtl"] .project-title::before {
+    transform-origin: right center;
+}
+
+.project-card:hover .project-title::before {
+    transform: scaleX(1);
+}
+
+/* Tactile press feedback on interactive elements */
+.btn:active,
+.filter-btn:active,
+.admin-tab:active {
+    transform: translateY(1px) scale(0.985);
+}
+
+/* Back-to-top / nav: cheaper paint while hidden */
+.back-to-top {
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-silk, ease), visibility 0.3s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .project-cover.cover-lazy,
+    .project-cover.bg-in { animation: none !important; }
+    .anim-subtle .section-header.reveal > *,
+    .anim-strong .section-header.reveal > * {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    .project-title::before { transition: none !important; }
+}
