@@ -13,7 +13,7 @@
     --text-dim: #98a79b;
     --accent: #a3e635;
     --accent-2: #2dd4bf;
-    --accent-soft: rgba(163, 230, 53, 0.12);
+    --accent-soft: color-mix(in srgb, var(--accent) 12%, transparent);
     --border: rgba(255, 255, 255, 0.10);
     --shadow: rgba(0, 0, 0, 0.5);
     --dot-color: rgba(255, 255, 255, 0.18);
@@ -30,7 +30,7 @@
 /* ---------- Base ---------- */
 [data-theme="mix"] body {
     background:
-        radial-gradient(70% 42% at 50% -8%, rgba(163, 230, 53, 0.06), transparent 62%),
+        radial-gradient(70% 42% at 50% -8%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 62%),
         var(--bg);
     color: var(--text);
     font-family: var(--font-body);
@@ -239,7 +239,7 @@
     -webkit-text-fill-color: transparent;
     color: var(--accent);
     padding-top: 0;
-    filter: drop-shadow(0 10px 30px rgba(163, 230, 53, 0.14));
+    filter: drop-shadow(0 10px 30px color-mix(in srgb, var(--accent) 14%, transparent));
     animation: heroTextShine 9s linear infinite;
 }
 
@@ -269,12 +269,12 @@
 [data-theme="mix"] .btn-primary {
     background: linear-gradient(135deg, var(--accent), var(--mix-deep));
     color: var(--mix-ink);
-    box-shadow: 0 12px 30px rgba(163, 230, 53, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--accent) 18%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 
 [data-theme="mix"] .btn-primary:hover {
     transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 24px 56px rgba(163, 230, 53, 0.32);
+    box-shadow: 0 24px 56px color-mix(in srgb, var(--accent) 32%, transparent);
 }
 
 [data-theme="mix"] .btn-primary:active {
@@ -363,7 +363,7 @@
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 30px;
     overflow: hidden;
-    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.6), 0 0 80px rgba(163, 230, 53, 0.06);
+    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.6), 0 0 80px color-mix(in srgb, var(--accent) 6%, transparent);
     transform: rotate(2.5deg);
     transition: transform 0.6s var(--mix-ease);
 }
@@ -392,7 +392,7 @@
 [data-theme="mix"] .frame-art {
     height: calc(100% - 43px);
     background:
-        radial-gradient(65% 55% at 50% 38%, rgba(163, 230, 53, 0.16), transparent 60%),
+        radial-gradient(65% 55% at 50% 38%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
         radial-gradient(55% 45% at 18% 88%, rgba(45, 212, 191, 0.14), transparent 65%),
         #080d0a;
 }
@@ -575,7 +575,7 @@
     background: var(--accent);
     border-color: var(--accent);
     color: var(--mix-ink);
-    box-shadow: 0 10px 26px rgba(163, 230, 53, 0.2);
+    box-shadow: 0 10px 26px color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
 [data-theme="mix"] .projects-grid {
@@ -602,7 +602,7 @@
 
 [data-theme="mix"] .project-card.is-featured {
     grid-column: auto;
-    border-color: rgba(163, 230, 53, 0.3);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 [data-theme="mix"] .project-cover {
@@ -612,7 +612,7 @@
 
 [data-theme="mix"] .project-cover-art {
     background:
-        radial-gradient(60% 50% at 30% 28%, rgba(163, 230, 53, 0.14), transparent 60%),
+        radial-gradient(60% 50% at 30% 28%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
         radial-gradient(55% 45% at 75% 78%, rgba(45, 212, 191, 0.12), transparent 62%),
         var(--bg-soft);
 }
@@ -683,7 +683,7 @@
     width: 140px;
     height: 140px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(163, 230, 53, 0.14), transparent 70%);
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
     pointer-events: none;
 }
 
@@ -695,8 +695,8 @@
 }
 
 [data-theme="mix"] .services-grid:not(.pricing-grid) .service-card.featured {
-    border-color: rgba(163, 230, 53, 0.4);
-    background: linear-gradient(160deg, rgba(163, 230, 53, 0.08), rgba(255, 255, 255, 0.02));
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 8%, transparent), rgba(255, 255, 255, 0.02));
 }
 
 [data-theme="mix"] .services-grid:not(.pricing-grid) .service-badge {
@@ -704,9 +704,9 @@
     align-self: flex-start;
     order: -2;
     margin-bottom: 14px;
-    background: rgba(163, 230, 53, 0.14);
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
     color: var(--accent);
-    border: 1px solid rgba(163, 230, 53, 0.3);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
     border-radius: 999px;
     padding: 4px 12px;
     font-size: 11px;
@@ -813,8 +813,8 @@
 }
 
 [data-theme="mix"] .pricing-grid .service-card.featured {
-    border-color: rgba(163, 230, 53, 0.4);
-    box-shadow: 0 24px 60px rgba(163, 230, 53, 0.10);
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    box-shadow: 0 24px 60px color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 /* ---------- Contact ---------- */
@@ -843,7 +843,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, rgba(163, 230, 53, 0.18), rgba(45, 212, 191, 0.12));
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), rgba(45, 212, 191, 0.12));
     border: 1px solid var(--border);
     border-radius: 14px;
     color: var(--accent);
@@ -995,4 +995,16 @@
     [data-theme="mix"] .hero-badge::before {
         animation: none;
     }
+}
+
+/* ============================================================
+   Custom accent (chosen in the admin panel) must beat the theme
+   defaults. theme-mix.css is loaded after styles.css, so this rule
+   needs the extra [data-accent="custom"] qualifier to win.
+   ============================================================ */
+:root[data-theme="mix"][data-accent="custom"] {
+    --accent: var(--custom-accent);
+    --accent-soft: color-mix(in srgb, var(--custom-accent) 14%, transparent);
+    --mix-deep: color-mix(in srgb, var(--custom-accent) 80%, #000);
+    --mix-cream: color-mix(in srgb, var(--custom-accent) 45%, #fff);
 }
