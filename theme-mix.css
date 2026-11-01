@@ -145,16 +145,27 @@
 }
 
 [data-theme="mix"] .hero-content {
-    grid-template-columns: 1.05fr 0.95fr;
-    text-align: start;
-    gap: 60px;
-    align-items: center;
+    grid-template-columns: 1fr;
+    text-align: center;
+    gap: 44px;
+    justify-items: center;
 }
 
 [data-theme="mix"] .hero-cta {
-    justify-content: flex-start;
-    margin-inline: 0;
+    justify-content: center;
+    margin-inline: auto;
     margin-bottom: 34px;
+}
+
+[data-theme="mix"] .hero-role {
+    border-inline-start: 0;
+    padding-inline-start: 0;
+    max-width: 54ch;
+    margin-inline: auto;
+}
+
+[data-theme="mix"] .hero-stats {
+    margin-inline: auto;
 }
 
 [data-theme="mix"] .hero-pattern {

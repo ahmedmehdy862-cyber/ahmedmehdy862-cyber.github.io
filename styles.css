@@ -458,7 +458,7 @@ html[lang="en"] .section-title {
 .hero-content {
     position: relative;
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1fr;
     gap: 40px;
     align-items: center;
     width: 100%;
@@ -3940,6 +3940,15 @@ html[data-f-cursor="off"] button { cursor: auto; }
 html[data-f-backtotop="off"] #backToTop { display: none; }
 html[data-f-progress="off"] #scrollProgress { display: none; }
 html[data-f-comments="off"] #comments { display: none; }
+/* إظهار/إخفاء الأقسام من لوحة التحكم — القسم + رابطه في القائمة مع بعض */
+html[data-f-about="off"] #about,
+html[data-f-about="off"] .nav-link[data-section="about"] { display: none; }
+html[data-f-projects="off"] #projects,
+html[data-f-projects="off"] .nav-link[data-section="projects"] { display: none; }
+html[data-f-services="off"] #services,
+html[data-f-services="off"] .nav-link[data-section="services"] { display: none; }
+html[data-f-contact="off"] #contact,
+html[data-f-contact="off"] .nav-link[data-section="contact"] { display: none; }
 
 /* ============================================
    v14 — Admin dashboard counters

@@ -3276,7 +3276,7 @@ function syncFilters() {
    SiteControls — تحكم أدق في الموقع: SEO + المزايا
    ============================================ */
 var SiteControls = (function () {
-    var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true };
+    var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true, about: true, projects: true, services: true, contact: true };
     var root = document.documentElement;
     var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG : {
         siteUrl: 'https://ahmedmahdyportofolio.vercel.app/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
@@ -3324,6 +3324,10 @@ var SiteControls = (function () {
         root.setAttribute('data-f-backtotop', f.backToTop ? 'on' : 'off');
         root.setAttribute('data-f-progress', f.scrollProgress ? 'on' : 'off');
         root.setAttribute('data-f-lightbox', f.lightbox ? 'on' : 'off');
+        root.setAttribute('data-f-about', f.about ? 'on' : 'off');
+        root.setAttribute('data-f-projects', f.projects ? 'on' : 'off');
+        root.setAttribute('data-f-services', f.services ? 'on' : 'off');
+        root.setAttribute('data-f-contact', f.contact ? 'on' : 'off');
         return f;
     }
 
