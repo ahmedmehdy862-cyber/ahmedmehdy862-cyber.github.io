@@ -509,7 +509,10 @@ html[lang="en"] .section-title {
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: var(--accent);
-    padding-top: 4px;
+    /* background-clip:text بيقصّ الصبغة عند حدود الصندوق مهما كان overflow:visible —
+       كان بيقصّ الهمزة اللي فوق الحرف والنقاط اللي تحت الياء فتختفي من العرض.
+       padding بمقياس em يوسّع صندوق الخلفية يشمل كامل الحبر لكل أحجام الخط */
+    padding: 0.2em 0 0.18em;
     animation: heroTextShine 8s linear infinite;
 }
 
