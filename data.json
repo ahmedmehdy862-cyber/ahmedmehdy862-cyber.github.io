@@ -156,17 +156,17 @@
   "projects": [
     {
       "title": {
-        "ar": "حملة نقطة بداية",
-        "en": "Start Line Campaign"
+        "en": "Start Line Campaign",
+        "ar": "حملة نقطة بداية"
       },
       "category": "social",
       "categoryLabel": {
-        "ar": "سوشيال ميديا",
-        "en": "Social Media"
+        "en": "Social Media",
+        "ar": "سوشيال ميديا"
       },
       "description": {
-        "ar": "حملة سوشيال ميديا متكاملة حقّق منشورها أعلى أداء على الصفحة خلال أكثر من عامين.",
-        "en": "An end-to-end social media campaign whose post became the page’s top performer for over two years."
+        "en": "An end-to-end social media campaign whose post became the page’s top performer for over two years.",
+        "ar": "حملة سوشيال ميديا متكاملة حقّق منشورها أعلى أداء على الصفحة خلال أكثر من عامين."
       },
       "image": "",
       "tags": [
@@ -183,21 +183,28 @@
           "en": "Content"
         }
       ],
-      "year": "2026"
+      "year": "2026",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "https://www.behance.net/gallery/258220541/BOPI-Brand-Identity",
+      "featured": false,
+      "status": "hidden"
     },
     {
       "title": {
-        "ar": "هوية طلابية مستدامة",
-        "en": "Sustainable Student Identity"
+        "en": "Sustainable Student Identity",
+        "ar": "Bopi | Brand identity "
       },
       "category": "identity",
       "categoryLabel": {
-        "ar": "هوية بصرية",
-        "en": "Visual Identity"
+        "en": "Visual Identity",
+        "ar": "هوية بصرية"
       },
       "description": {
-        "ar": "بناء هوية بصرية متكاملة لمنظمات طلابية يشمل الشعار، النظم اللونية، والمطبوعات.",
-        "en": "A complete visual identity for student organisations — logo, colour system and print collateral."
+        "en": "A complete visual identity for student organisations — logo, colour system and print collateral.",
+        "ar": "Brand identity for  cheerful family and children's food & drinks coverage"
       },
       "image": "",
       "tags": [
@@ -214,21 +221,28 @@
           "en": "Branding"
         }
       ],
-      "year": "2026"
+      "year": "2026",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "https://www.behance.net/gallery/258220541/BOPI-Brand-Identity",
+      "featured": true,
+      "status": "published"
     },
     {
       "title": {
-        "ar": "سلسلة موشن توعوي",
-        "en": "Awareness Motion Series"
+        "en": "Awareness Motion Series",
+        "ar": "سلسلة موشن توعوي"
       },
       "category": "motion",
       "categoryLabel": {
-        "ar": "موشن",
-        "en": "Motion"
+        "en": "Motion",
+        "ar": "موشن"
       },
       "description": {
-        "ar": "سلسلة مقاطع موشن توعوية قصيرة تجاوزت 36 ألف مشاهدة عبر مقاطع Reels.",
-        "en": "A series of short awareness motion clips that passed 36K views across Reels."
+        "en": "A series of short awareness motion clips that passed 36K views across Reels.",
+        "ar": "سلسلة مقاطع موشن توعوية قصيرة تجاوزت 36 ألف مشاهدة عبر مقاطع Reels."
       },
       "image": "",
       "tags": [
@@ -245,21 +259,28 @@
           "en": "Awareness"
         }
       ],
-      "year": "2026"
+      "year": "2026",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "",
+      "featured": false,
+      "status": "hidden"
     },
     {
       "title": {
-        "ar": "نظام بوسترات مطبوع",
-        "en": "Printed Poster System"
+        "en": "Printed Poster System",
+        "ar": "نظام بوسترات مطبوع"
       },
       "category": "print",
       "categoryLabel": {
-        "ar": "طباعي",
-        "en": "Print"
+        "en": "Print",
+        "ar": "طباعي"
       },
       "description": {
-        "ar": "تصميم نظام مطبوعات متكامل للفعاليات شمل البروشور والبوسترات وأدلة العرض.",
-        "en": "A complete print system for events — brochures, posters and presentation guides."
+        "en": "A complete print system for events — brochures, posters and presentation guides.",
+        "ar": "تصميم نظام مطبوعات متكامل للفعاليات شمل البروشور والبوسترات وأدلة العرض."
       },
       "image": "",
       "tags": [
@@ -276,21 +297,28 @@
           "en": "Events"
         }
       ],
-      "year": "2025"
+      "year": "2025",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "",
+      "featured": false,
+      "status": "hidden"
     },
     {
       "title": {
-        "ar": "إدارة محتوى شهرية",
-        "en": "Monthly Content Management"
+        "en": "Monthly Content Management",
+        "ar": "إدارة محتوى شهرية"
       },
       "category": "social",
       "categoryLabel": {
-        "ar": "سوشيال ميديا",
-        "en": "Social Media"
+        "en": "Social Media",
+        "ar": "سوشيال ميديا"
       },
       "description": {
-        "ar": "خطة محتوى شهرية كاملة مع تقارير أداء وتطوير مستمر لصفحات تجاوزت مليون مشاهدة.",
-        "en": "A full monthly content plan with performance reporting and continuous optimisation for pages past one million views."
+        "en": "A full monthly content plan with performance reporting and continuous optimisation for pages past one million views.",
+        "ar": "خطة محتوى شهرية كاملة مع تقارير أداء وتطوير مستمر لصفحات تجاوزت مليون مشاهدة."
       },
       "image": "",
       "tags": [
@@ -307,21 +335,28 @@
           "en": "Reporting"
         }
       ],
-      "year": "2026"
+      "year": "2026",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "",
+      "featured": false,
+      "status": "hidden"
     },
     {
       "title": {
-        "ar": "هوية فعالية كبرى",
-        "en": "Major Event Identity"
+        "en": "Major Event Identity",
+        "ar": "هوية فعالية كبرى"
       },
       "category": "identity",
       "categoryLabel": {
-        "ar": "هوية بصرية",
-        "en": "Visual Identity"
+        "en": "Visual Identity",
+        "ar": "هوية بصرية"
       },
       "description": {
-        "ar": "هوية بصرية لفعالية كبرى شملت الهوية الرئيسية، الصور الترويجية، وأدوات التنفيذ.",
-        "en": "A visual identity for a major event — core identity, promotional imagery and execution tools."
+        "en": "A visual identity for a major event — core identity, promotional imagery and execution tools.",
+        "ar": "هوية بصرية لفعالية كبرى شملت الهوية الرئيسية، الصور الترويجية، وأدوات التنفيذ."
       },
       "image": "",
       "tags": [
@@ -338,7 +373,14 @@
           "en": "Branding"
         }
       ],
-      "year": "2025"
+      "year": "2025",
+      "tools": {
+        "en": "",
+        "ar": ""
+      },
+      "link": "",
+      "featured": false,
+      "status": "hidden"
     }
   ],
   "services": [],
@@ -372,5 +414,5 @@
     "customAccent": "#ff9100"
   },
   "photoUrl": "assets/profile.jpg",
-  "updatedAt": "2026-10-29T17:34:25.002Z"
+  "updatedAt": "2026-11-09T10:43:40.928Z"
 }
