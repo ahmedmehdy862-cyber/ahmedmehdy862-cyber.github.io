@@ -140,10 +140,6 @@
     display: block;
 }
 
-[data-theme="mix"] .hero-visual {
-    display: flex;
-}
-
 [data-theme="mix"] .hero-content {
     grid-template-columns: 1fr;
     text-align: center;
@@ -360,81 +356,6 @@
     font-size: 11px;
     line-height: 1.45;
     color: var(--text-dim);
-}
-
-[data-theme="mix"] .hero-visual {
-    position: relative;
-    justify-content: center;
-    perspective: 1200px;
-}
-
-[data-theme="mix"] .hero-frame {
-    width: min(100%, 440px);
-    aspect-ratio: 4 / 5;
-    background: linear-gradient(165deg, #131a16 0%, #080d0a 62%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 30px;
-    overflow: hidden;
-    box-shadow: 0 50px 100px rgba(0, 0, 0, 0.6), 0 0 80px color-mix(in srgb, var(--accent) 6%, transparent);
-    transform: rotate(2.5deg);
-    transition: transform 0.6s var(--mix-ease);
-}
-
-[data-theme="mix"] .hero-frame:hover {
-    transform: rotate(0deg) translateY(-8px);
-}
-
-[data-theme="mix"] .frame-topbar {
-    background: rgba(255, 255, 255, 0.03);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
-    gap: 7px;
-}
-
-[data-theme="mix"] .frame-topbar span {
-    width: 9px;
-    height: 9px;
-    opacity: 1;
-}
-
-[data-theme="mix"] .frame-topbar span:nth-child(1) { background: var(--accent); }
-[data-theme="mix"] .frame-topbar span:nth-child(2) { background: var(--accent-2); }
-[data-theme="mix"] .frame-topbar span:nth-child(3) { background: #4b5563; }
-
-[data-theme="mix"] .frame-art {
-    height: calc(100% - 43px);
-    background:
-        radial-gradient(65% 55% at 50% 38%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-        radial-gradient(55% 45% at 18% 88%, rgba(45, 212, 191, 0.14), transparent 65%),
-        #080d0a;
-}
-
-[data-theme="mix"] .frame-art::before {
-    width: 74%;
-    height: 64%;
-    border: 1px dashed rgba(255, 255, 255, 0.14);
-    border-radius: 26px;
-    transform: none;
-    opacity: 1;
-}
-
-[data-theme="mix"] .frame-art::after {
-    display: none;
-}
-
-[data-theme="mix"] .frame-monogram {
-    position: relative;
-    z-index: 1;
-    font-family: var(--font-display);
-    font-weight: 900;
-    font-size: clamp(60px, 8.5vw, 110px);
-    line-height: 1;
-    letter-spacing: -0.04em;
-    background: linear-gradient(120deg, #ffffff, var(--mix-cream) 45%, var(--accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 12px 30px rgba(0, 0, 0, 0.4));
 }
 
 /* ---------- Ticker ---------- */
@@ -955,10 +876,6 @@
 
     [data-theme="mix"] .hero-stats {
         margin-inline: auto;
-    }
-
-    [data-theme="mix"] .hero-visual {
-        width: min(100%, 380px);
     }
 }
 
