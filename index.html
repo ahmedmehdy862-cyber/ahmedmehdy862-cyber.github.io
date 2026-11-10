@@ -59,12 +59,12 @@
     <!-- خطوط غير حرجة (Cairo/Tajawal تستخدمها باقي الثيمات ولوحة التحكم) — لا تحجب الرسم -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&display=swap"></noscript>
-    <link rel="stylesheet" href="styles.css?v=25">
-    <link rel="stylesheet" href="theme-mix.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=26">
+    <link rel="stylesheet" href="theme-mix.css?v=3">
     <!-- defer: يُفرّغ الرسم من الانتظار، ويتناول السكربتات بنفس ترتيبها بعد اكتمال الـDOM -->
     <script src="config.js?v=24" defer></script>
     <script src="data.js?v=24" defer></script>
-    <script src="script.js?v=24" defer></script>
+    <script src="script.js?v=25" defer></script>
     <!-- Prefetch المحتوى المنشور + صورة الهيرو فوق الطية -->
 <link rel="preload" href="assets/Asset-1-1.png" as="image" fetchpriority="high">
     <link rel="preload" href="assets/Asset-1.png" as="image">
@@ -312,6 +312,7 @@
                 <div class="lb-meta">
                     <span class="project-tag" id="lbCategory"></span>
                     <span class="project-year" id="lbYear"></span>
+                    <span class="lb-stats hidden" id="lbStats"></span>
                 </div>
                 <h3 class="lb-title" id="lbTitle"></h3>
                 <p class="lb-desc" id="lbDesc"></p>

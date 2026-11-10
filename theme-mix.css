@@ -512,14 +512,17 @@
 }
 
 [data-theme="mix"] .projects-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 22px;
+    /* معرض متساقط بعرض أعمدة أضيق (يطابق auto-fill 300px الأصلي) */
+    column-count: auto;
+    column-width: 300px;
+    column-gap: 22px;
 }
 
 [data-theme="mix"] .project-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
     border-radius: 22px;
+    margin-bottom: 22px;
     transition: transform 0.45s var(--mix-ease), box-shadow 0.45s var(--mix-ease), border-color 0.45s var(--mix-ease);
 }
 
@@ -539,7 +542,7 @@
 }
 
 [data-theme="mix"] .project-cover {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: var(--ratio, 4 / 3);
     border-bottom: 0;
 }
 
@@ -566,12 +569,6 @@
     font-family: var(--font-display);
     font-size: 20px;
     font-weight: 900;
-}
-
-[data-theme="mix"] .project-desc {
-    font-size: 14px;
-    line-height: 1.7;
-    color: var(--text-dim);
 }
 
 [data-theme="mix"] .project-tag {
@@ -902,7 +899,8 @@
     }
 
     [data-theme="mix"] .projects-grid {
-        grid-template-columns: 1fr;
+        column-count: 1;
+        column-width: auto;
     }
 
     [data-theme="mix"] .nav-inner {

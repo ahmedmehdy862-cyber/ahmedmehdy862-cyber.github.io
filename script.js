@@ -3198,14 +3198,20 @@ function renderSite() {
         var shown = (d.projects || []).filter(function (pr) { return !pr.status || pr.status === 'published'; });
         grid.innerHTML = shown.map(function (p, i) {
             var label = t(p.categoryLabel) || p.category;
-            var img = p.image && isValidURL(p.image)
-                ? '<div class="project-cover' + (typeof window !== 'undefined' && 'IntersectionObserver' in window ? ' cover-lazy' : '') + '" data-bg="' + escAttr(p.image) + '"></div>'
+            var ratio = p.ratio || '16/9';
+            var img = p.image && isValidImgSrc(p.image)
+                ? '<div class="project-cover' + (typeof window !== 'undefined' && 'IntersectionObserver' in window ? ' cover-lazy' : '') + '" data-bg="' + escAttr(p.image) + '" style="--ratio:' + escAttr(ratio) + '"></div>'
                 : '<div class="project-cover project-cover-art"><span class="project-art-label">' + escHtml(label) + '</span></div>';
             var attrs = ' id="project-' + i + '" data-idx="' + i + '"';
             if (lb) attrs += ' role="button" tabindex="0" aria-label="' + escAttr(t({ en: 'Open project: ', ar: 'عرض مشروع: ' }) + (t(p.title) || '')) + '"';
             var meta = '<span class="project-tag">' + escHtml(label) + '</span><span class="project-year">' + escHtml(p.year || '') + '</span>';
             if (p.featured) meta += '<span class="project-featured-flag" title="' + escAttr(t({ en: 'Featured', ar: 'مميّز' })) + '">★</span>';
-            return '<article class="project-card reveal' + (p.featured ? ' is-featured' : '') + '"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta">' + meta + '</div><h3 class="project-title">' + escHtml(t(p.title)) + '</h3><p class="project-desc">' + escHtml(t(p.description)) + '</p></div></article>';
+            /* حقول المشروع كشيبس (مثل بطاقة Behance) — الوصف الطويل في اللايت بوكس */
+            var fieldChips = Lang.list(p.tags).slice(0, 3).map(function (g) {
+                return '<span class="project-tag-mini">' + escHtml(g) + '</span>';
+            }).join('');
+            var fields = fieldChips ? '<div class="project-tags">' + fieldChips + '</div>' : '';
+            return '<article class="project-card reveal' + (p.featured ? ' is-featured' : '') + '"' + attrs + ' data-filter="' + escAttr(p.category) + '">' + img + '<div class="project-body"><div class="project-meta">' + meta + '</div><h3 class="project-title">' + escHtml(t(p.title)) + '</h3>' + fields + '</div></article>';
         }).join('');
     }
 
@@ -3519,6 +3525,7 @@ var ProjectLightbox = (function () {
         el.desc = document.getElementById('lbDesc');
         el.cat = document.getElementById('lbCategory');
         el.year = document.getElementById('lbYear');
+        el.stats = document.getElementById('lbStats');
         el.tags = document.getElementById('lbTags');
         el.link = document.getElementById('lbLink');
     }
@@ -3540,7 +3547,7 @@ var ProjectLightbox = (function () {
     function render() {
         var p = items[idx];
         if (!p || !el.overlay) return;
-        var img = p.image && isValidURL(p.image);
+        var img = p.image && isValidImgSrc(p.image);
         var fallbackLabel = t({ en: 'Project', ar: 'مشروع' });
         el.media.innerHTML = img
             ? '<div class="lb-img" style="background-image:url(\'' + escAttr(p.image) + '\')"></div>'
@@ -3549,6 +3556,15 @@ var ProjectLightbox = (function () {
         el.desc.textContent = t(p.description) || '';
         el.cat.textContent = t(p.categoryLabel) || p.category || '';
         el.year.textContent = p.year || '';
+        /* إحصائيات Behance (مشاهدات / إعجابات) */
+        if (el.stats) {
+            var st = p.stats || {};
+            var statParts = [];
+            if (st.views) statParts.push(escHtml(t({ en: 'Views', ar: 'مشاهدات' })) + ' ' + Number(st.views));
+            if (st.likes) statParts.push(escHtml(t({ en: 'Appreciations', ar: 'إعجابات' })) + ' ' + Number(st.likes));
+            el.stats.innerHTML = statParts.join(' · ');
+            el.stats.classList.toggle('hidden', !statParts.length);
+        }
         var chips = [];
         Lang.list(p.tags).forEach(function (tg) { if (tg) chips.push('<span class="lb-chip">' + escHtml(tg) + '</span>'); });
         String(t(p.tools) || '').split(/[,،]/).forEach(function (tool) {
@@ -3558,6 +3574,14 @@ var ProjectLightbox = (function () {
         el.tags.innerHTML = chips.join('');
         if (p.link && isValidURL(p.link)) {
             el.link.href = p.link;
+            /* تسمية الزر حسب الوجهة: Behance أو رابط عام */
+            var onBehance = /behance\.net/i.test(p.link);
+            var lbl = onBehance
+                ? { en: 'View on Behance ↗', ar: 'عرض على Behance ↗' }
+                : { en: 'View project ↗', ar: 'زيارة المشروع ↗' };
+            el.link.setAttribute('data-en', lbl.en);
+            el.link.setAttribute('data-ar', lbl.ar);
+            el.link.textContent = t(lbl);
             el.link.classList.remove('hidden');
         } else {
             el.link.classList.add('hidden');
@@ -4137,4 +4161,13 @@ function sanitizeInput(str) {
 
 function isValidURL(str) {
     try { var u = new URL(str); return u.protocol === 'http:' || u.protocol === 'https:'; } catch (e) { return false; }
+}
+
+/* صورة مشروع: رابط http(s) أو ملف محلي داخل assets/ (مسار نسبي يعمل محليًا وعلى أي نطاق) */
+function isValidImgSrc(str) {
+    if (!str || typeof str !== 'string') return false;
+    str = str.trim();
+    if (!str || /\s/.test(str) || str.indexOf('..') > -1) return false;
+    if (/^https?:\/\//i.test(str)) return isValidURL(str);
+    return /^(?:\.\/|\/)?assets\//.test(str);
 }

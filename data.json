@@ -156,19 +156,371 @@
   "projects": [
     {
       "title": {
-        "en": "Start Line Campaign",
-        "ar": "حملة نقطة بداية"
+        "ar": "بوبي — هوية بصرية",
+        "en": "BOPI — Brand Identity"
+      },
+      "category": "identity",
+      "categoryLabel": {
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
+      },
+      "description": {
+        "ar": "هوية بصرية لعلامة أطعمة ومشروبات ودودة مبنية على لحظات يومية دافئة ومبهجة — نظام الألوان، التايبوجرافي، التغليف، ولمسات تجربة العميل من الاستلام حتى الكاشير.",
+        "en": "A welcoming food & beverage brand identity built around joyful everyday moments — colour system, typography, packaging and customer touchpoints from delivery to dine-in."
+      },
+      "image": "assets/projects/bopi-brand-identity.jpg",
+      "ratio": "880/632",
+      "tags": [
+        {
+          "ar": "هوية بصرية",
+          "en": "Brand Identity"
+        },
+        {
+          "ar": "تغليف",
+          "en": "Packaging"
+        },
+        {
+          "ar": "براندنج",
+          "en": "Branding"
+        }
+      ],
+      "year": "2026",
+      "stats": {
+        "views": 2,
+        "likes": 0
+      },
+      "link": "https://www.behance.net/gallery/258220541/BOPI-Brand-Identity",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": true
+    },
+    {
+      "title": {
+        "ar": "لوجو عاجل — الدولية للخدمات البيطرية",
+        "en": "Urgent Logo — El-Dawley Veterinary Services"
+      },
+      "category": "identity",
+      "categoryLabel": {
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
+      },
+      "description": {
+        "ar": "تصميم لوجو لشركة الدولية للخدمات البيطرية — شعار مرن يصلح لجميع الوسائط والإعلام البيطري.",
+        "en": "A logo for El-Dawley Veterinary Services — a flexible mark designed to work across all media."
+      },
+      "image": "assets/projects/urgent-logo.jpg",
+      "ratio": "1000/1000",
+      "tags": [
+        {
+          "ar": "تصميم شعار",
+          "en": "Logo Design"
+        },
+        {
+          "ar": "هوية بصرية",
+          "en": "Visual Identity"
+        },
+        {
+          "ar": "رسم توضيحي",
+          "en": "Illustration"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 45,
+        "likes": 5
+      },
+      "link": "https://www.behance.net/gallery/214552143/URGENT-LOGO-",
+      "tools": "Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "كامبين إتجنن ١٢ — صناع الحياة المنوفية",
+        "en": "Etganen 12 Campaign — Life Makers Menofia"
       },
       "category": "social",
       "categoryLabel": {
-        "en": "Social Media",
-        "ar": "سوشيال ميديا"
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
       },
       "description": {
-        "en": "An end-to-end social media campaign whose post became the page’s top performer for over two years.",
-        "ar": "حملة سوشيال ميديا متكاملة حقّق منشورها أعلى أداء على الصفحة خلال أكثر من عامين."
+        "ar": "حملة سنوية من جمعية صناع الحياة بمحافظة المنوفية (فرع مؤسسة صناع الحياة مصر) لتعزيز ودمج طلبة المرحلة الإعدادية والثانوية في المجتمع عبر أنشطة وتدريبات معدّة مسبقًا — من وضع الأفكار والخطة وبناء الثيم حتى التنفيذ على صفحة الجمعية بالهوية البصرية للمؤسسة.",
+        "en": "The 12th edition of Life Makers Menofia’s annual campaign, engaging preparatory and secondary students through prepared activities and training — from concept, plan and campaign theme to execution on the association’s page using the foundation’s identity."
       },
-      "image": "",
+      "image": "assets/projects/project-214396611.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "تصميم بوسترات",
+          "en": "Poster Design"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 45,
+        "likes": 4
+      },
+      "link": "https://www.behance.net/gallery/214396611/_",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": true
+    },
+    {
+      "title": {
+        "ar": "لوجو طبيب أسنان لكل الوسائط",
+        "en": "Logo for a Dentist for All Media"
+      },
+      "category": "identity",
+      "categoryLabel": {
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
+      },
+      "description": {
+        "ar": "شعار لعيادة أسنان مصمّم ليظل واضحًا ومقروءًا في جميع الوسائط — مطبوعات، لافتات، وسوشيال ميديا.",
+        "en": "A dental logo designed to stay clear and readable across every medium — print, signage and social."
+      },
+      "image": "assets/projects/logo-for-a-dentist-for-all-media.jpg",
+      "ratio": "808/632",
+      "tags": [
+        {
+          "ar": "تصميم شعار",
+          "en": "Logo Design"
+        },
+        {
+          "ar": "براندنج",
+          "en": "Branding"
+        },
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 33,
+        "likes": 4
+      },
+      "link": "https://www.behance.net/gallery/202682317/logo-for-a-dentist-for-all-media",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "تصميمات حملة تجميع الملابس — صناع الحياة",
+        "en": "Clothing-Collection Campaign Designs — Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة معارض الفرحة أو دولاب الخير أو بلوفر.",
+        "en": "Campaign designs for Life Makers’ clothing-collection drives — Happy Exhibitions, the Good Closet and the hoodie drive."
+      },
+      "image": "assets/projects/project-197934215.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media Design"
+        },
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 36,
+        "likes": 3
+      },
+      "link": "https://www.behance.net/gallery/197934215/_",
+      "tools": "Adobe Photoshop",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "حملة سوشيال ميديا — الود موصول",
+        "en": "Social Media Campaign — Al-Wad Al-Mawsoul"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "تصميم حملة سوشيال ميديا لمبادرة «الود موصول» لصناع الحياة — منشورات وأصول بصرية للحملة الخيرية.",
+        "en": "Social media campaign design for Life Makers’ “Al-Wad Al-Mawsoul” initiative — posts and visual assets for the charity drive."
+      },
+      "image": "assets/projects/social-media-campaign-for-life-makers.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
+        },
+        {
+          "ar": "إعلانات",
+          "en": "Advertising"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 29,
+        "likes": 5
+      },
+      "link": "https://www.behance.net/gallery/197918697/social-media-campaign-for-life-makers-",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "ثيم وديزاينات لصناع الحياة",
+        "en": "Themes and Designs for Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "ثيم حملة ونظام تصميم موحّد لصناع الحياة — قوالب وتخطيطات لمنشورات متّسقة.",
+        "en": "A campaign theme and reusable design system for Life Makers — templates and layouts for consistent posts."
+      },
+      "image": "assets/projects/themes-and-designs-for-life-makers.jpg",
+      "ratio": "808/632",
+      "tags": [
+        {
+          "ar": "قوالب",
+          "en": "Templates"
+        },
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media Design"
+        },
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 19,
+        "likes": 3
+      },
+      "link": "https://www.behance.net/gallery/197916751/Themes-and-Designs-for-life-makers",
+      "tools": "Adobe Photoshop",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "أوفيس طبيب — وصفات ومطبوعات",
+        "en": "Medicine Prescription for a Doctor"
+      },
+      "category": "print",
+      "categoryLabel": {
+        "ar": "طباعي",
+        "en": "Print"
+      },
+      "description": {
+        "ar": "تصميم مطبوعات لورقة وصفات طبية وأدوات العيادة — رسم توضيحي بأسلوب نظيف واحترافي.",
+        "en": "Print design for a doctor’s prescription pad and clinic collateral — illustration-led, clean and professional."
+      },
+      "image": "assets/projects/medicine-prescription-for-doctor.jpg",
+      "ratio": "848/1200",
+      "tags": [
+        {
+          "ar": "طباعي",
+          "en": "Print"
+        },
+        {
+          "ar": "رسم توضيحي",
+          "en": "Illustration"
+        },
+        {
+          "ar": "طبي",
+          "en": "Medical"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 15,
+        "likes": 2
+      },
+      "link": "https://www.behance.net/gallery/197908283/Medicine-Prescription-For-Doctor",
+      "tools": "Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "كامبين مثلث التخلف — صناع الحياة",
+        "en": "Dropout Triangle Campaign — Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة سوشيال ميديا لجمعية صناع الحياة المنوفية ضمن مبادرات مكافحة التخلف — منشورات وإعلانات متكاملة.",
+        "en": "A social media campaign for Life Makers Menofia tackling dropout rates — a full set of posts and ads."
+      },
+      "image": "assets/projects/old-project.jpg",
+      "ratio": "808/632",
+      "tags": [
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "إعلانات",
+          "en": "Advertising"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 34,
+        "likes": 4
+      },
+      "link": "https://www.behance.net/gallery/188535581/-old-project",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "كامبين دعم للطلبة — صناع الحياة",
+        "en": "Student Support Campaign — Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "كامبين مختلفة الأفكار بشكل مختلف وعن بعد.",
+        "en": "A student-support campaign with a different take on the idea, produced remotely."
+      },
+      "image": "assets/projects/project-188533477.jpg",
+      "ratio": "1200/1200",
       "tags": [
         {
           "ar": "حملة",
@@ -179,208 +531,486 @@
           "en": "Social Media"
         },
         {
-          "ar": "محتوى",
-          "en": "Content"
+          "ar": "دعم",
+          "en": "Support"
         }
       ],
-      "year": "2026",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2024",
+      "stats": {
+        "views": 30,
+        "likes": 1
       },
-      "link": "https://www.behance.net/gallery/258220541/BOPI-Brand-Identity",
-      "featured": false,
-      "status": "hidden"
+      "link": "https://www.behance.net/gallery/188533477/_",
+      "tools": "Adobe Photoshop",
+      "featured": false
     },
     {
       "title": {
-        "en": "Sustainable Student Identity",
-        "ar": "Bopi | Brand identity "
+        "ar": "منشورات حملة «هنوصلك» — صناع الحياة",
+        "en": "“Hanweslik” Campaign Posts — Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "منشورات سوشيال ميديا لحملة صناع الحياة «هنوصلك» — سلسلة تصميمات للحملة الخيرية.",
+        "en": "Social media posts for Life Makers’ “Hanweslik” campaign — a series of designs for the charity drive."
+      },
+      "image": "assets/projects/social-media-posts-for-life-makers-campaign.jpg",
+      "ratio": "808/632",
+      "tags": [
+        {
+          "ar": "منشورات",
+          "en": "Posts"
+        },
+        {
+          "ar": "إعلانات",
+          "en": "Advertising"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2024",
+      "stats": {
+        "views": 15,
+        "likes": 1
+      },
+      "link": "https://www.behance.net/gallery/188530871/SOCIAL-MEDIA-POSTS-FOR-LIFE-MAKERS-CAMPAIGN-",
+      "tools": "Adobe Photoshop",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "شعار جمعية صناع الحياة المنوفية",
+        "en": "Logo for Menofia Life Makers Association"
       },
       "category": "identity",
       "categoryLabel": {
-        "en": "Visual Identity",
-        "ar": "هوية بصرية"
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
       },
       "description": {
-        "en": "A complete visual identity for student organisations — logo, colour system and print collateral.",
-        "ar": "Brand identity for  cheerful family and children's food & drinks coverage"
+        "ar": "تصميم شعار لجمعية صناع الحياة بالمنوفية — علامة خيرية ودودة برمز واضح وقابل للتطوير.",
+        "en": "Logo design for the Menofia Life Makers Association — a friendly charity mark with a clear, scalable symbol."
       },
-      "image": "",
+      "image": "assets/projects/logo-for-menofia-life-makers-association.jpg",
+      "ratio": "808/632",
       "tags": [
+        {
+          "ar": "تصميم شعار",
+          "en": "Logo Design"
+        },
         {
           "ar": "هوية بصرية",
           "en": "Visual Identity"
         },
         {
-          "ar": "شعار",
-          "en": "Logo"
-        },
-        {
-          "ar": "براند",
-          "en": "Branding"
+          "ar": "أعمال خيرية",
+          "en": "Charity"
         }
       ],
-      "year": "2026",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2024",
+      "stats": {
+        "views": 34,
+        "likes": 4
       },
-      "link": "https://www.behance.net/gallery/258220541/BOPI-Brand-Identity",
-      "featured": true,
-      "status": "published"
+      "link": "https://www.behance.net/gallery/188459805/LOGO-FOR-MENOFIA-LIFE-MAKERS-ASSOCIATION",
+      "tools": "Adobe Illustrator",
+      "featured": true
     },
     {
       "title": {
-        "en": "Awareness Motion Series",
-        "ar": "سلسلة موشن توعوي"
+        "ar": "لوجو سوشيال ميديا — صناع الحياة المنوفية",
+        "en": "Social Media Logo — Menofia Life Makers"
       },
-      "category": "motion",
+      "category": "identity",
       "categoryLabel": {
-        "en": "Motion",
-        "ar": "موشن"
+        "ar": "هوية بصرية",
+        "en": "Visual Identity"
       },
       "description": {
-        "en": "A series of short awareness motion clips that passed 36K views across Reels.",
-        "ar": "سلسلة مقاطع موشن توعوية قصيرة تجاوزت 36 ألف مشاهدة عبر مقاطع Reels."
+        "ar": "نسخة شعار مُهيّأة للسوشيال ميديا لصناع الحياة المنوفية — مصمّمة لتبقى حادة في الأحجام الصغيرة.",
+        "en": "A social-media optimised logo for Menofia Life Makers — built to stay sharp at small avatar sizes."
       },
-      "image": "",
+      "image": "assets/projects/social-media-logo-for-menofia-life-makers.jpg",
+      "ratio": "1200/1200",
       "tags": [
         {
-          "ar": "موشن",
-          "en": "Motion"
+          "ar": "تصميم شعار",
+          "en": "Logo Design"
         },
         {
-          "ar": "Reels",
-          "en": "Reels"
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
         },
         {
-          "ar": "توعية",
-          "en": "Awareness"
+          "ar": "هوية بصرية",
+          "en": "Brand Identity"
         }
       ],
-      "year": "2026",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2024",
+      "stats": {
+        "views": 19,
+        "likes": 4
       },
-      "link": "",
-      "featured": false,
-      "status": "hidden"
+      "link": "https://www.behance.net/gallery/188202491/social-media-logo-for-Menofia-life-makers",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
     },
     {
       "title": {
-        "en": "Printed Poster System",
-        "ar": "نظام بوسترات مطبوع"
+        "ar": "شخابيط تايبوجرافي",
+        "en": "Typography Doodles"
       },
       "category": "print",
       "categoryLabel": {
-        "en": "Print",
-        "ar": "طباعي"
+        "ar": "طباعي",
+        "en": "Print"
       },
       "description": {
-        "en": "A complete print system for events — brochures, posters and presentation guides.",
-        "ar": "تصميم نظام مطبوعات متكامل للفعاليات شمل البروشور والبوسترات وأدلة العرض."
+        "ar": "مجموعة شخابيط تايبوجرافي — تجارب خطوط وبوسترات بتركيبات حرفية جريئة.",
+        "en": "Typography doodles — a set of poster experiments with bold lettering compositions."
       },
-      "image": "",
+      "image": "assets/projects/project-186282851.jpg",
+      "ratio": "1200/810",
       "tags": [
         {
-          "ar": "طباعي",
-          "en": "Print"
+          "ar": "تايبوجرافي",
+          "en": "Typography"
         },
         {
           "ar": "بوسترات",
           "en": "Posters"
         },
         {
-          "ar": "فعاليات",
-          "en": "Events"
+          "ar": "تجريبي",
+          "en": "Experimental"
         }
       ],
-      "year": "2025",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2023",
+      "stats": {
+        "views": 19,
+        "likes": 1
       },
-      "link": "",
-      "featured": false,
-      "status": "hidden"
+      "link": "https://www.behance.net/gallery/186282851/_",
+      "tools": "",
+      "featured": false
     },
     {
       "title": {
-        "en": "Monthly Content Management",
-        "ar": "إدارة محتوى شهرية"
+        "ar": "ثيم وإطارات حملة إتجنن ١١",
+        "en": "Etganen 11 Theme and Frame Kit"
       },
       "category": "social",
       "categoryLabel": {
-        "en": "Social Media",
-        "ar": "سوشيال ميديا"
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
       },
       "description": {
-        "en": "A full monthly content plan with performance reporting and continuous optimisation for pages past one million views.",
-        "ar": "خطة محتوى شهرية كاملة مع تقارير أداء وتطوير مستمر لصفحات تجاوزت مليون مشاهدة."
+        "ar": "ثيم وإطارات حملة «إتجنن ١١» لصناع المنوفية — نظام بصري موحّد لمنشورات الحملة.",
+        "en": "Theme and frame kit for the “Etganen 11” campaign — a consistent visual system for campaign posts."
       },
-      "image": "",
+      "image": "assets/projects/project-181339369.jpg",
+      "ratio": "1200/1200",
       "tags": [
         {
-          "ar": "إدارة المحتوى",
-          "en": "Content Management"
+          "ar": "حملة",
+          "en": "Campaign"
         },
         {
-          "ar": "استراتيجية",
-          "en": "Strategy"
+          "ar": "قوالب",
+          "en": "Templates"
         },
         {
-          "ar": "تقارير",
-          "en": "Reporting"
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
         }
       ],
-      "year": "2026",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2023",
+      "stats": {
+        "views": 40,
+        "likes": 5
       },
-      "link": "",
-      "featured": false,
-      "status": "hidden"
+      "link": "https://www.behance.net/gallery/181339369/-11-",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
     },
     {
       "title": {
-        "en": "Major Event Identity",
-        "ar": "هوية فعالية كبرى"
+        "ar": "مهرجان التطوع",
+        "en": "Volunteer Festival"
       },
-      "category": "identity",
+      "category": "social",
       "categoryLabel": {
-        "en": "Visual Identity",
-        "ar": "هوية بصرية"
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
       },
       "description": {
-        "en": "A visual identity for a major event — core identity, promotional imagery and execution tools.",
-        "ar": "هوية بصرية لفعالية كبرى شملت الهوية الرئيسية، الصور الترويجية، وأدوات التنفيذ."
+        "ar": "تصميمات مهرجان التطوع — هوية ومنشورات لفعالية تطوعية خيرية.",
+        "en": "Volunteer Festival designs — identity and posts for a charity volunteering event."
       },
-      "image": "",
+      "image": "assets/projects/old-project-16.jpg",
+      "ratio": "1200/1200",
       "tags": [
-        {
-          "ar": "هوية بصرية",
-          "en": "Visual Identity"
-        },
         {
           "ar": "فعالية",
           "en": "Event"
         },
         {
-          "ar": "براند",
-          "en": "Branding"
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "تطوع",
+          "en": "Volunteering"
         }
       ],
-      "year": "2025",
-      "tools": {
-        "en": "",
-        "ar": ""
+      "year": "2023",
+      "stats": {
+        "views": 11,
+        "likes": 3
       },
-      "link": "",
-      "featured": false,
-      "status": "hidden"
+      "link": "https://www.behance.net/gallery/186282669/old-project-",
+      "tools": "",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "حملة الأضاحي 2023 — صناع الحياة",
+        "en": "Eid al-Adha 2023 Campaign — Life Makers"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة الأضاحي 2023 لصناع الحياة — تصميمات سوشيال ميديا وبانرات لتبرعات العيد.",
+        "en": "Life Makers’ Eid al-Adha 2023 campaign — social media designs and banners for the donation drive."
+      },
+      "image": "assets/projects/project-181342615.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "بانرات",
+          "en": "Banners"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 67,
+        "likes": 5
+      },
+      "link": "https://www.behance.net/gallery/181342615/-2023-",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": true
+    },
+    {
+      "title": {
+        "ar": "صورة بروفايل وكوفر لصفحة سوشيال",
+        "en": "Profile and Cover Art for a Social Page"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "تصميم صورة بروفايل وكوفر لصفحة سوشيال ميديا — أفاتار، كوفر، وعناصر بصرية متناسقة.",
+        "en": "Profile and cover artwork for a social media page — avatar, cover and matching brand elements."
+      },
+      "image": "assets/projects/profile-and-cover-photos-for-social-media-page.jpg",
+      "ratio": "800/800",
+      "tags": [
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media Design"
+        },
+        {
+          "ar": "براندنج",
+          "en": "Branding"
+        },
+        {
+          "ar": "رسم توضيحي",
+          "en": "Illustration"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 14,
+        "likes": 2
+      },
+      "link": "https://www.behance.net/gallery/184127781/profile-and-cover-photos-for-social-media-page",
+      "tools": "Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "بوست وإطار حملة دولاب وكتاب",
+        "en": "Post and Frame — Closet & Book Campaign"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "بوست وإطار لحملة «دولاب وكتاب» لصناع الحياة مصر — تصميمات تجمع بين تبرع الملابس والكتب.",
+        "en": "Post and frame for Life Makers Egypt’s “Closet & Book” campaign — designs uniting clothing and book donations."
+      },
+      "image": "assets/projects/project-181976843.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "منشورات",
+          "en": "Posts"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 36,
+        "likes": 2
+      },
+      "link": "https://www.behance.net/gallery/181976843/_",
+      "tools": "Adobe Photoshop, Adobe Illustrator",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "ديزاينات حملة الود موصول",
+        "en": "Al-Wad Al-Mawsoul Campaign Designs"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "ديزاينات حملة «الود موصول» لصناع الحياة — سلسلة منشورات وإطارات الحملة.",
+        "en": "Designs for the “Al-Wad Al-Mawsoul” campaign — a series of posts and frames."
+      },
+      "image": "assets/projects/project-181341829.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "منشورات",
+          "en": "Posts"
+        },
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 23,
+        "likes": 3
+      },
+      "link": "https://www.behance.net/gallery/181341829/_",
+      "tools": "Adobe Photoshop",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "حملة إتجنن ١٠ — صناع الحياة المنوفية",
+        "en": "Etganen 10 Campaign — Life Makers Menofia"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة «إتجنن ١٠» لصناع الحياة المنوفية — تصميمات سوشيال ميديا للنسخة العاشرة.",
+        "en": "“Etganen 10” campaign for Life Makers Menofia — social media designs for the tenth edition."
+      },
+      "image": "assets/projects/project-181338297.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        },
+        {
+          "ar": "سوشيال ميديا",
+          "en": "Social Media"
+        },
+        {
+          "ar": "أعمال خيرية",
+          "en": "Charity"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 25,
+        "likes": 3
+      },
+      "link": "https://www.behance.net/gallery/181338297/-10-",
+      "tools": "",
+      "featured": false
+    },
+    {
+      "title": {
+        "ar": "حملة سوشيال ميديا — صناع الحياة المنوفية",
+        "en": "Social Media Campaign — Life Makers Menofia"
+      },
+      "category": "social",
+      "categoryLabel": {
+        "ar": "سوشيال ميديا",
+        "en": "Social Media"
+      },
+      "description": {
+        "ar": "حملة سوشيال ميديا بتصاميم إنفوجرافيك لصناع الحياة المنوفية.",
+        "en": "A social media campaign with infographic-style visuals for Life Makers Menofia."
+      },
+      "image": "assets/projects/social-media-campaign-for-life-makers-menofia.jpg",
+      "ratio": "1200/1200",
+      "tags": [
+        {
+          "ar": "إنفوجرافيك",
+          "en": "Infographic"
+        },
+        {
+          "ar": "إعلانات",
+          "en": "Advertising"
+        },
+        {
+          "ar": "حملة",
+          "en": "Campaign"
+        }
+      ],
+      "year": "2023",
+      "stats": {
+        "views": 38,
+        "likes": 4
+      },
+      "link": "https://www.behance.net/gallery/181284441/Social-Media-Campaign-for-Life-Makers-Menofia",
+      "tools": "",
+      "featured": false
     }
   ],
   "services": [],
@@ -414,5 +1044,5 @@
     "customAccent": "#ff9100"
   },
   "photoUrl": "assets/profile.jpg",
-  "updatedAt": "2026-11-09T10:43:40.928Z"
+  "updatedAt": "2026-11-10T00:46:28.169Z"
 }

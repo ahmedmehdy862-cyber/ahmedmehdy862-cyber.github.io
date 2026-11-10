@@ -1089,9 +1089,9 @@ html[lang="en"] .section-title {
 }
 
 .projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 24px;
+    /* معرض متساقط (masonry) — الصور تظهر كاملة بنسبها الأصلية بدون قصّ */
+    column-count: auto;
+    column-width: 320px;
 }
 
 .project-card {
@@ -1102,6 +1102,11 @@ html[lang="en"] .section-title {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     animation: fadeUp 0.5s ease both;
     position: relative;
+    /* عناصر المعرض المتساقط: لا تنكسر داخل العمود + فجوة رأسية موحّدة */
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    margin-bottom: var(--grid-gap, 24px);
+    width: 100%;
 }
 
 .project-card::before {
@@ -1131,7 +1136,8 @@ html[lang="en"] .section-title {
 }
 
 .project-cover {
-    aspect-ratio: 16 / 9;
+    /* النسبة تأتي من البيانات (--ratio) لعرض الصورة كاملة؛ الافتراضي 16:9 */
+    aspect-ratio: var(--ratio, 16 / 9);
     background-size: cover;
     background-position: center;
     border-bottom: 1px solid var(--border);
@@ -1217,16 +1223,11 @@ html[lang="en"] .section-title {
     margin-bottom: 6px;
 }
 
-.project-desc {
-    color: var(--text-dim);
-    font-size: 14px;
-    margin-bottom: 14px;
-}
-
 .project-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    margin-top: 10px;
 }
 
 .project-tag-mini {
@@ -2693,7 +2694,7 @@ html[lang="en"] .section-title {
     .hero-stat { padding: 20px; }
     .hero-stat-num { font-size: 30px; }
     .hero-stat-label { font-size: 13px; }
-    .projects-grid { grid-template-columns: repeat(3, 1fr); }
+    .projects-grid { column-count: 3; column-width: auto; }
     .services-grid { grid-template-columns: repeat(3, 1fr); }
     .contact-grid { grid-template-columns: repeat(3, 1fr); }
     .about-grid { grid-template-columns: 0.8fr 1.2fr; gap: 40px; align-items: stretch; }
@@ -2701,7 +2702,6 @@ html[lang="en"] .section-title {
     .section-title { font-size: 38px; }
     .section-desc { font-size: 16px; }
     .project-title { font-size: 18px; }
-    .project-desc { font-size: 14px; }
     .service-card { padding: 32px; }
     .service-name { font-size: 20px; }
     .service-price { font-size: 28px; }
@@ -2722,7 +2722,7 @@ html[lang="en"] .section-title {
     .hero-cta { justify-content: center; }
     .hero-stats { margin: 0 auto; }
     .about-grid { grid-template-columns: 1fr; }
-    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    .projects-grid { column-count: 2; column-width: auto; }
     .services-grid { grid-template-columns: repeat(2, 1fr); }
     .contact-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -2734,10 +2734,10 @@ html[lang="en"] .section-title {
     .hero-title { font-size: clamp(28px, 7vw, 42px); }
     .hero-badge { font-size: 12px; padding: 5px 14px; }
     .hero-desc { font-size: 15px; }
-    .projects-grid { grid-template-columns: 1fr; }
+    .about-steps { grid-template-columns: 1fr; }
+    .projects-grid { column-count: 1; column-width: auto; }
     .services-grid { grid-template-columns: 1fr; }
     .contact-grid { grid-template-columns: 1fr; }
-    .about-steps { grid-template-columns: 1fr; }
     .about-identity { padding: 28px 24px; }
     .about-identity .about-avatar { margin-bottom: 16px; }
     .lang-switch { margin-inline-end: 4px; }
@@ -2772,7 +2772,6 @@ html[lang="en"] .section-title {
     .project-card { border-radius: 14px; }
     .project-body { padding: 14px; }
     .project-title { font-size: 15px; }
-    .project-desc { font-size: 12px; }
     .service-card { padding: 20px; border-radius: 14px; }
     .service-name { font-size: 17px; }
     .service-price { font-size: 20px; }
@@ -3702,7 +3701,8 @@ html.cur-on textarea {
 .lb-img {
     position: absolute;
     inset: 0;
-    background-size: cover;
+    /* صورة كاملة بدون قصّ (المشاريع مربّعة/طولية) — الخلفية الداكنة تملأ الفراغ */
+    background-size: contain;
     background-position: center;
     animation: lbZoom 0.7s var(--ease-silk, ease) both;
 }
@@ -3749,6 +3749,14 @@ html.cur-on textarea {
     color: var(--text-dim);
     line-height: 1.85;
     font-size: 15px;
+}
+.lb-stats {
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 600;
+}
+.lb-stats::before {
+    content: '· ';
 }
 .lb-tags {
     display: flex;
