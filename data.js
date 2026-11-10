@@ -174,7 +174,7 @@ const SITE_DATA = {
         "en": "A welcoming food & beverage brand identity built around joyful everyday moments — colour system, typography, packaging and customer touchpoints from delivery to dine-in."
       },
       "image": "assets/projects/bopi-brand-identity.jpg",
-      "ratio": "880/632",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "هوية بصرية",
@@ -213,7 +213,7 @@ const SITE_DATA = {
         "en": "A logo for El-Dawley Veterinary Services — a flexible mark designed to work across all media."
       },
       "image": "assets/projects/urgent-logo.jpg",
-      "ratio": "1000/1000",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "تصميم شعار",
@@ -252,7 +252,7 @@ const SITE_DATA = {
         "en": "The 12th edition of Life Makers Menofia’s annual campaign, engaging preparatory and secondary students through prepared activities and training — from concept, plan and campaign theme to execution on the association’s page using the foundation’s identity."
       },
       "image": "assets/projects/project-214396611.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -330,7 +330,7 @@ const SITE_DATA = {
         "en": "Campaign designs for Life Makers’ clothing-collection drives — Happy Exhibitions, the Good Closet and the hoodie drive."
       },
       "image": "assets/projects/project-197934215.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "سوشيال ميديا",
@@ -369,7 +369,7 @@ const SITE_DATA = {
         "en": "Social media campaign design for Life Makers’ “Al-Wad Al-Mawsoul” initiative — posts and visual assets for the charity drive."
       },
       "image": "assets/projects/social-media-campaign-for-life-makers.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "سوشيال ميديا",
@@ -447,7 +447,7 @@ const SITE_DATA = {
         "en": "Print design for a doctor’s prescription pad and clinic collateral — illustration-led, clean and professional."
       },
       "image": "assets/projects/medicine-prescription-for-doctor.jpg",
-      "ratio": "848/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "طباعي",
@@ -525,7 +525,7 @@ const SITE_DATA = {
         "en": "A student-support campaign with a different take on the idea, produced remotely."
       },
       "image": "assets/projects/project-188533477.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -642,7 +642,7 @@ const SITE_DATA = {
         "en": "A social-media optimised logo for Menofia Life Makers — built to stay sharp at small avatar sizes."
       },
       "image": "assets/projects/social-media-logo-for-menofia-life-makers.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "تصميم شعار",
@@ -681,7 +681,7 @@ const SITE_DATA = {
         "en": "Typography doodles — a set of poster experiments with bold lettering compositions."
       },
       "image": "assets/projects/project-186282851.jpg",
-      "ratio": "1200/810",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "تايبوجرافي",
@@ -720,7 +720,7 @@ const SITE_DATA = {
         "en": "Theme and frame kit for the “Etganen 11” campaign — a consistent visual system for campaign posts."
       },
       "image": "assets/projects/project-181339369.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -759,7 +759,7 @@ const SITE_DATA = {
         "en": "Volunteer Festival designs — identity and posts for a charity volunteering event."
       },
       "image": "assets/projects/old-project-16.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "فعالية",
@@ -798,7 +798,7 @@ const SITE_DATA = {
         "en": "Life Makers’ Eid al-Adha 2023 campaign — social media designs and banners for the donation drive."
       },
       "image": "assets/projects/project-181342615.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -837,7 +837,7 @@ const SITE_DATA = {
         "en": "Profile and cover artwork for a social media page — avatar, cover and matching brand elements."
       },
       "image": "assets/projects/profile-and-cover-photos-for-social-media-page.jpg",
-      "ratio": "800/800",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "سوشيال ميديا",
@@ -876,7 +876,7 @@ const SITE_DATA = {
         "en": "Post and frame for Life Makers Egypt’s “Closet & Book” campaign — designs uniting clothing and book donations."
       },
       "image": "assets/projects/project-181976843.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -915,7 +915,7 @@ const SITE_DATA = {
         "en": "Designs for the “Al-Wad Al-Mawsoul” campaign — a series of posts and frames."
       },
       "image": "assets/projects/project-181341829.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "منشورات",
@@ -954,7 +954,7 @@ const SITE_DATA = {
         "en": "“Etganen 10” campaign for Life Makers Menofia — social media designs for the tenth edition."
       },
       "image": "assets/projects/project-181338297.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "حملة",
@@ -993,7 +993,7 @@ const SITE_DATA = {
         "en": "A social media campaign with infographic-style visuals for Life Makers Menofia."
       },
       "image": "assets/projects/social-media-campaign-for-life-makers-menofia.jpg",
-      "ratio": "1200/1200",
+      "ratio": "808/632",
       "tags": [
         {
           "ar": "إنفوجرافيك",
