@@ -59,12 +59,12 @@
     <!-- خطوط غير حرجة (Cairo/Tajawal تستخدمها باقي الثيمات ولوحة التحكم) — لا تحجب الرسم -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;700;800;900&display=swap"></noscript>
-    <link rel="stylesheet" href="styles.css?v=26">
+    <link rel="stylesheet" href="styles.css?v=27">
     <link rel="stylesheet" href="theme-mix.css?v=3">
     <!-- defer: يُفرّغ الرسم من الانتظار، ويتناول السكربتات بنفس ترتيبها بعد اكتمال الـDOM -->
     <script src="config.js?v=24" defer></script>
     <script src="data.js?v=25" defer></script>
-    <script src="script.js?v=25" defer></script>
+    <script src="script.js?v=26" defer></script>
     <!-- Prefetch المحتوى المنشور + صورة الهيرو فوق الطية -->
 <link rel="preload" href="assets/Asset-1-1.png" as="image" fetchpriority="high">
     <link rel="preload" href="assets/Asset-1.png" as="image">
@@ -292,8 +292,6 @@
         </div>
     </section>
 
-    <!-- Dynamic sections (added from the admin panel) -->
-    <div id="dynamicSections"></div>
     </main>
 
     <!-- Footer -->
@@ -638,15 +636,12 @@
                         <label class="admin-check-label"><input type="checkbox" data-feature="cursor"> الكيرسور المخصص</label>
                         <label class="admin-check-label"><input type="checkbox" data-feature="scrollProgress"> شريط تقدم التمرير</label>
                         <label class="admin-check-label"><input type="checkbox" data-feature="backToTop"> زر العودة لأعلى</label>
-                        <label class="admin-check-label"><input type="checkbox" data-feature="comments"> قسم تعليقات الزوار</label>
                     </div>
                     <div class="admin-section-block">
-                        <h3>إظهار/إخفاء الأقسام</h3>
-                        <p class="admin-hint">اقفل أي قسم مش عايز يظهر للزوار — رابطه في القائمة بيختفي تلقائيًا معاه</p>
-                        <label class="admin-check-label"><input type="checkbox" data-feature="about"> قسم المنهج (من أنا)</label>
-                        <label class="admin-check-label"><input type="checkbox" data-feature="projects"> قسم أعمالي (المشاريع)</label>
-                        <label class="admin-check-label"><input type="checkbox" data-feature="services"> قسم الخدمات</label>
-                        <label class="admin-check-label"><input type="checkbox" data-feature="contact"> قسم التواصل</label>
+                        <h3>إظهار/إخفاء وترتيب الأقسام</h3>
+                        <p class="admin-hint">شغّل أو قفل أي قسم، ورتّبه بأسهم ↑ ↓ — الترتيب بيتبعه الصفحة والقائمة الرئيسية مع بعض. القسم المقفول بيختفي من الاتنين.</p>
+                        <div id="sectionOrderList"></div>
+                        <p class="admin-hint">ملحوظة: إخفاء الواجهة (الهيرو) بيختفي معها العنوان الرئيسي للصفحة (H1) — استخدمها بوعي.</p>
                     </div>
                     <div class="admin-section-block">
                         <h3>إعادة الضبط</h3>
@@ -688,6 +683,7 @@
                 <!-- Tab: الأقسام -->
                 <div class="admin-tab-panel" data-panel="sections">
                     <p class="admin-hint">أضف أقسامًا جديدة كاملة للموقع — هتظهر في القائمة الرئيسية وفي نهاية الصفحة. كل قسم تقدر تضيف له أجزاء وتسميها بنفسك.</p>
+                    <p class="admin-hint">لإظهار/إخفاء أي قسم أو تغيير ترتيبه في الصفحة: تبويب «مزايا الموقع» ← «إظهار/إخفاء وترتيب الأقسام».</p>
                     <div id="sectionsList"></div>
                     <button class="admin-add-btn" id="addSection">+ إضافة قسم جديد</button>
                     <button class="admin-save-btn" id="saveSections">حفظ الأقسام</button>

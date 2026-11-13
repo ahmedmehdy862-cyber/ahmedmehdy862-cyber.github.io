@@ -3678,6 +3678,7 @@ html.cur-on textarea {
     margin: 0;
     width: min(1080px, 100%);
     max-height: 100%;
+    position: relative;
     display: grid;
     grid-template-columns: 1.25fr 1fr;
     gap: 0;
@@ -3686,8 +3687,61 @@ html.cur-on textarea {
     border-radius: 22px;
     overflow: hidden;
     box-shadow: 0 40px 90px var(--shadow);
+}
+/* دخول اللوحة كلاس مستقل — عشان التقليب ما يرجّعش الأنيميشن دي بعد كل ضغطة */
+.lb-figure.lb-enter {
     animation: lbIn 0.42s var(--ease-silk, cubic-bezier(0.16, 1, 0.3, 1)) both;
 }
+
+/* ============================================
+   تقليب المشاريع (التالي / السابق) — لوح ثلاثي الأبعاد
+   المحتوى بينبدّل وهو مخفي تمامًا في وسط التقليب
+   ============================================ */
+.lb-figure.lb-flip-next {
+    animation: lbFlipNext 0.62s cubic-bezier(0.7, 0, 0.2, 1) both;
+    will-change: transform, opacity;
+}
+.lb-figure.lb-flip-prev {
+    animation: lbFlipPrev 0.62s cubic-bezier(0.7, 0, 0.2, 1) both;
+    will-change: transform, opacity;
+}
+@keyframes lbFlipNext {
+    0%   { transform: perspective(1600px) rotateY(0deg) translateZ(0); opacity: 1; filter: brightness(1); }
+    40%  { transform: perspective(1600px) rotateY(-94deg) translateZ(-70px); opacity: 0; filter: brightness(1.4); }
+    60%  { transform: perspective(1600px) rotateY(94deg)  translateZ(-70px); opacity: 0; filter: brightness(1.4); }
+    100% { transform: perspective(1600px) rotateY(0deg)   translateZ(0); opacity: 1; filter: brightness(1); }
+}
+@keyframes lbFlipPrev {
+    0%   { transform: perspective(1600px) rotateY(0deg) translateZ(0); opacity: 1; filter: brightness(1); }
+    40%  { transform: perspective(1600px) rotateY(94deg)  translateZ(-70px); opacity: 0; filter: brightness(1.4); }
+    60%  { transform: perspective(1600px) rotateY(-94deg) translateZ(-70px); opacity: 0; filter: brightness(1.4); }
+    100% { transform: perspective(1600px) rotateY(0deg)   translateZ(0); opacity: 1; filter: brightness(1); }
+}
+/* لمعة خفيفة بتعبر اللوحة وقت التقليب */
+.lb-figure.lb-flip-next::after,
+.lb-figure.lb-flip-prev::after {
+    content: '';
+    position: absolute;
+    inset: -12%;
+    z-index: 6;
+    pointer-events: none;
+    background: linear-gradient(105deg,
+        transparent 36%,
+        color-mix(in srgb, var(--accent) 30%, transparent) 50%,
+        transparent 64%);
+    transform: translateX(-130%);
+    animation: lbShine 0.62s ease both;
+}
+@keyframes lbShine {
+    from { transform: translateX(-130%); opacity: 0; }
+    35%  { opacity: 1; }
+    to   { transform: translateX(130%); opacity: 0; }
+}
+.anim-none .lb-figure.lb-enter { animation: none; }
+.anim-none .lb-figure.lb-flip-next,
+.anim-none .lb-figure.lb-flip-prev { animation: none; }
+.anim-none .lb-figure.lb-flip-next::after,
+.anim-none .lb-figure.lb-flip-prev::after { animation: none; content: none; }
 @keyframes lbIn {
     from { opacity: 0; transform: translateY(26px) scale(0.97); }
     to { opacity: 1; transform: none; }
@@ -3846,7 +3900,13 @@ html[data-f-lightbox="on"] .project-card:focus-visible {
     .lb-nav { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
-    .lb-figure, .lb-img { animation: none; }
+    .lb-img { animation: none; }
+    .lb-figure,
+    .lb-figure.lb-enter,
+    .lb-figure.lb-flip-next,
+    .lb-figure.lb-flip-prev { animation: none; }
+    .lb-figure.lb-flip-next::after,
+    .lb-figure.lb-flip-prev::after { animation: none; content: none; }
 }
 
 /* ============================================
@@ -3862,6 +3922,8 @@ html[data-f-backtotop="off"] #backToTop { display: none; }
 html[data-f-progress="off"] #scrollProgress { display: none; }
 html[data-f-comments="off"] #comments { display: none; }
 /* إظهار/إخفاء الأقسام من لوحة التحكم — القسم + رابطه في القائمة مع بعض */
+html[data-f-hero="off"] #hero,
+html[data-f-hero="off"] .nav-link[data-section="hero"] { display: none; }
 html[data-f-about="off"] #about,
 html[data-f-about="off"] .nav-link[data-section="about"] { display: none; }
 html[data-f-projects="off"] #projects,
@@ -4130,6 +4192,55 @@ html[data-f-contact="off"] .nav-link[data-section="contact"] { display: none; }
     border-color: color-mix(in srgb, var(--accent) 40%, transparent);
     background: var(--accent-soft);
     transform: translateY(-1px);
+}
+.admin-mini-btn:disabled {
+    opacity: 0.32;
+    cursor: not-allowed;
+    transform: none;
+}
+.admin-mini-btn:disabled:hover {
+    color: var(--text-dim);
+    border-color: var(--border);
+    background: color-mix(in srgb, var(--text) 7%, transparent);
+    transform: none;
+}
+
+/* قائمة إظهار/إخفاء وترتيب الأقسام (تبويب مزايا الموقع) */
+#sectionOrderList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.sec-order-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    background: color-mix(in srgb, var(--text) 4%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+.sec-order-row:hover {
+    border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.sec-order-row .sec-order-name {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-weight: 700;
+    cursor: pointer;
+}
+.sec-order-row .sec-order-name input {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
 }
 .admin-item-footer {
     display: flex;

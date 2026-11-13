@@ -733,6 +733,7 @@ var Publisher = (function () {
             projects: d.projects || [],
             services: d.services || [],
             sections: d.sections || [],
+            sectionOrder: d.sectionOrder || [],
             seo: d.seo || {},
             features: d.features || {},
             contactNote: d.contactNote || '',
@@ -1084,13 +1085,13 @@ var Publisher = (function () {
             var a = JSON.stringify({
                 p: local.profile, s: local.site, pr: local.projects, sv: local.services,
                 sk: local.skills, st: local.stats, se: local.seo, f: local.features,
-                sec: local.sections, cn: local.contactNote || '',
+                sec: local.sections, so: local.sectionOrder || [], cn: local.contactNote || '',
                 th: DataManager.getTheme() || '', ly: DataManager.getLayout()
             });
             var b = JSON.stringify({
                 p: rem.profile, s: rem.site, pr: rem.projects, sv: rem.services,
                 sk: rem.skills, st: rem.stats, se: rem.seo, f: rem.features,
-                sec: rem.sections, cn: rem.contactNote || '',
+                sec: rem.sections, so: rem.sectionOrder || [], cn: rem.contactNote || '',
                 th: rem.theme || '', ly: rem.layout || null
             });
             return a !== b;
@@ -1830,8 +1831,17 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
                     if (to < 0 || to >= d.sections.length) return;
                     var moved = d.sections.splice(idx, 1)[0];
                     d.sections.splice(to, 0, moved);
+                    /* زامن الترتيب العام: خانات الأقسام المخصّصة في sectionOrder
+                       بتاخد الترتيب الجديد، وما دامش بيتأثر بترتيب المدمجة */
+                    var order = SiteControls.sectionOrder(d);
+                    var customIds = d.sections.map(function (s) { return s && s.id; }).filter(Boolean);
+                    var slots = [];
+                    order.forEach(function (id, oi) { if (customIds.indexOf(id) >= 0) slots.push(oi); });
+                    customIds.forEach(function (id, k) { if (slots[k] !== undefined) order[slots[k]] = id; });
+                    d.sectionOrder = order;
                     DataManager.save(d);
                     loadSectionsForm();
+                    SiteControls.applySectionOrder(d);
                     return;
                 }
 
@@ -2366,8 +2376,100 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
         });
 
         /* --- المزايا (تحكم أدق في أجزاء الموقع) --- */
+        var SECTION_LABELS = {
+            hero: 'الواجهة (الهيرو)',
+            about: 'قسم المنهج (من أنا)',
+            projects: 'قسم أعمالي (المشاريع)',
+            services: 'قسم الخدمات',
+            contact: 'قسم التواصل',
+            comments: 'قسم تعليقات الزوار'
+        };
+
+        /* القائمة الموحّدة: إظهار/إخفاء + ترتيب كل الأقسام (مدمجة ومخصّصة) */
+        function buildSectionOrderList(d, f) {
+            var host = document.getElementById('sectionOrderList');
+            if (!host) return;
+            var order = SiteControls.sectionOrder(d);
+            var byId = {};
+            ((d && d.sections) || []).forEach(function (s) { if (s && s.id) byId[s.id] = s; });
+            host.innerHTML = order.map(function (id, i) {
+                var custom = byId[id];
+                var label = custom ? (custom.title || 'قسم مخصّص') : (SECTION_LABELS[id] || id);
+                var on = custom ? !custom.hidden : !!f[id];
+                var visAttr = custom
+                    ? 'class="sec-vis" data-sechidden="' + escAttr(id) + '"'
+                    : 'data-feature="' + escAttr(id) + '"';
+                return '<div class="sec-order-row" data-secid="' + escAttr(id) + '">' +
+                    '<label class="admin-check-label sec-order-name"><input type="checkbox" ' + visAttr + (on ? ' checked' : '') + '> ' + escHtml(label) + '</label>' +
+                    '<span class="admin-row-actions">' +
+                    '<button type="button" class="admin-mini-btn sec-order-btn" data-dir="-1" title="تحريك لأعلى"' + (i === 0 ? ' disabled' : '') + '>↑</button>' +
+                    '<button type="button" class="admin-mini-btn sec-order-btn" data-dir="1" title="تحريك لأسفل"' + (i === order.length - 1 ? ' disabled' : '') + '>↓</button>' +
+                    '</span></div>';
+            }).join('');
+        }
+
+        function orderFromList() {
+            return Array.prototype.map.call(
+                document.querySelectorAll('#sectionOrderList .sec-order-row'),
+                function (row) { return row.getAttribute('data-secid'); }
+            ).filter(Boolean);
+        }
+
+        function refreshOrderButtons() {
+            var rows = document.querySelectorAll('#sectionOrderList .sec-order-row');
+            Array.prototype.forEach.call(rows, function (row, i) {
+                var up = row.querySelector('.sec-order-btn[data-dir="-1"]');
+                var down = row.querySelector('.sec-order-btn[data-dir="1"]');
+                if (up) up.disabled = i === 0;
+                if (down) down.disabled = i === rows.length - 1;
+            });
+        }
+
+        /* تحريك سطر في القائمة + تطبيق فوري على الموقع للمعاينة */
+        function moveSectionRow(row, dir) {
+            if (!row || !dir) return;
+            var sib = dir < 0 ? row.previousElementSibling : row.nextElementSibling;
+            if (!sib) return;
+            if (dir < 0) row.parentNode.insertBefore(row, sib);
+            else row.parentNode.insertBefore(sib, row);
+            refreshOrderButtons();
+            var d = DataManager.load();
+            d.sectionOrder = orderFromList();
+            /* حفظ محلي فوري (زي مفاتيح الإظهار) — النشر بيحصل بزر «حفظ» بس */
+            DataManager.save(d);
+            SiteControls.applySectionOrder(d);
+        }
+
+        var orderListEl = document.getElementById('sectionOrderList');
+        if (orderListEl) {
+            orderListEl.addEventListener('click', function (e) {
+                var btn = e.target.closest && e.target.closest('.sec-order-btn');
+                if (!btn || btn.disabled) return;
+                moveSectionRow(btn.closest('.sec-order-row'), parseInt(btn.getAttribute('data-dir'), 10) || 0);
+            });
+            /* إظهار/إخفاء أي قسم (مدمج أو مخصّص) بمعاينة فورية */
+            orderListEl.addEventListener('change', function (e) {
+                var chk = e.target;
+                if (!chk || !chk.matches || !chk.matches('input[type="checkbox"]')) return;
+                var d = DataManager.load();
+                var customId = chk.getAttribute('data-sechidden');
+                if (customId) {
+                    (d.sections || []).forEach(function (s) { if (s && s.id === customId) s.hidden = !chk.checked; });
+                } else {
+                    var key = chk.getAttribute('data-feature');
+                    if (!key) return;
+                    d.features = d.features || {};
+                    d.features[key] = chk.checked;
+                }
+                DataManager.save(d);
+                renderSite();
+            });
+        }
+
         function loadFeaturesForm() {
-            var f = SiteControls.features(DataManager.load());
+            var d = DataManager.load();
+            var f = SiteControls.features(d);
+            buildSectionOrderList(d, f);
             document.querySelectorAll('[data-feature]').forEach(function (chk) {
                 chk.checked = !!f[chk.getAttribute('data-feature')];
             });
@@ -2379,8 +2481,18 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
             document.querySelectorAll('[data-feature]').forEach(function (chk) {
                 d.features[chk.getAttribute('data-feature')] = chk.checked;
             });
+            /* الترتيب النهائي من القائمة */
+            var order = orderFromList();
+            if (order.length) d.sectionOrder = order;
+            /* إظهار/إخفاء الأقسام المخصّصة */
+            var vis = {};
+            document.querySelectorAll('#sectionOrderList .sec-vis').forEach(function (chk) {
+                vis[chk.getAttribute('data-sechidden')] = !chk.checked;
+            });
+            (d.sections || []).forEach(function (s) { if (s && s.id) s.hidden = !!vis[s.id]; });
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             SiteControls.applyFeatures(d);
+            SiteControls.applySectionOrder(d);
             renderSite();
             showSaved(this);
         });
@@ -2388,9 +2500,12 @@ var nums = entry.target.querySelectorAll('.hero-stat-num');
         document.getElementById('resetFeatures').addEventListener('click', function () {
             var d = DataManager.load();
             d.features = JSON.parse(JSON.stringify(SiteControls.DEFAULTS));
+            /* الأقسام المخصّصة ترجع ظاهرة (الترتيب ما بيتغيّرش) */
+            (d.sections || []).forEach(function (s) { if (s) s.hidden = false; });
             if (typeof Publisher !== "undefined") Publisher.saveAndPublish(d); else DataManager.save(d);
             loadFeaturesForm();
             SiteControls.applyFeatures(d);
+            SiteControls.applySectionOrder(d);
             renderSite();
             showSaved(this);
         });
@@ -3265,6 +3380,9 @@ function renderSite() {
     SiteControls.applyFeatures(d);
     SiteControls.applySeo(d);
     SiteControls.applyStructuredData(d);
+    /* ترتيب الأقسام وترقيمها + ترتيب روابط القائمة — بعد applyFeatures
+       عشان الترقيم يعرف الأقسام المقفولة */
+    SiteControls.applySectionOrder(d);
     syncFilters();
     if (document.documentElement.getAttribute('data-reveal-ready')) ScrollReveal.rescan();
 }
@@ -3282,7 +3400,9 @@ function syncFilters() {
    SiteControls — تحكم أدق في الموقع: SEO + المزايا
    ============================================ */
 var SiteControls = (function () {
-    var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true, about: true, projects: true, services: true, contact: true };
+    var FEATURE_DEFAULTS = { ticker: true, cursor: true, comments: true, backToTop: true, scrollProgress: true, lightbox: true, hero: true, about: true, projects: true, services: true, contact: true };
+    /* الأقسام المدمجة — ترتيبها الافتراضي في الصفحة (الأقسام المخصّصة بتيجي بعدها) */
+    var BUILTIN_SECTIONS = ['hero', 'about', 'projects', 'services', 'contact', 'comments'];
     var root = document.documentElement;
     var CFG = (typeof SITE_CONFIG !== 'undefined' && SITE_CONFIG) ? SITE_CONFIG : {
         siteUrl: 'https://ahmedmahdyportofolio.vercel.app/', siteName: 'A.Mahdy', author: 'أحمد مهدي',
@@ -3330,11 +3450,83 @@ var SiteControls = (function () {
         root.setAttribute('data-f-backtotop', f.backToTop ? 'on' : 'off');
         root.setAttribute('data-f-progress', f.scrollProgress ? 'on' : 'off');
         root.setAttribute('data-f-lightbox', f.lightbox ? 'on' : 'off');
+        root.setAttribute('data-f-hero', f.hero ? 'on' : 'off');
         root.setAttribute('data-f-about', f.about ? 'on' : 'off');
         root.setAttribute('data-f-projects', f.projects ? 'on' : 'off');
         root.setAttribute('data-f-services', f.services ? 'on' : 'off');
         root.setAttribute('data-f-contact', f.contact ? 'on' : 'off');
         return f;
+    }
+
+    /* ============================================
+       ترتيب الأقسام — d.sectionOrder هو مصدر الحقيقة
+       ============================================ */
+    function sectionOrder(d) {
+        var natural = BUILTIN_SECTIONS.slice();
+        ((d && d.sections) || []).forEach(function (s) { if (s && s.id) natural.push(s.id); });
+        var seen = {};
+        var order = ((d && d.sectionOrder) || []).filter(function (id) {
+            if (!id || seen[id] || natural.indexOf(id) < 0) return false;
+            seen[id] = 1;
+            return true;
+        });
+        /* أي قسم اتضاف جديد (أو أول تشغيل بعد التحديث) بيجي في مكانه الطبيعي */
+        natural.forEach(function (id) { if (!seen[id]) { seen[id] = 1; order.push(id); } });
+        return order;
+    }
+
+    /* خريطة الأقسام المقفولة: المدمجة من المزايا، والمخصّصة من sec.hidden */
+    function hiddenSections(d) {
+        var f = features(d), out = {};
+        BUILTIN_SECTIONS.forEach(function (id) { out[id] = !f[id]; });
+        ((d && d.sections) || []).forEach(function (s) { if (s && s.id) out[s.id] = !!s.hidden; });
+        return out;
+    }
+
+    /* يرتّب عناصر الصفحة + روابط القائمة، ويعيد ترقيم الأقسام */
+    function applySectionOrder(d) {
+        var main = document.getElementById('main');
+        if (!main) return;
+        var order = sectionOrder(d);
+        order.forEach(function (id) {
+            var node = document.getElementById(id);
+            /* appendChild هنا ينقّل العقدة الموجودة (مش بينشئ واحدة جديدة) */
+            if (node && node.parentNode === main) main.appendChild(node);
+        });
+        /* الشريط المتحرك جزء من مظهر الهيرو — يظل تحته مباشرة مهما تغيّر الترتيب */
+        var hero = document.getElementById('hero');
+        var ticker = document.getElementById('siteTicker');
+        if (hero && ticker && hero.parentNode === main && ticker.parentNode === main && ticker.previousElementSibling !== hero) {
+            main.insertBefore(ticker, hero.nextSibling);
+        }
+        renumberSections(hiddenSections(d));
+        orderNav(order);
+    }
+
+    /* ترقيم متسلسل 01، 02… حسب الترتيب الجديد — الأقسام المقفولة ما بتحسبش */
+    function renumberSections(hidden) {
+        var main = document.getElementById('main');
+        if (!main) return;
+        var n = 0;
+        Array.prototype.forEach.call(main.children, function (node) {
+            if (!node.id || hidden[node.id]) return;
+            var num = node.querySelector ? node.querySelector('.section-number') : null;
+            if (!num) return;
+            n++;
+            num.textContent = (n < 10 ? '0' : '') + n;
+        });
+    }
+
+    /* روابط القائمة تتبع ترتيب الصفحة نفسه */
+    function orderNav(order) {
+        var links = document.getElementById('navLinks');
+        if (!links) return;
+        var map = {};
+        Array.prototype.forEach.call(links.querySelectorAll('li'), function (li) {
+            var a = li.querySelector('a[data-section]');
+            if (a) map[a.getAttribute('data-section')] = li;
+        });
+        order.forEach(function (id) { if (map[id]) links.appendChild(map[id]); });
     }
 
     function meta(id, value) {
@@ -3507,6 +3699,8 @@ var SiteControls = (function () {
         features: features, applyFeatures: applyFeatures, applySeo: applySeo,
         buildStructuredData: buildStructuredData, applyStructuredData: applyStructuredData,
         socialLabel: socialLabel, setSocialLabel: setSocialLabel, applySocialLabels: applySocialLabels,
+        sectionOrder: sectionOrder, applySectionOrder: applySectionOrder, hiddenSections: hiddenSections,
+        BUILTIN_SECTIONS: BUILTIN_SECTIONS,
         DEFAULTS: FEATURE_DEFAULTS
     };
 })();
@@ -3520,6 +3714,7 @@ var ProjectLightbox = (function () {
 
     function cache() {
         el.overlay = document.getElementById('projectLightbox');
+        el.figure = el.overlay ? el.overlay.querySelector('.lb-figure') : null;
         el.media = document.getElementById('lbMedia');
         el.title = document.getElementById('lbTitle');
         el.desc = document.getElementById('lbDesc');
@@ -3591,6 +3786,42 @@ var ProjectLightbox = (function () {
         el.overlay.querySelector('.lb-counter').textContent = multi ? (idx + 1) + ' / ' + items.length : '';
     }
 
+    /* ============================================
+       تقليب المشاريع (التالي/السابق) — لوح 3D
+       المحتوى بينبدّل وهو مخفي تمامًا في وسط التقليب
+       ============================================ */
+    var flipSwap = null, flipEnd = null;
+    var FLIP_SWAP_MS = 300,  /* لحظة تبديل المحتوى (من 620ms) */
+        FLIP_END_MS = 660;    /* إزالة الكلاس بعد نهاية الحركة */
+
+    /* الحركة مقفولة؟ (وضع الأنيميشن "معطّل" أو تفضيل النظام لتقليل الحركة) */
+    function motionOff() {
+        try {
+            var b = document.body;
+            if (b && b.classList.contains('anim-none')) return true;
+            return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        } catch (e) { return false; }
+    }
+
+    /* يلغي أي تقليب شغّال (مؤقتات + كلاسات) — والـ reflow يضمن أن أي كلاس جديد يبدأ من أوله */
+    function clearFlip() {
+        if (flipSwap) { clearTimeout(flipSwap); flipSwap = null; }
+        if (flipEnd) { clearTimeout(flipEnd); flipEnd = null; }
+        if (!el.figure) return;
+        var f = el.figure.classList;
+        if (f.contains('lb-enter') || f.contains('lb-flip-next') || f.contains('lb-flip-prev')) {
+            f.remove('lb-enter', 'lb-flip-next', 'lb-flip-prev');
+            void el.figure.offsetWidth; /* إعادة حساب الأنماط قبل إضافة كلاس جديد */
+        }
+    }
+
+    /* دخول اللوحة عند الفتح — كلاس مستقل (مش على .lb-figure) عشان ما يرجّعش بعد كل تقليب */
+    function enterFigure() {
+        if (!el.figure) return;
+        clearFlip();
+        if (!motionOff()) el.figure.classList.add('lb-enter');
+    }
+
     function open(i) {
         if (!enabled()) return;
         collect();
@@ -3601,6 +3832,7 @@ var ProjectLightbox = (function () {
         lastFocus = document.activeElement;
         render();
         el.overlay.classList.remove('hidden');
+        enterFigure();
         prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         try { document.getElementById('lbClose').focus(); } catch (e) {}
@@ -3608,6 +3840,7 @@ var ProjectLightbox = (function () {
 
     function close() {
         if (!el.overlay) return;
+        clearFlip();
         el.overlay.classList.add('hidden');
         document.body.style.overflow = prevOverflow;
         if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
@@ -3615,8 +3848,25 @@ var ProjectLightbox = (function () {
 
     function step(dir) {
         if (!items.length) return;
+        /* idx بيتحدّث فورًا — كده الضغطات السريعة بتتراكم وما تضيّعش واحدة */
         idx = (idx + dir + items.length) % items.length;
-        render();
+        /* حركة مقفولة أو اللوحة مش موجودة — تبديل فوري بدون تقليب */
+        if (!el.figure || motionOff()) {
+            render();
+            return;
+        }
+        clearFlip();
+        /* اتجاه التقليب حسب السهم: التالي يمين→شمال والسابق العكس */
+        el.figure.classList.add(dir > 0 ? 'lb-flip-next' : 'lb-flip-prev');
+        /* المحتوى بينبدّل وهو مخفي تمامًا في وسط التقليب (300 من 620ms) */
+        flipSwap = setTimeout(function () {
+            flipSwap = null;
+            render();
+        }, FLIP_SWAP_MS);
+        flipEnd = setTimeout(function () {
+            flipEnd = null;
+            if (el.figure) el.figure.classList.remove('lb-flip-next', 'lb-flip-prev');
+        }, FLIP_END_MS);
     }
 
     function cardIndex(node) {
@@ -3670,15 +3920,18 @@ var ProjectLightbox = (function () {
    Dynamic Sections (من لوحة التحكم — تبويب الأقسام)
    ============================================ */
 function renderDynamicSections() {
-    var wrap = document.getElementById('dynamicSections');
-    if (!wrap) return;
+    var main = document.getElementById('main');
+    if (!main) return;
     var d = DataManager.load();
     var secs = (d && d.sections) || [];
-    wrap.innerHTML = '';
-    var num = 6;
+    /* امسح المخصّصة المرسومة قبل كده — الترتيب النهائي بعدها في applySectionOrder */
+    Array.prototype.forEach.call(main.querySelectorAll('[data-dynamic-sec]'), function (node) {
+        if (node && node.parentNode) node.parentNode.removeChild(node);
+    });
     secs.forEach(function (sec) {
-        if (!sec || !sec.title) return;
-        var n = String(num++).padStart(2, '0');
+        if (!sec || !sec.title || sec.hidden) return;
+        /* رقم مؤقت — الرقم الحقيقي بيتحدد في applySectionOrder حسب الترتيب الجديد */
+        var n = '00';
         var bg = '<div class="hero-bg"><div class="hero-pattern"></div></div>';
         var html = '<section class="section" id="' + escAttr(sec.id || '') + '">' + bg +
             '<div class="container">' +
@@ -3697,7 +3950,10 @@ function renderDynamicSections() {
             }).join('') || '<p class="admin-hint">لا توجد أجزاء بعد — أضف أجزاء من لوحة التحكم.</p>') + '</div>';
         }
         html += '</div></section>';
-        wrap.innerHTML += html;
+        /* عنصر وسيط بدل innerHTML += على main عشان ما ندمّرش مستمعي الأحداث */
+        var tpl = document.createElement('div');
+        tpl.innerHTML = html;
+        if (tpl.firstElementChild) main.appendChild(tpl.firstElementChild);
     });
 }
 
@@ -3710,7 +3966,7 @@ function renderNavLinks() {
         if (li.parentNode) li.parentNode.removeChild(li);
     });
     secs.forEach(function (sec) {
-        if (!sec || !sec.title) return;
+        if (!sec || !sec.title || sec.hidden) return;
         var li = document.createElement('li');
         li.className = 'nav-custom';
         var a = document.createElement('a');
